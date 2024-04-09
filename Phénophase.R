@@ -26,14 +26,42 @@ Nb
 
 
 
-## Espece en floraison (Fl = flowering) ##
+## Especes en floraison (Fl = flowering) ##
 
-## Exemple de Symphonia globulifera
+## Symphonia globulifera
 #Phenologie pour S.globulifera
 globu=subset(pheno[,13:77],pheno$Species=="globulifera"&pheno$Genus=="Symphonia")
 globu
+# Nombre d'individus
+nrow(globu)
 
-# Phenologie pour Vouacapou americana
+# Nombre de jours
+length(globu)
+
+
+## Symphonia sp.1
+# Phenologie pour S.sp1
+sp1=subset(pheno[,13:77],pheno$Species=="sp.1"&pheno$Genus=="Symphonia")
+sp1
+# Nombre d'individus
+nrow(sp1)
+
+# Nombre de jours
+length(sp1)
+
+## Vouacapou americana
+# Phenologie pour 
 am=subset(pheno[,13:77],pheno$Species=="americana")
 am
+# Nombre d'individus
+nrow(am)
+
+# Nombre de jours
+length(am)
+
+
+
+
+
+
 
