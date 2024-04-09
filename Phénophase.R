@@ -24,13 +24,16 @@ Nb
 #?table
 #table(Nbsp)
 
+
+
 ## Espece en floraison (Fl = flowering) ##
 
 ## Exemple de Symphonia globulifera
 #Phenologie pour S.globulifera
-Globu=pheno[489:508,13:77]
-Globu
-Fl_globu=unique(Globu==c("D/L;Fl","L/D;Fl","L;Fl","L/D?;Fl"))
-Fl_globu
-table(Fl_globu)
+globu=subset(pheno[,13:77],pheno$Species=="globulifera"&pheno$Genus=="Symphonia")
+globu
+
+# Phenologie pour Vouacapou americana
+am=subset(pheno[,13:77],pheno$Species=="americana")
+am
 
