@@ -72,8 +72,13 @@ print(pheno)
 # Filtrer les données pour l'espèce S.globulifera et les dates d'observation
 pheno %>% 
   filter(Genus == "Symphonia" & Species == "globulifera") %>%
-  select(Family:Species, X23.10.2020 : X23.01.2024)
-  print() ->
-  globu
+  select(Family:Species, X23.10.2020 : X23.01.2024) %>% 
+  print()-> globu
 
+# Nombre de floraison par observation
+X23.10.2020 = as.factor(globu$X23.10.2020)
+table(X23.10.2020)
+
+dim(globu)
+date<- globu[,4:49]
 
