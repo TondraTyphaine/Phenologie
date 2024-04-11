@@ -38,15 +38,19 @@ length(am)
 ### Tidyverse ###
 
 # Installation du package tidyverse
+
 install.packages("tidyverse")
 library("tidyverse")
 
+
 # Lecture du jeu de données
+
 read.csv("Synthese_Pheno.csv", header = T, sep = ";")%>%
   view("Synthese_Pheno.csv")->
   pheno
 
 dim(pheno)
+
 
 # Calcul du nombre d'especes
 
@@ -57,13 +61,21 @@ paste(pheno$Genus,pheno$Species) %>%
   Nbsp
 
 # Nombre d'individu par espece
-table(sp)
+
+table(sp) %>% 
+  print() ->
+  idsp
 
 # Filtrer les données pour l'espèce S.globulifera et les dates d'observation
+
 pheno %>% 
   filter(Genus == "Symphonia" & Species == "globulifera") %>%
   select(Family:Species, X23.10.2020 : X23.01.2024) %>% 
-  print()-> globu
+  print()-> 
+  globu
+
+
+
 
 # Nombre de floraison par date d'observation
 X23.10.2020 = as.factor(globu$X23.10.2020)
