@@ -43,7 +43,7 @@ install.packages("tidyverse")
 library("tidyverse")
 
 
-# Lecture du jeu de données
+## Lecture du jeu de données
 
 read.csv("Synthese_Pheno.csv", header = T, sep = ";")%>%
   view("Synthese_Pheno.csv")->
@@ -52,27 +52,59 @@ read.csv("Synthese_Pheno.csv", header = T, sep = ";")%>%
 dim(pheno)
 
 
-# Calcul du nombre d'especes
+## Calcul du nombre d'especes
 
-paste(pheno$Genus,pheno$Species) %>%
-  unique() %>%
-  length() %>% 
+sp<-paste(pheno$Genus,pheno$Species)
+
+sp %>% 
+  unique() %>% 
+  length %>% 
   print() ->
   Nbsp
 
-# Nombre d'individu par espece
+
+## Nombre d'individu par espece
 
 table(sp) %>% 
   print() ->
   idsp
 
-# Filtrer les données pour l'espèce S.globulifera et les dates d'observation
+## Filtrer les données pour l'espèce S.globulifera et les dates d'observation
 
-pheno %>% 
-  filter(Genus == "Symphonia" & Species == "globulifera") %>%
-  select(Family:Species, X23.10.2020 : X23.01.2024) %>% 
-  print()-> 
+pheno %>%
+  
+  # Creation d'une nouvelle colonne intitulee "espece".
+  mutate(espece = sp) %>%
+  
+  # Filtration pour n'avoir que les lignes correspondant a S.globulifera
+  filter(espece == "Symphonia globulifera") %>% 
+  
+  # Selection des colonnes d'interets
+  select(Family:Species, X23.10.2020 : X23.01.2024) %>%
+  
+  print() ->
   globu
+
+
+## Nombre de floraison
+
+dim(globu)
+globu[1:20,4:68]
+
+# Conversion en tableau long pour pouvoir realiser un ggplot
+
+globu %>% 
+  pivot_longer(
+    cols = espece,
+    names_to = "variable",
+    values_to = "variable"
+  ) %>% 
+  print() ->
+  globu_fl
+
+
+
+
 
 
 
@@ -83,4 +115,4 @@ table(X23.10.2020)
 
 dim(globu)
 date<- globu[,4:49]
-
+date
