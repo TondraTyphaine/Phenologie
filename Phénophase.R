@@ -64,6 +64,8 @@ sp %>%
   print()->
   Nbsp
 
+# Nombre d'individu par espece
+table(sp)
 
 # Filtrer les données pour l'espèce S.globulifera et les dates d'observation
 pheno %>% 
