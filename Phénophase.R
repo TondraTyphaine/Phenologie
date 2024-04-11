@@ -2,13 +2,6 @@
 # Auteur: Tondra Typhaine
 # Date: 08/04/2024
 
-
-# Tableau de frequence
-#?table
-#table(Nbsp)
-
-
-
 ## Especes en floraison (Fl = flowering) ##
 
 ## Symphonia globulifera
@@ -42,7 +35,7 @@ length(am)
 
 
 
-## Tidyverse ##
+### Tidyverse ###
 
 # Installation du package tidyverse
 install.packages("tidyverse")
@@ -56,12 +49,11 @@ read.csv("Synthese_Pheno.csv", header = T, sep = ";")%>%
 dim(pheno)
 
 # Calcul du nombre d'especes
-sp<-paste(pheno$Genus,pheno$Species)
 
-sp %>%
-  unique() %>% 
-  length() %>%
-  print()->
+paste(pheno$Genus,pheno$Species) %>%
+  unique() %>%
+  length() %>% 
+  print() ->
   Nbsp
 
 # Nombre d'individu par espece
