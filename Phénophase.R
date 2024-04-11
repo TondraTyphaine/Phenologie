@@ -3,23 +3,6 @@
 # Date: 08/04/2024
 
 
-## Importation du jeu de donnees ##
-pheno<-read.csv("Synthese_Pheno.csv", header = T, sep = ";")
-pheno
-dim(pheno)
-summary(pheno)
-
-## Calcul du nombre d'especes ##
-?paste()
-# Assemble la colonne genre avec colonne espece
-Sp<-paste(pheno$Genus,pheno$Species)
-Sp
-# Enumération de chaque espece du jeu de donnees
-Nbsp=unique(Sp)
-Nbsp
-# Comptage du nombre d'especes
-Nb=length(Nbsp)
-Nb
 # Tableau de frequence
 #?table
 #table(Nbsp)
@@ -69,7 +52,18 @@ library("tidyverse")
 read.csv("Synthese_Pheno.csv", header = T, sep = ";")%>%
   view("Synthese_Pheno.csv")->
   pheno
-  
+
+dim(pheno)
+
+# Calcul du nombre d'especes
+sp<-paste(pheno$Genus,pheno$Species)
+
+sp %>%
+  unique() %>% 
+  length() %>%
+  print()->
+  Nbsp
+
 
 # Filtrer les données pour l'espèce S.globulifera et les dates d'observation
 pheno %>% 
