@@ -66,8 +66,10 @@ install.packages("tidyverse")
 library("tidyverse")
 
 # Lecture du jeu de données
-pheno<-read.csv("Synthese_Pheno.csv", header = T, sep = ";")
-print(pheno)
+read.csv("Synthese_Pheno.csv", header = T, sep = ";")%>%
+  view("Synthese_Pheno.csv")->
+  pheno
+  
 
 # Filtrer les données pour l'espèce S.globulifera et les dates d'observation
 pheno %>% 
@@ -75,7 +77,7 @@ pheno %>%
   select(Family:Species, X23.10.2020 : X23.01.2024) %>% 
   print()-> globu
 
-# Nombre de floraison par observation
+# Nombre de floraison par date d'observation
 X23.10.2020 = as.factor(globu$X23.10.2020)
 table(X23.10.2020)
 
