@@ -95,14 +95,30 @@ globu[1:20,4:68]
 
 globu %>% 
   pivot_longer(
-    cols = espece,
-    names_to = "variable",
-    values_to = "variable"
+    cols = starts_with("X"),
+    names_to = "date",
+    values_to = "phenohase"
   ) %>% 
   print() ->
   globu_fl
 
 
+# Histogramme du nombre de floraison par date
+
+date<- globu[,4:49]
+date
+
+# Notes : x = date des observations et y = calculer le nombre de Fl par date
+
+globu_fl %>% 
+  ggplot() +
+  geom_bar(aes(
+    x = date,
+    y = Nbflw)) +
+  stat = "identity" +
+  labs (
+    x = "Date",
+    y = "Nombre de floraison")
 
 
 
