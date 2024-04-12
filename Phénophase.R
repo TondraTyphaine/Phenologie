@@ -102,23 +102,23 @@ globu %>%
   globu_fl
 
 
-# Histogramme des phenophases par date
+## Histogramme des phenophases par date d'observation
 
-date<- globu[,4:49]
-date
+# Dates des observations
+date <- globu_fl$date
 
-globu_fl %>% 
-  ends_with(";Fl") ->
-  Floraisons
-
-# Notes : x = date des observations et y = calculer le nombre de Fl par date
-
-globu_fl$date -> date
-globu_fl$phenohases -> phenophases
+# Les phenophases observees
+phenophases <- globu_fl$phenohases
 
 
 globu_fl %>% 
   ggplot(aes(x = date, fill = phenophases)) +
-           geom_bar() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) #permet d'afficher les labels de l'axe x en diagonal
+  geom_bar() +
+  
+  # Pour affichicher toutes les valeurs de l'axe Y de 0 à 20 par pas de 1 (représente le nombre d'individus observés)
+  scale_y_continuous(breaks = seq(0, 20, by = 1)) + 
+  
+  #permet d'afficher les labels de l'axe x en diagonal
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  labs(title = " Observations des phenophases", y =" Individus")
 
