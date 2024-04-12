@@ -34,7 +34,6 @@ length(am)
 
 
 
-
 ### Tidyverse ###
 
 # Installation du package tidyverse
@@ -97,38 +96,29 @@ globu %>%
   pivot_longer(
     cols = starts_with("X"),
     names_to = "date",
-    values_to = "phenohase"
+    values_to = "phenohases"
   ) %>% 
   print() ->
   globu_fl
 
 
-# Histogramme du nombre de floraison par date
+# Histogramme des phenophases par date
 
 date<- globu[,4:49]
 date
+
+globu_fl %>% 
+  ends_with(";Fl") ->
+  Floraisons
 
 # Notes : x = date des observations et y = calculer le nombre de Fl par date
 
+globu_fl$date -> date
+globu_fl$phenohases -> phenophases
+
+
 globu_fl %>% 
-  ggplot() +
-  geom_bar(aes(
-    x = date,
-    y = Nbflw)) +
-  stat = "identity" +
-  labs (
-    x = "Date",
-    y = "Nombre de floraison")
+  ggplot(aes(x = date, fill = phenophases)) +
+           geom_bar() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) #permet d'afficher les labels de l'axe x en diagonal
 
-
-
-
-
-
-# Nombre de floraison par date d'observation
-X23.10.2020 = as.factor(globu$X23.10.2020)
-table(X23.10.2020)
-
-dim(globu)
-date<- globu[,4:49]
-date
