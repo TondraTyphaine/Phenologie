@@ -1,17 +1,18 @@
-# Titre: Analyse phénophase
+# Titre: Analyse phenophase
 # Auteur: Tondra Typhaine
-# Date: 08/04/2024
+# Date de creation: 08/04/2024
+# Dernieres modifications : 16/04/2024
 
-### Tidyverse ###
+
+
+### Tidyverse (fait moi-meme grace au script du projet plan B) ###
 
 # Installation du package tidyverse
-
 install.packages("tidyverse")
 library("tidyverse")
 
 
 ## Lecture du jeu de données
-
 read.csv("Synthese_Pheno.csv", header = T, sep = ";")%>%
   view("Synthese_Pheno.csv")->
   pheno
@@ -20,7 +21,6 @@ dim(pheno)
 
 
 ## Calcul du nombre d'especes
-
 sp<-paste(pheno$Genus,pheno$Species)
 
 sp %>% 
@@ -31,13 +31,11 @@ sp %>%
 
 
 ## Nombre d'individu par espece
-
 table(sp) %>% 
   print() ->
   idsp
 
 ## Filtrer les données pour l'espèce S.globulifera et les dates d'observation
-
 pheno %>%
   
   # Creation d'une nouvelle colonne intitulee "espece".
@@ -61,7 +59,6 @@ Pheno %>%
 ## Nombre de floraison
 
 # Conversion en tableau long pour pouvoir realiser un ggplot
-
 globu %>% 
   pivot_longer(
     cols = starts_with("X"),
@@ -93,14 +90,34 @@ globu_fl %>%
   labs(title = " Observations des phenophases", y =" Individus")
 
 
+##################################################################################
+##################################################################################
+
+
+
 ### Worflow floraison (issu du script de Mme.Derroire et M.Lagrange) ###
 
-## Pivoter le tableau Pheno en tableau long
+## Packages necessaires
+install.packages("pacman")
+pacman::p_load ("plotly","strucchange","timeSeries","lubridate","bfast", "data.table",
+                "ggfortify", "zoo", "readxl", "cluster", "stringr", "bookdown",
+                "ggpubr", "knitr", "kableExtra", "tibbletime", "pracma", "imputeTS",
+                "TraMineR", "clValid", "FactoMineR", "factoextra", "dunn.test", "ggrepel")
 
+install.packages("knitr")
+library(knitr)
+
+## Source custom functions
+source("Source custom functions/Func_dataPrepExplo.R")
+source("Source custom functions/Func_analyse.R")
+source("Source custom functions/myTheme.R")
+
+
+## Pivoter le tableau Pheno en tableau long
 Pheno %>% 
   
   # Pivotement
-  select(Num_crown,Family:Species, X23.10.2020 : X23.01.2024) %>% 
+  select(Num_crown,Usable, Family:Species, X23.10.2020 : X23.01.2024) %>% 
   pivot_longer(
     cols = starts_with("X"),
     names_to = "date",
@@ -115,7 +132,6 @@ Pheno %>%
 ## Nombre de floraison selon l'espèce choisi 
 
 # Pour S.globulifera
-
 Pheno_fl %>%
   filter(espece == "Symphonia globulifera") %>% 
   distinct(date,phenophases) %>%
@@ -128,7 +144,6 @@ Pheno_fl %>%
   n_event_flo_globu
 
 # Pour V.americana
-
 Pheno_fl %>%
   filter(espece == "Vouacapoua americana") %>% 
   distinct(date,phenophases) %>%
@@ -142,7 +157,17 @@ Pheno_fl %>%
 
 
 ## Dates pour lesquelles il y a au moins 3 evenements de floraison pour l'ensemble des individus d'une meme espece.
-
 condition_flo_globu = n_event_flo_globu > 3
+condition_flo_americana = n_event_flo_americana > 3
+
+
+## Pattern general
+
+# Heatmap pour S.globulifera
+PrepPhase(pheno) -> pheno2 #Preparation des données brutes
+Leaf_Pattern(Data = pheno2 %>% filter(Usable == 1),
+             Obs_Veg = "PPVeg", 
+             Spec = Symphonia_globulifera, 
+             fertility = TRUE)[[2]]
 
 
