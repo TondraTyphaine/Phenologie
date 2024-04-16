@@ -2,38 +2,6 @@
 # Auteur: Tondra Typhaine
 # Date: 08/04/2024
 
-## Especes en floraison (Fl = flowering) ##
-
-## Symphonia globulifera
-#Phenologie pour S.globulifera
-globu=subset(pheno[,13:77],pheno$Species=="globulifera"&pheno$Genus=="Symphonia")
-globu
-# Nombre d'individus
-nrow(globu)
-# Nombre de jours
-length(globu)
-
-
-## Symphonia sp.1
-# Phenologie pour S.sp1
-sp1=subset(pheno[,13:77],pheno$Species=="sp.1"&pheno$Genus=="Symphonia")
-sp1
-# Nombre d'individus
-nrow(sp1)
-# Nombre de jours
-length(sp1)
-
-## Vouacapou americana
-# Phenologie pour 
-am=subset(pheno[,13:77],pheno$Species=="americana")
-am
-# Nombre d'individus
-nrow(am)
-# Nombre de jours
-length(am)
-
-
-
 ### Tidyverse ###
 
 # Installation du package tidyverse
@@ -92,9 +60,6 @@ Pheno %>%
 
 ## Nombre de floraison
 
-dim(globu)
-globu[1:20,4:68]
-
 # Conversion en tableau long pour pouvoir realiser un ggplot
 
 globu %>% 
@@ -128,9 +93,9 @@ globu_fl %>%
   labs(title = " Observations des phenophases", y =" Individus")
 
 
-### Worflow floraison ###
+### Worflow floraison (issu du script de Mme.Derroire et M.Lagrange) ###
 
-# Pivoter le tableau Pheno en tableau long
+## Pivoter le tableau Pheno en tableau long
 
 Pheno %>% 
   
@@ -147,21 +112,37 @@ Pheno %>%
   print()-> 
   Pheno_fl
 
-# Nombre de floraison selon l'espèce choisi (dans le cas present il s'agit de S.globulifera)
+## Nombre de floraison selon l'espèce choisi 
+
+# Pour S.globulifera
 
 Pheno_fl %>%
   filter(espece == "Symphonia globulifera") %>% 
   distinct(date,phenophases) %>%
   group_by(phenophases) %>% 
-  summarise(n = n()) %>% filter(phenophases == "L;Fl") %>% ungroup() %>% pull(n) %>% sum() %>% 
+  summarise(n = n()) %>% 
+  filter(grepl(";Fl|L;Fl|L/D;Fl|L/D?;Fl|L;Fl?|D;Fl|F;Fl", phenophases)) %>% 
+  ungroup() %>% pull(n) %>% 
+  sum() %>% 
   print()->
-  n_event_flo_spec
+  n_event_flo_globu
 
-# Dates pour lesquelles il y a au moins 3 evenements de 
-# floraison pour l'ensemble des individus d'une meme espece.
+# Pour V.americana
 
-condition_flo = n_event_flo_spec > 3
+Pheno_fl %>%
+  filter(espece == "Vouacapoua americana") %>% 
+  distinct(date,phenophases) %>%
+  group_by(phenophases) %>% 
+  summarise(n = n()) %>% 
+  filter(grepl(";Fl|L;Fl|L/D;Fl|L/D?;Fl|L;Fl?|D;Fl|F;Fl|;Fl?", phenophases)) %>% 
+  ungroup() %>% pull(n) %>% 
+  sum() %>% 
+  print()->
+  n_event_flo_americana
 
 
+## Dates pour lesquelles il y a au moins 3 evenements de floraison pour l'ensemble des individus d'une meme espece.
+
+condition_flo_globu = n_event_flo_globu > 3
 
 
