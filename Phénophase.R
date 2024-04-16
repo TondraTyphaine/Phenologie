@@ -73,7 +73,12 @@ table(sp) %>%
 pheno %>%
   
   # Creation d'une nouvelle colonne intitulee "espece".
-  mutate(espece = sp) %>%
+  mutate(espece = paste(Genus, Species)) %>% 
+  
+  print()->
+  Pheno
+  
+Pheno %>% 
   
   # Filtration pour n'avoir que les lignes correspondant a S.globulifera
   filter(espece == "Symphonia globulifera") %>% 
@@ -83,7 +88,7 @@ pheno %>%
   
   print() ->
   globu
-
+       
 
 ## Nombre de floraison
 
@@ -121,4 +126,42 @@ globu_fl %>%
   #permet d'afficher les labels de l'axe x en diagonal
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
   labs(title = " Observations des phenophases", y =" Individus")
+
+
+### Worflow floraison ###
+
+# Pivoter le tableau Pheno en tableau long
+
+Pheno %>% 
+  
+  # Pivotement
+  select(Num_crown,Family:Species, X23.10.2020 : X23.01.2024) %>% 
+  pivot_longer(
+    cols = starts_with("X"),
+    names_to = "date",
+    values_to = "phenophases"
+  ) %>%
+  
+  # Ajout d'une colonne "espece"
+  mutate(espece = paste(Genus,Species)) %>% 
+  print()-> 
+  Pheno_fl
+
+# Nombre de floraison selon l'espèce choisi (dans le cas present il s'agit de S.globulifera)
+
+Pheno_fl %>%
+  filter(espece == "Symphonia globulifera") %>% 
+  distinct(date,phenophases) %>%
+  group_by(phenophases) %>% 
+  summarise(n = n()) %>% filter(phenophases == "L;Fl") %>% ungroup() %>% pull(n) %>% sum() %>% 
+  print()->
+  n_event_flo_spec
+
+# Dates pour lesquelles il y a au moins 3 evenements de 
+# floraison pour l'ensemble des individus d'une meme espece.
+
+condition_flo = n_event_flo_spec > 3
+
+
+
 
