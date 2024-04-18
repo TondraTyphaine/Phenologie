@@ -292,10 +292,17 @@ Leaf_Circular(Data = pheno2,
               perYears = TRUE)[[2]]
 
 
+## Temporalité de la proportion d'individu en floraison
 
+# Pour S.globulifera #
 
-
-
+# 1) Signal de floraison au cours du temps (nombre d'individu en fleur au cours du temps).
+# (plot the number of each individual in the given State (Pattern) across sampling time.)
+data_signal = LeafedOTim(Data=pheno2 %>% 
+                         filter(Usable==1),
+                         Spec= "Symphonia_globulifera",
+                         Pattern=c("Fl"),
+                         Obs_Veg = "PPFlo")[[1]]
 
 
 
