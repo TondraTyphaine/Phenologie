@@ -129,9 +129,6 @@ Leaf_Pattern(
 )[[2]]
 
 
-
-
-
 ## Temps de sejour (difference entre le debut et la fin d'un evenement de floraison)
 
 # Temps de sejour de la floraion pour S.globulifera
@@ -160,6 +157,40 @@ PhenoPhase_Time(
   Obs_Veg = "PPFlo",
   markers = "Residence_time"
 )[[2]]
+
+
+## Temps de retour (temps entre la fin d'un evenement de floraison
+# et le debut du prochain evenement de floraison)
+
+# Temps de retour pour S.globulifera
+PhenoPhase_Time(
+  Data = pheno2,
+  Pattern = "Fl",
+  Spec = "Symphonia_globulifera",
+  Obs_Veg = "PPFlo",
+  markers = "Return_time"
+)[[2]]
+
+# Temps de retour pour S.sp1
+PhenoPhase_Time(
+  Data = pheno2,
+  Pattern = "Fl",
+  Spec = "Symphonia_sp.1",
+  Obs_Veg = "PPFlo",
+  markers = "Return_time"
+)[[2]]
+
+# Temps de retour pour Vouacapoua_americana
+PhenoPhase_Time(
+  Data = pheno2,
+  Pattern = "Fl",
+  Spec = "Vouacapoua_americana",
+  Obs_Veg = "PPFlo",
+  markers = "Return_time"
+)[[2]]
+
+
+
 
 
 
