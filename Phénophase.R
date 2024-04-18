@@ -298,45 +298,74 @@ Leaf_Circular(Data = pheno2,
 
 # 1) Signal de floraison au cours du temps (nombre d'individu en fleur au cours du temps).
 # (plot the number of each individual in the given State (Pattern) across sampling time.)
-data_signal = LeafedOTim(Data=pheno2 %>% 
+data_signal_globu = LeafedOTim(Data=pheno2 %>% 
                          filter(Usable==1),
                          Spec= "Symphonia_globulifera",
                          Pattern=c("Fl"),
                          Obs_Veg = "PPFlo")[[1]]
 
 # 2) Selection de la colonne prop (proportion) issue des donnees de signaux de floraison
-signal = data_signal %>% 
+signal_globu = data_signal %>% 
   select(prop) %>% 
   pull() # pour extraire une seule colonne
 
 # Calcul d'une nouvelle sequence de donnes avec moins de fluctuations temporelle
 # grace a la technique de la moyenne mobile.
-moyenne_mobile = moving_average(data_signal %>% 
+moyenne_mobile_globu = moving_average(data_signal %>% 
                                 select(prop) %>% 
                                 pull(),
                                 filter = fpoids(n=2,p=2,q=2)$y) 
 
-#   On indentifie les différents pics positif et négatif
-dates = data_signal %>% 
+#   On indentifie les différents pics positif et négatif de la floraison
+dates_globu = data_signal %>% 
   select(date) %>% 
   pull() # Extraction des différentes dates
 
 # the maximum of pics
 # sort () permet de 
 # findpeaks () premet de trouver
-dates_max = sort(findpeaks(moyenne_mobile,minpeakheight  = 10,nups =1)[,2])
+dates_max_globu = sort(findpeaks(moyenne_mobile,minpeakheight  = 10,nups =1)[,2])
 
 # When the pics begin
-dates_begin = sort(findpeaks(moyenne_mobile,minpeakheight  = 10,nups = 1)[,3])
+dates_begin_globu = sort(findpeaks(moyenne_mobile,minpeakheight  = 10,nups = 1)[,3])
 
 # When the pics end
-dates_end = sort(findpeaks(moyenne_mobile,minpeakheight  = 10,nups = 1)[,4])
+dates_end_globu = sort(findpeaks(moyenne_mobile,minpeakheight  = 10,nups = 1)[,4])
 
 # Percent of ind by peaks 
-amplitude_peaks = findpeaks(moyenne_mobile,minpeakheight  = 10,nups = 1)[,1]
+amplitude_peaks_globu = findpeaks(moyenne_mobile,minpeakheight  = 10,nups = 1)[,1]
 
+# Compilation des amplitudes relles des pics du signal
+amplitude_real_globu = signal_globu[dates_max_globu]
 
+# Tracé du signal d'origine, de la moyenne mobile et de la dérivée avec ggplot2
+Plot = ggplot(data_signal_globu, 
+              aes(x = date)) +
+  geom_line(aes(y = prop, 
+                color = "original signal")) +
+  geom_line(aes(y = moyenne_mobile_globu, 
+                color = "processed signal"))+
+  geom_point(aes(y = prop, 
+                 color = "original signal")) +
+  scale_color_manual(values = c("original signal" = "blue","processed signal" = "red"))+
+  theme(axis.text.x = element_text(angle = 90),
+        panel.background = element_rect(fill = "white")) +
+  geom_vline(xintercept = dates_globu[dates_max_globu],
+             col = "tomato3" , 
+             linetype = "dashed") + 
+  geom_vline(xintercept = dates_globu[dates_begin_globu],
+             col = "grey30", linetype = "dashed") +
+  geom_vline(xintercept = dates_globu[dates_end_globu],
+             col = "grey30", linetype = "dashed") +
+  scale_x_date(date_breaks = "2 month", 
+               date_labels = "%b-%Y") +
+  labs(title = "original and processed signal by Moving average", 
+       x = "Time", y = "Value") + 
+  annotate("text",x = dates_globu[dates_max_globu], 
+           y= 100,label = paste(round(amplitude_real_globu,1),"%"),
+           col = "grey40")
 
+Plot
 
 
 ### Code hors script PhenObs ###       
