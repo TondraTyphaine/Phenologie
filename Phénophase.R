@@ -12,9 +12,9 @@ pacman::p_load ("tidyverse","plotly","strucchange","timeSeries","lubridate","bfa
                 "TraMineR", "clValid", "FactoMineR", "factoextra", "dunn.test", "ggrepel")
 
 ## Source custom functions
-source("Source custom functions/Func_dataPrepExplo.R")
-source("Source custom functions/Func_analyse.R")
-source("Source custom functions/myTheme.R")
+source("Source_custom_functions/Func_dataPrepExplo.R")
+source("Source_custom_functions/Func_analyse.R")
+source("Source_custom_functions/myTheme.R")
 
 ## Lecture du jeu de données
 read_csv2("Synthese_Pheno.csv") ->
@@ -266,6 +266,35 @@ Leaf_Circular(Data = pheno2,
               Pattern = c("Fl"),
               Obs_Veg = "PPFlo",
               perYears = FALSE)[[2]]
+
+
+# Proportion de floraison par mois et par annees
+
+#Pour S.globulifera
+Leaf_Circular(Data = pheno2, 
+              Spec = "Symphonia_globulifera",
+              Pattern = c("Fl"),
+              Obs_Veg = "PPFlo",
+              perYears = TRUE)[[2]]
+
+#Pour S.sp1
+Leaf_Circular(Data = pheno2, 
+              Spec = "Symphonia_sp.1",
+              Pattern = c("Fl"),
+              Obs_Veg = "PPFlo",
+              perYears = TRUE)[[2]]
+
+# Pour V.americana
+Leaf_Circular(Data = pheno2, 
+              Spec = "Vouacapoua_americana",
+              Pattern = c("Fl"),
+              Obs_Veg = "PPFlo",
+              perYears = TRUE)[[2]]
+
+
+
+
+
 
 
 
