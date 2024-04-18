@@ -316,6 +316,25 @@ moyenne_mobile = moving_average(data_signal %>%
                                 pull(),
                                 filter = fpoids(n=2,p=2,q=2)$y) 
 
+#   On indentifie les différents pics positif et négatif
+dates = data_signal %>% 
+  select(date) %>% 
+  pull() # Extraction des différentes dates
+
+# the maximum of pics
+# sort () permet de 
+# findpeaks () premet de trouver
+dates_max = sort(findpeaks(moyenne_mobile,minpeakheight  = 10,nups =1)[,2])
+
+# When the pics begin
+dates_begin = sort(findpeaks(moyenne_mobile,minpeakheight  = 10,nups = 1)[,3])
+
+# When the pics end
+dates_end = sort(findpeaks(moyenne_mobile,minpeakheight  = 10,nups = 1)[,4])
+
+# Percent of ind by peaks 
+amplitude_peaks = findpeaks(moyenne_mobile,minpeakheight  = 10,nups = 1)[,1]
+
 
 
 
