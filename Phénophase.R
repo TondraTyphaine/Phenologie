@@ -112,6 +112,14 @@ Leaf_Pattern(
   fertility = TRUE
 )[[2]]
 
+# Heatmap pour S.sp1
+Leaf_Pattern(
+  Data = filter(pheno2, Usable == 1) ,
+  Obs_Veg = "PPVeg",
+  Spec = "Symphonia_sp.1", 
+  fertility = TRUE
+)[[2]]
+
 # Heatmap pour V.americana
 Leaf_Pattern(
   Data = filter(pheno2, Usable == 1) ,
@@ -119,6 +127,9 @@ Leaf_Pattern(
   Spec = "Vouacapoua_americana", 
   fertility = TRUE
 )[[2]]
+
+
+
 
 
 ## Temps de sejour (difference entre le debut et la fin d'un evenement de floraison)
@@ -132,6 +143,15 @@ PhenoPhase_Time(
   markers = "Residence_time"
 )[[2]]
 
+# Temps de sejour de la floraison pour S.sp1
+PhenoPhase_Time(
+  Data = pheno2,
+  Pattern = "Fl",
+  Spec = "Symphonia_sp.1",
+  Obs_Veg = "PPFlo",
+  markers = "Residence_time"
+)[[2]]
+
 # Temps de sejour de la floraison pour V.americana
 PhenoPhase_Time(
   Data = pheno2,
@@ -140,6 +160,9 @@ PhenoPhase_Time(
   Obs_Veg = "PPFlo",
   markers = "Residence_time"
 )[[2]]
+
+
+
 
 
 
