@@ -244,6 +244,31 @@ GraphPropF_americana<- LeafedOTim(Data=pheno2,
 GraphPropF_americana[[2]]
 
 
+## Proportion de phenophase par mois
+
+#Pour S.globulifera
+Leaf_Circular(Data = pheno2, 
+              Spec = "Symphonia_globulifera",
+              Pattern = c("Fl"),
+              Obs_Veg = "PPFlo",
+              perYears = FALSE)[[2]]
+
+#Pour S.sp1
+Leaf_Circular(Data = pheno2, 
+              Spec = "Symphonia_sp.1",
+              Pattern = c("Fl"),
+              Obs_Veg = "PPFlo",
+              perYears = FALSE)[[2]]
+
+# Pour V.americana
+Leaf_Circular(Data = pheno2, 
+              Spec = "Vouacapoua_americana",
+              Pattern = c("Fl"),
+              Obs_Veg = "PPFlo",
+              perYears = FALSE)[[2]]
+
+
+
 
 ### Code hors script PhenObs ###       
 
