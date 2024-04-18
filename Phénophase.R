@@ -4,24 +4,30 @@
 # Dernieres modifications : 16/04/2024
 
 
+## Packages necessaires
+install.packages("pacman")
+pacman::p_load ("tidyverse","plotly","strucchange","timeSeries","lubridate","bfast", "data.table",
+                "ggfortify", "zoo", "readxl", "cluster", "stringr", "bookdown",
+                "ggpubr", "knitr", "kableExtra", "tibbletime", "pracma", "imputeTS",
+                "TraMineR", "clValid", "FactoMineR", "factoextra", "dunn.test", "ggrepel")
 
-### Tidyverse (fait moi-meme grace au script du projet plan B) ###
-
-# Installation du package tidyverse
-install.packages("tidyverse")
-library("tidyverse")
-
+## Source custom functions
+source("Source custom functions/Func_dataPrepExplo.R")
+source("Source custom functions/Func_analyse.R")
+source("Source custom functions/myTheme.R")
 
 ## Lecture du jeu de données
-read.csv("Synthese_Pheno.csv", header = T, sep = ";")%>%
-  view("Synthese_Pheno.csv")->
+read_csv2("Synthese_Pheno.csv") ->
   pheno
 
-dim(pheno)
+# On ajuste en supprimant les colonnes qu'on veut garder (dans ton jeux de données adapté tu as deux colonnes factices encore)
+pheno[,-c(1,4)] -> 
+  pheno
 
 
 ## Calcul du nombre d'especes
-sp<-paste(pheno$Genus,pheno$Species)
+paste(pheno$Genus,pheno$Species) ->
+  sp
 
 sp %>% 
   unique() %>% 
@@ -35,26 +41,110 @@ table(sp) %>%
   print() ->
   idsp
 
-## Filtrer les données pour l'espèce S.globulifera et les dates d'observation
+# Creation d'une nouvelle colonne "espece"
 pheno %>%
-  
-  # Creation d'une nouvelle colonne intitulee "espece".
   mutate(espece = paste(Genus, Species)) %>% 
-  
-  print()->
-  Pheno
-  
-Pheno %>% 
-  
-  # Filtration pour n'avoir que les lignes correspondant a S.globulifera
-  filter(espece == "Symphonia globulifera") %>% 
-  
-  # Selection des colonnes d'interets
-  select(Family:Species, X23.10.2020 : X23.01.2024) %>%
-  
   print() ->
-  globu
-       
+  pheno_sp
+
+## Pivoter le tableau Pheno en tableau long
+pheno_sp %>% 
+  
+  # Pivotement
+  select(Num_crown,Usable,espece, Family:Species, `23/10/2020` : `23/01/2024`) %>% 
+  pivot_longer(
+    cols =c(`23/10/2020` : `23/01/2024`),
+    names_to = "date",
+    values_to = "phenophases"
+  ) %>%
+  print()-> 
+  pheno_fl
+
+## Nombre de floraison selon l'espèce choisi 
+
+# Pour S.globulifera
+pheno_fl %>%
+  filter(espece == "Symphonia globulifera") %>% 
+  distinct(date,phenophases) %>%
+  group_by(phenophases) %>% 
+  summarise(n = n()) %>% 
+  filter(grepl(";Fl|L;Fl|L/D;Fl|L/D?;Fl|L;Fl?|D;Fl|F;Fl|L/D/F;Fl", phenophases)) %>% 
+  ungroup() %>% pull(n) %>% 
+  sum() %>% 
+  print()->
+  n_event_flo_globu
+
+# Pour V.americana
+pheno_fl %>%
+  filter(espece == "Vouacapoua americana") %>% 
+  distinct(date,phenophases) %>%
+  group_by(phenophases) %>% 
+  summarise(n = n()) %>% 
+  filter(grepl(";Fl|L;Fl|L/D;Fl|L/D?;Fl|L;Fl?|D;Fl|F;Fl|;Fl?", phenophases)) %>% 
+  ungroup() %>% pull(n) %>% 
+  sum() %>% 
+  print()->
+  n_event_flo_americana
+
+
+## Dates pour lesquelles il y a au moins 3 evenements de floraison pour l'ensemble des individus d'une meme espece.
+condition_flo_globu = n_event_flo_globu > 3
+condition_flo_americana = n_event_flo_americana > 3
+
+
+# Formatage des donnees
+PrepPhase(pheno) -> pheno2 #Preparation des données brutes
+
+# Formatage des colonnes
+pheno2 = pheno2 %>% mutate(CrownID = as.factor(CrownID), # Pour être sure que ce soit considérer comme un facteur
+                           PPVeg = str_replace_all(PPVeg,"(NA|Na|Na;|NA;)", NA_character_), # au cas-où il y a des NA mal écrits
+                           PPVeg = as.factor(PPVeg), # Pour être sure que ce soit considérer comme un facteur
+                           Update = as.Date(Update,format = "%d/%m/%Y")) # Pour être sure de la bonne date au bon format 
+
+
+## Pattern general
+
+# Heatmap pour S.globulifera
+Leaf_Pattern(
+  Data = filter(pheno2, Usable == 1) ,
+  Obs_Veg = "PPVeg",
+  Spec = "Symphonia_globulifera", 
+  fertility = TRUE
+)[[2]]
+
+# Heatmap pour V.americana
+Leaf_Pattern(
+  Data = filter(pheno2, Usable == 1) ,
+  Obs_Veg = "PPVeg",
+  Spec = "Vouacapoua_americana", 
+  fertility = TRUE
+)[[2]]
+
+
+## Temps de sejour (difference entre le debut et la fin d'un evenement de floraison)
+
+# Temps de sejour de la floraion pour S.globulifera
+PhenoPhase_Time(
+  Data = pheno2,
+  Pattern = "Fl",
+  Spec = "Symphonia_globulifera",
+  Obs_Veg = "PPFlo",
+  markers = "Residence_time"
+)[[2]]
+
+# Temps de sejour de la floraison pour V.americana
+PhenoPhase_Time(
+  Data = pheno2,
+  Pattern = "Fl",
+  Spec = "Vouacapoua_americana",
+  Obs_Veg = "PPFlo",
+  markers = "Residence_time"
+)[[2]]
+
+
+
+
+### Code hors script PhenObs ###       
 
 ## Nombre de floraison
 
@@ -90,84 +180,5 @@ globu_fl %>%
   labs(title = " Observations des phenophases", y =" Individus")
 
 
-##################################################################################
-##################################################################################
-
-
-
-### Worflow floraison (issu du script de Mme.Derroire et M.Lagrange) ###
-
-## Packages necessaires
-install.packages("pacman")
-pacman::p_load ("plotly","strucchange","timeSeries","lubridate","bfast", "data.table",
-                "ggfortify", "zoo", "readxl", "cluster", "stringr", "bookdown",
-                "ggpubr", "knitr", "kableExtra", "tibbletime", "pracma", "imputeTS",
-                "TraMineR", "clValid", "FactoMineR", "factoextra", "dunn.test", "ggrepel")
-
-install.packages("knitr")
-library(knitr)
-
-## Source custom functions
-source("Source custom functions/Func_dataPrepExplo.R")
-source("Source custom functions/Func_analyse.R")
-source("Source custom functions/myTheme.R")
-
-
-## Pivoter le tableau Pheno en tableau long
-Pheno %>% 
-  
-  # Pivotement
-  select(Num_crown,Usable, Family:Species, X23.10.2020 : X23.01.2024) %>% 
-  pivot_longer(
-    cols = starts_with("X"),
-    names_to = "date",
-    values_to = "phenophases"
-  ) %>%
-  
-  # Ajout d'une colonne "espece"
-  mutate(espece = paste(Genus,Species)) %>% 
-  print()-> 
-  Pheno_fl
-
-## Nombre de floraison selon l'espèce choisi 
-
-# Pour S.globulifera
-Pheno_fl %>%
-  filter(espece == "Symphonia globulifera") %>% 
-  distinct(date,phenophases) %>%
-  group_by(phenophases) %>% 
-  summarise(n = n()) %>% 
-  filter(grepl(";Fl|L;Fl|L/D;Fl|L/D?;Fl|L;Fl?|D;Fl|F;Fl", phenophases)) %>% 
-  ungroup() %>% pull(n) %>% 
-  sum() %>% 
-  print()->
-  n_event_flo_globu
-
-# Pour V.americana
-Pheno_fl %>%
-  filter(espece == "Vouacapoua americana") %>% 
-  distinct(date,phenophases) %>%
-  group_by(phenophases) %>% 
-  summarise(n = n()) %>% 
-  filter(grepl(";Fl|L;Fl|L/D;Fl|L/D?;Fl|L;Fl?|D;Fl|F;Fl|;Fl?", phenophases)) %>% 
-  ungroup() %>% pull(n) %>% 
-  sum() %>% 
-  print()->
-  n_event_flo_americana
-
-
-## Dates pour lesquelles il y a au moins 3 evenements de floraison pour l'ensemble des individus d'une meme espece.
-condition_flo_globu = n_event_flo_globu > 3
-condition_flo_americana = n_event_flo_americana > 3
-
-
-## Pattern general
-
-# Heatmap pour S.globulifera
-PrepPhase(pheno) -> pheno2 #Preparation des données brutes
-Leaf_Pattern(Data = pheno2 %>% filter(Usable == 1),
-             Obs_Veg = "PPVeg", 
-             Spec = Symphonia_globulifera, 
-             fertility = TRUE)[[2]]
 
 
