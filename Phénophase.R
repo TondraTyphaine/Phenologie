@@ -190,11 +190,34 @@ PhenoPhase_Time(
 )[[2]]
 
 
+## Temps des cycles (temps de sejour + temps de retour)
 
+# Temps de cycle pour S.globulifera
+PhenoPhase_Time(
+  Data = pheno2,
+  Pattern = "Fl",
+  Spec = "Symphonia_globulifera",
+  Obs_Veg = "PPFlo",
+  markers = "Cycle_time"
+)[[2]]
 
+# Temps de cycle pour S.sp1
+PhenoPhase_Time(
+  Data = pheno2,
+  Pattern = "Fl",
+  Spec = "Symphonia_sp.1",
+  Obs_Veg = "PPFlo",
+  markers = "Cycle_time"
+)[[2]]
 
-
-
+# Temps de cycle pour V.americana
+PhenoPhase_Time(
+  Data = pheno2,
+  Pattern = "Fl",
+  Spec = "Vouacapoua_americana",
+  Obs_Veg = "PPFlo",
+  markers = "Cycle_time"
+)[[2]]
 
 
 
