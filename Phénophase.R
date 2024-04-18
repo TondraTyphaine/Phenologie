@@ -8,8 +8,13 @@
 install.packages("pacman")
 pacman::p_load ("tidyverse","plotly","strucchange","timeSeries","lubridate","bfast", "data.table",
                 "ggfortify", "zoo", "readxl", "cluster", "stringr", "bookdown",
-                "ggpubr", "knitr", "kableExtra", "tibbletime", "pracma", "imputeTS",
+                "ggpubr", "kableExtra", "tibbletime", "pracma", "imputeTS",
                 "TraMineR", "clValid", "FactoMineR", "factoextra", "dunn.test", "ggrepel")
+
+install.packages("knitr")
+install.packages("tidyverse")
+library("knitr")
+library(tidyverse)
 
 ## Source custom functions
 source("Source_custom_functions/Func_dataPrepExplo.R")
@@ -366,6 +371,24 @@ Plot = ggplot(data_signal_globu,
            col = "grey40")
 
 Plot
+
+# Ajout des pics de floraison precedenment calcules sur la figure du pattern general de S.globulifera
+Leaf_Pattern(Data = pheno2 %>% filter(Usable ==1), 
+             Obs_Veg ="PPVeg", 
+             Spec = "Symphonia_globulifera", 
+             fertility = TRUE)[[2]] +    
+  geom_vline(xintercept = dates_globu[dates_max_globu], 
+             col = "white" , 
+             linetype = "dashed") + 
+  geom_vline(xintercept = dates_globu[dates_begin_globu], 
+             col = "black" , 
+             linetype = "dashed") +
+  geom_vline(xintercept = dates_globu[dates_end_globu], 
+             col = "black" , 
+             linetype = "dashed")
+
+
+
 
 
 ### Code hors script PhenObs ###       
