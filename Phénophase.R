@@ -304,6 +304,20 @@ data_signal = LeafedOTim(Data=pheno2 %>%
                          Pattern=c("Fl"),
                          Obs_Veg = "PPFlo")[[1]]
 
+# 2) Selection de la colonne prop (proportion) issue des donnees de signaux de floraison
+signal = data_signal %>% 
+  select(prop) %>% 
+  pull() # pour extraire une seule colonne
+
+# Calcul d'une nouvelle sequence de donnes avec moins de fluctuations temporelle
+# grace a la technique de la moyenne mobile.
+moyenne_mobile = moving_average(data_signal %>% 
+                                select(prop) %>% 
+                                pull(),
+                                filter = fpoids(n=2,p=2,q=2)$y) 
+
+
+
 
 
 ### Code hors script PhenObs ###       
