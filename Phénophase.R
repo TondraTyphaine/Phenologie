@@ -13,7 +13,7 @@ pacman::p_load ("tidyverse","plotly","strucchange","timeSeries","lubridate","bfa
 
 install.packages("knitr")
 install.packages("tidyverse")
-library("knitr")
+library(knitr)
 library(tidyverse)
 
 ## Source custom functions
@@ -388,6 +388,17 @@ Leaf_Pattern(Data = pheno2 %>% filter(Usable ==1),
              linetype = "dashed")
 
 
+# Recapitulatif des informations du signal floral pour S.globulifera
+summary_table_globu = tibble(Genus_Spec = data_signal_globu$Genus_Spec %>% unique(),
+                             max = dates_globu[dates_max_globu],
+                             range = abs(difftime(dates_globu[dates_begin_globu],
+                                                  dates_globu[dates_end_globu])),
+                             start = dates_globu[dates_begin_globu],
+                             end = dates_globu[dates_end_globu]
+)
+
+# Representation formatee pour Markdown (une table)
+kable(summary_table_globu)
 
 
 
