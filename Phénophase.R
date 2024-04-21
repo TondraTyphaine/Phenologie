@@ -46,6 +46,17 @@ table(sp) %>%
   print() ->
   idsp
 
+# Les 20 especes les plus abondantes
+pheno2 %>% 
+  filter(!is.na(PPVeg)) %>% 
+  select(Genus_Spec,CrownID) %>% 
+  distinct() %>% 
+  group_by(Genus_Spec) %>% 
+  summarise(n = n()) %>% 
+  arrange(desc(n)) %>% 
+  slice_head(n=20)
+
+
 # Creation d'une nouvelle colonne "espece"
 pheno %>%
   mutate(espece = paste(Genus, Species)) %>% 
