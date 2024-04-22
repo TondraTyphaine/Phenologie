@@ -90,6 +90,18 @@ pheno_fl %>%
   print()->
   n_event_flo_globu
 
+# Pour S.sp1
+pheno_fl %>%
+  filter(espece == "Symphonia sp.1") %>% 
+  distinct(date,phenophases) %>%
+  group_by(phenophases) %>% 
+  summarise(n = n()) %>% 
+  filter(grepl(";Fl|L;Fl|L/D;Fl|L/D?;Fl|L;Fl?|D;Fl|F;Fl|L/D/F;Fl", phenophases)) %>% 
+  ungroup() %>% pull(n) %>% 
+  sum() %>% 
+  print()->
+  n_event_flo_sp1
+
 # Pour V.americana
 pheno_fl %>%
   filter(espece == "Vouacapoua americana") %>% 
@@ -105,6 +117,7 @@ pheno_fl %>%
 
 ## Dates pour lesquelles il y a au moins 3 evenements de floraison pour l'ensemble des individus d'une meme espece.
 condition_flo_globu = n_event_flo_globu > 3
+condition_flo_sp1 = n_event_flo_sp1 > 3
 condition_flo_americana = n_event_flo_americana > 3
 
 
@@ -447,7 +460,4 @@ globu_fl %>%
   #permet d'afficher les labels de l'axe x en diagonal
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
   labs(title = " Observations des phenophases", y =" Individus")
-
-
-
 
