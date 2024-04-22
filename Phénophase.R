@@ -29,6 +29,15 @@ read_csv2("Synthese_Pheno.csv") ->
 pheno[,-c(1,4)] -> 
   pheno
 
+# Formatage des donnees
+PrepPhase(pheno) -> pheno2 #Preparation des données brutes
+
+# Formatage des colonnes
+pheno2 = pheno2 %>% mutate(CrownID = as.factor(CrownID), # Pour être sure que ce soit considérer comme un facteur
+                           PPVeg = str_replace_all(PPVeg,"(NA|Na|Na;|NA;)", NA_character_), # au cas-où il y a des NA mal écrits
+                           PPVeg = as.factor(PPVeg), # Pour être sure que ce soit considérer comme un facteur
+                           Update = as.Date(Update,format = "%d/%m/%Y")) # Pour être sure de la bonne date au bon format 
+
 
 ## Calcul du nombre d'especes
 paste(pheno$Genus,pheno$Species) ->
@@ -119,16 +128,6 @@ pheno_fl %>%
 condition_flo_globu = n_event_flo_globu > 3
 condition_flo_sp1 = n_event_flo_sp1 > 3
 condition_flo_americana = n_event_flo_americana > 3
-
-
-# Formatage des donnees
-PrepPhase(pheno) -> pheno2 #Preparation des données brutes
-
-# Formatage des colonnes
-pheno2 = pheno2 %>% mutate(CrownID = as.factor(CrownID), # Pour être sure que ce soit considérer comme un facteur
-                           PPVeg = str_replace_all(PPVeg,"(NA|Na|Na;|NA;)", NA_character_), # au cas-où il y a des NA mal écrits
-                           PPVeg = as.factor(PPVeg), # Pour être sure que ce soit considérer comme un facteur
-                           Update = as.Date(Update,format = "%d/%m/%Y")) # Pour être sure de la bonne date au bon format 
 
 
 ## Pattern general
@@ -334,35 +333,35 @@ data_signal_globu = LeafedOTim(Data=pheno2 %>%
                          Obs_Veg = "PPFlo")[[1]]
 
 # 2) Selection de la colonne prop (proportion) issue des donnees de signaux de floraison
-signal_globu = data_signal %>% 
+signal_globu = data_signal_globu %>% 
   select(prop) %>% 
   pull() # pour extraire une seule colonne
 
 # Calcul d'une nouvelle sequence de donnes avec moins de fluctuations temporelle
 # grace a la technique de la moyenne mobile.
-moyenne_mobile_globu = moving_average(data_signal %>% 
+moyenne_mobile_globu = moving_average(data_signal_globu %>% 
                                 select(prop) %>% 
                                 pull(),
                                 filter = fpoids(n=2,p=2,q=2)$y) 
 
 #   On indentifie les différents pics positif et négatif de la floraison
-dates_globu = data_signal %>% 
+dates_globu = data_signal_globu %>% 
   select(date) %>% 
   pull() # Extraction des différentes dates
 
 # the maximum of pics
 # sort () permet de 
 # findpeaks () premet de trouver
-dates_max_globu = sort(findpeaks(moyenne_mobile,minpeakheight  = 10,nups =1)[,2])
+dates_max_globu = sort(findpeaks(moyenne_mobile_globu,minpeakheight  = 10,nups =1)[,2])
 
 # When the pics begin
-dates_begin_globu = sort(findpeaks(moyenne_mobile,minpeakheight  = 10,nups = 1)[,3])
+dates_begin_globu = sort(findpeaks(moyenne_mobile_globu,minpeakheight  = 10,nups = 1)[,3])
 
 # When the pics end
-dates_end_globu = sort(findpeaks(moyenne_mobile,minpeakheight  = 10,nups = 1)[,4])
+dates_end_globu = sort(findpeaks(moyenne_mobile_globu,minpeakheight  = 10,nups = 1)[,4])
 
 # Percent of ind by peaks 
-amplitude_peaks_globu = findpeaks(moyenne_mobile,minpeakheight  = 10,nups = 1)[,1]
+amplitude_peaks_globu = findpeaks(moyenne_mobile_globu,minpeakheight  = 10,nups = 1)[,1]
 
 # Compilation des amplitudes relles des pics du signal
 amplitude_real_globu = signal_globu[dates_max_globu]
@@ -425,6 +424,110 @@ summary_table_globu = tibble(Genus_Spec = data_signal_globu$Genus_Spec %>% uniqu
 kable(summary_table_globu)
 
 
+# Pour S.sp1 #
+
+# 1) Signal de floraison au cours du temps (nombre d'individu en fleur au cours du temps).
+# (plot the number of each individual in the given State (Pattern) across sampling time.)
+data_signal_sp1 = LeafedOTim(Data = pheno2 %>% 
+                               filter(Usable==1),
+                               Spec= "Symphonia_sp.1",
+                               Pattern=c("Fl"),
+                               Obs_Veg = "PPFlo")[[1]]
+
+# 2) Selection de la colonne prop (proportion) issue des donnees de signaux de floraison
+signal_sp1 = data_signal_sp1 %>% 
+  select(prop) %>% 
+  pull() # pour extraire une seule colonne
+
+# Calcul d'une nouvelle sequence de donnes avec moins de fluctuations temporelle
+# grace a la technique de la moyenne mobile.
+moyenne_mobile_sp1 = moving_average(data_signal_sp1 %>% 
+                                        select(prop) %>% 
+                                        pull(),
+                                      filter = fpoids(n=2,p=2,q=2)$y) 
+
+#   On indentifie les différents pics positif et négatif de la floraison
+dates_sp1 = data_signal_sp1 %>% 
+  select(date) %>% 
+  pull() # Extraction des différentes dates
+
+# the maximum of pics
+# sort () permet de 
+# findpeaks () premet de trouver
+dates_max_sp1 = sort(findpeaks(moyenne_mobile_sp1,minpeakheight  = 10,nups =1)[,2])
+
+# When the pics begin
+dates_begin_sp1 = sort(findpeaks(moyenne_mobile_sp1,minpeakheight  = 10,nups = 1)[,3])
+
+# When the pics end
+dates_end_sp1 = sort(findpeaks(moyenne_mobile_sp1,minpeakheight  = 10,nups = 1)[,4])
+
+# Percent of ind by peaks 
+amplitude_peaks_sp1 = findpeaks(moyenne_mobile_sp1,minpeakheight  = 10,nups = 1)[,1]
+
+# Compilation des amplitudes relles des pics du signal
+amplitude_real_sp1 = signal_sp1[dates_max_sp1]
+
+# Tracé du signal d'origine, de la moyenne mobile et de la dérivée avec ggplot2
+Plot = ggplot(data_signal_sp1, 
+              aes(x = date)) +
+  geom_line(aes(y = prop, 
+                color = "original signal")) +
+  geom_line(aes(y = moyenne_mobile_sp1, 
+                color = "processed signal"))+
+  geom_point(aes(y = prop, 
+                 color = "original signal")) +
+  scale_color_manual(values = c("original signal" = "blue","processed signal" = "red"))+
+  theme(axis.text.x = element_text(angle = 90),
+        panel.background = element_rect(fill = "white")) +
+  geom_vline(xintercept = dates_sp1[dates_max_sp1],
+             col = "tomato3" , 
+             linetype = "dashed") + 
+  geom_vline(xintercept = dates_sp1[dates_begin_sp1],
+             col = "grey30", linetype = "dashed") +
+  geom_vline(xintercept = dates_sp1[dates_end_sp1],
+             col = "grey30", linetype = "dashed") +
+  scale_x_date(date_breaks = "2 month", 
+               date_labels = "%b-%Y") +
+  labs(title = "original and processed signal by Moving average", 
+       x = "Time", y = "Value") + 
+  annotate("text",x = dates_sp1[dates_max_sp1], 
+           y= 100,label = paste(round(amplitude_real_sp1,1),"%"),
+           col = "grey40")
+
+Plot
+
+# Ajout des pics de floraison precedenment calcules sur la figure du pattern general de S.globulifera
+Leaf_Pattern(Data = pheno2 %>% filter(Usable ==1), 
+             Obs_Veg ="PPVeg", 
+             Spec = "Symphonia_globulifera", 
+             fertility = TRUE)[[2]] +    
+  geom_vline(xintercept = dates_sp1[dates_max_sp1], 
+             col = "white" , 
+             linetype = "dashed") + 
+  geom_vline(xintercept = dates_sp1[dates_begin_sp1], 
+             col = "black" , 
+             linetype = "dashed") +
+  geom_vline(xintercept = dates_sp1[dates_end_sp1], 
+             col = "black" , 
+             linetype = "dashed")
+
+
+# Recapitulatif des informations du signal floral pour S.globulifera
+summary_table_sp1 = tibble(Genus_Spec = data_signal_sp1$Genus_Spec %>% unique(),
+                             max = dates_sp1[dates_max_sp1],
+                             range = abs(difftime(dates_sp1[dates_begin_sp1],
+                                                  dates_sp1[dates_end_sp1])),
+                             start = dates_sp1[dates_begin_sp1],
+                             end = dates_sp1[dates_end_sp1]
+)
+
+# Representation formatee pour Markdown (une table)
+kable(summary_table_sp1)
+
+
+
+
 
 ### Code hors script PhenObs ###       
 
@@ -460,4 +563,11 @@ globu_fl %>%
   #permet d'afficher les labels de l'axe x en diagonal
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
   labs(title = " Observations des phenophases", y =" Individus")
+
+
+
+
+
+
+
 
