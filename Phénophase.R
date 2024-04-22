@@ -500,7 +500,7 @@ Plot
 # Ajout des pics de floraison precedenment calcules sur la figure du pattern general de S.globulifera
 Leaf_Pattern(Data = pheno2 %>% filter(Usable ==1), 
              Obs_Veg ="PPVeg", 
-             Spec = "Symphonia_globulifera", 
+             Spec = "Symphonia_sp.1", 
              fertility = TRUE)[[2]] +    
   geom_vline(xintercept = dates_sp1[dates_max_sp1], 
              col = "white" , 
@@ -524,6 +524,109 @@ summary_table_sp1 = tibble(Genus_Spec = data_signal_sp1$Genus_Spec %>% unique(),
 
 # Representation formatee pour Markdown (une table)
 kable(summary_table_sp1)
+
+
+# Pour V.americana #
+
+# 1) Signal de floraison au cours du temps (nombre d'individu en fleur au cours du temps).
+# (plot the number of each individual in the given State (Pattern) across sampling time.)
+data_signal_am = LeafedOTim(Data = pheno2 %>% 
+                               filter(Usable==1),
+                             Spec= "Vouacapoua_americana",
+                             Pattern=c("Fl"),
+                             Obs_Veg = "PPFlo")[[1]]
+
+# 2) Selection de la colonne prop (proportion) issue des donnees de signaux de floraison
+signal_am = data_signal_am %>% 
+  select(prop) %>% 
+  pull() # pour extraire une seule colonne
+
+# Calcul d'une nouvelle sequence de donnes avec moins de fluctuations temporelle
+# grace a la technique de la moyenne mobile.
+moyenne_mobile_am = moving_average(data_signal_am %>% 
+                                      select(prop) %>% 
+                                      pull(),
+                                    filter = fpoids(n=2,p=2,q=2)$y) 
+
+#   On indentifie les différents pics positif et négatif de la floraison
+dates_am = data_signal_am %>% 
+  select(date) %>% 
+  pull() # Extraction des différentes dates
+
+# the maximum of pics
+# sort () permet de 
+# findpeaks () premet de trouver
+dates_max_am = sort(findpeaks(moyenne_mobile_am,minpeakheight  = 10,nups =1)[,2])
+
+# When the pics begin
+dates_begin_am = sort(findpeaks(moyenne_mobile_am,minpeakheight  = 10,nups = 1)[,3])
+
+# When the pics end
+dates_end_am = sort(findpeaks(moyenne_mobile_am,minpeakheight  = 10,nups = 1)[,4])
+
+# Percent of ind by peaks 
+amplitude_peaks_am = findpeaks(moyenne_mobile_am,minpeakheight  = 10,nups = 1)[,1]
+
+# Compilation des amplitudes relles des pics du signal
+amplitude_real_am = signal_am[dates_max_am]
+
+# Tracé du signal d'origine, de la moyenne mobile et de la dérivée avec ggplot2
+Plot = ggplot(data_signal_am, 
+              aes(x = date)) +
+  geom_line(aes(y = prop, 
+                color = "original signal")) +
+  geom_line(aes(y = moyenne_mobile_am, 
+                color = "processed signal"))+
+  geom_point(aes(y = prop, 
+                 color = "original signal")) +
+  scale_color_manual(values = c("original signal" = "blue","processed signal" = "red"))+
+  theme(axis.text.x = element_text(angle = 90),
+        panel.background = element_rect(fill = "white")) +
+  geom_vline(xintercept = dates_am[dates_max_am],
+             col = "tomato3" , 
+             linetype = "dashed") + 
+  geom_vline(xintercept = dates_am[dates_begin_am],
+             col = "grey30", linetype = "dashed") +
+  geom_vline(xintercept = dates_am[dates_end_am],
+             col = "grey30", linetype = "dashed") +
+  scale_x_date(date_breaks = "2 month", 
+               date_labels = "%b-%Y") +
+  labs(title = "original and processed signal by Moving average", 
+       x = "Time", y = "Value") + 
+  annotate("text",x = dates_am[dates_max_am], 
+           y= 100,label = paste(round(amplitude_real_am,1),"%"),
+           col = "grey40")
+
+Plot
+
+# Ajout des pics de floraison precedenment calcules sur la figure du pattern general de V.americana
+Leaf_Pattern(Data = pheno2 %>% filter(Usable ==1), 
+             Obs_Veg ="PPVeg", 
+             Spec = "Vouacapoua_americana", 
+             fertility = TRUE)[[2]] +    
+  geom_vline(xintercept = dates_am[dates_max_am], 
+             col = "white" , 
+             linetype = "dashed") + 
+  geom_vline(xintercept = dates_am[dates_begin_am], 
+             col = "black" , 
+             linetype = "dashed") +
+  geom_vline(xintercept = dates_am[dates_end_am], 
+             col = "black" , 
+             linetype = "dashed")
+
+
+# Recapitulatif des informations du signal floral pour S.globulifera
+summary_table_am = tibble(Genus_Spec = data_signal_am$Genus_Spec %>% unique(),
+                           max = dates_am[dates_max_am],
+                           range = abs(difftime(dates_am[dates_begin_am],
+                                                dates_am[dates_end_am])),
+                           start = dates_am[dates_begin_am],
+                           end = dates_am[dates_end_am]
+)
+
+# Representation formatee pour Markdown (une table)
+kable(summary_table_am)
+
 
 
 
