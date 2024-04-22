@@ -1,7 +1,7 @@
 # Titre: Analyse phenophase
 # Auteur: Tondra Typhaine
 # Date de creation: 08/04/2024
-# Dernieres modifications : 16/04/2024
+# Dernieres modifications : 22/04/2024
 
 
 ## Packages necessaires
@@ -22,7 +22,7 @@ source("Source_custom_functions/Func_analyse.R")
 source("Source_custom_functions/myTheme.R")
 
 ## Lecture du jeu de données
-read_csv2("Synthese_Pheno.csv") ->
+read_csv2("data/Synthese_Pheno_FINAL.csv") ->
   pheno
 
 # On ajuste en supprimant les colonnes qu'on veut garder (dans ton jeux de données adapté tu as deux colonnes factices encore)
@@ -387,7 +387,7 @@ Plot = ggplot(data_signal_globu,
              col = "grey30", linetype = "dashed") +
   scale_x_date(date_breaks = "2 month", 
                date_labels = "%b-%Y") +
-  labs(title = "original and processed signal by Moving average", 
+  labs(title = "original and processed signal by Moving average for Symphonia globulifera", 
        x = "Time", y = "Value") + 
   annotate("text",x = dates_globu[dates_max_globu], 
            y= 100,label = paste(round(amplitude_real_globu,1),"%"),
@@ -489,7 +489,7 @@ Plot = ggplot(data_signal_sp1,
              col = "grey30", linetype = "dashed") +
   scale_x_date(date_breaks = "2 month", 
                date_labels = "%b-%Y") +
-  labs(title = "original and processed signal by Moving average", 
+  labs(title = "original and processed signal by Moving average for Symphonia sp1", 
        x = "Time", y = "Value") + 
   annotate("text",x = dates_sp1[dates_max_sp1], 
            y= 100,label = paste(round(amplitude_real_sp1,1),"%"),
@@ -591,7 +591,7 @@ Plot = ggplot(data_signal_am,
              col = "grey30", linetype = "dashed") +
   scale_x_date(date_breaks = "2 month", 
                date_labels = "%b-%Y") +
-  labs(title = "original and processed signal by Moving average", 
+  labs(title = "original and processed signal by Moving average for Vouacapoua americana", 
        x = "Time", y = "Value") + 
   annotate("text",x = dates_am[dates_max_am], 
            y= 100,label = paste(round(amplitude_real_am,1),"%"),
