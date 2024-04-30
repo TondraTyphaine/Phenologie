@@ -654,7 +654,6 @@ pheno2 %>%
   pheno2_glb
 
 # Cacluls de la probabilite d'obtenir Fl
-
 N_Fl_glb=length(pheno2_glb$PPFlo)
 
 pheno2_glb %>%
@@ -666,7 +665,6 @@ pheno2_glb %>%
 P_Fl_glb = n_Fl_glb/N_Fl_glb
 
 # Cacluls de la probabilite d'obtenir L
-
 N_L_glb=length(pheno2_glb$PPVeg)
 
 pheno2_glb %>%
@@ -679,7 +677,6 @@ P_L_glb = n_L_glb/N_L_glb
 
 
 # Cacluls de la probabilite d'obtenir F
-
 pheno2_glb %>%
   filter(PPVeg == "F") %>% 
   nrow() %>% 
@@ -689,7 +686,6 @@ pheno2_glb %>%
 P_F_glb = n_F_glb/N_L_glb
 
 # Cacluls de la probabilite d'obtenir D
-
 pheno2_glb %>%
   filter(PPVeg == "D") %>% 
   nrow() %>% 
@@ -697,6 +693,46 @@ pheno2_glb %>%
   n_D_glb
 
 P_D_glb = n_D_glb/N_L_glb
+
+# Probabilites conditionnelles de l'etat Fl
+P_Fl_Fl = P_Fl_glb * (P_Fl_glb*P_Fl_glb) # Probabilité de Fl sachant Fl
+
+P_L_Fl = P_L_glb * (P_L_glb *P_Fl_glb) # Probabilité de Fl sachant L
+
+P_F_Fl = P_F_glb *(P_F_glb*P_Fl_glb) # Probabilité de Fl sachant F
+
+P_D_Fl = P_D_glb * (P_D_glb*P_Fl_glb) # Probabilité de Fl sachant D
+
+
+# Probabilites conditionnelles de l'etat L
+P_L_L = P_L_glb * (P_L_glb*P_L_glb) # Probabilité de L sachant L
+
+P_Fl_L = P_Fl_glb * (P_Fl_glb*P_L_glb) # Probabilité de L sachant Fl
+
+P_F_L = P_F_glb * (P_F_glb*P_L_glb) # Probabilité de L sachant F
+
+P_D_L = P_D_glb* (P_D_glb*P_L_glb) # Probabilité de L sachant D
+
+
+# Probabilites conditionnelles de l'etat F
+P_F_F = P_F_glb * (P_F_glb*P_F_glb)
+
+P_L_F = P_L_glb * (P_L_glb*P_F_glb)
+
+P_Fl_F = P_Fl_L * (P_Fl_L*P_F_glb)
+
+P_D_F = P_D_glb *(P_D_glb*P_F_glb)
+
+# Probabilites conditionnelles de l'etat D
+P_D_D =  P_D_glb *(P_D_glb*P_D_glb)
+
+P_L_D = P_L_glb *(P_L_glb*P_D_glb)
+  
+P_Fl_D = P_Fl_L * (P_Fl_L*P_D_glb)
+  
+P_F_D = P_F_glb * (P_F_glb*P_D_glb)
+
+
 
 
 
