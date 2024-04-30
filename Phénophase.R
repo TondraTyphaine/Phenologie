@@ -11,26 +11,32 @@ pacman::p_load ("tidyverse","plotly","strucchange","timeSeries","lubridate","bfa
                 "ggpubr", "kableExtra", "tibbletime", "pracma", "imputeTS",
                 "TraMineR", "clValid", "FactoMineR", "factoextra", "dunn.test", "ggrepel")
 
+
 install.packages("knitr")
 install.packages("tidyverse")
 library(knitr)
 library(tidyverse)
+
 
 ## Source custom functions
 source("Source_custom_functions/Func_dataPrepExplo.R")
 source("Source_custom_functions/Func_analyse.R")
 source("Source_custom_functions/myTheme.R")
 
+
 ## Lecture du jeu de données
 read_csv2("data/Synthese_Pheno_FINAL.csv") ->
   pheno
+
 
 # On ajuste en supprimant les colonnes qu'on veut garder (dans ton jeux de données adapté tu as deux colonnes factices encore)
 pheno[,-c(1,4)] -> 
   pheno
 
+
 # Formatage des donnees
 PrepPhase(pheno) -> pheno2 #Preparation des données brutes
+
 
 # Formatage des colonnes
 pheno2 = pheno2 %>% mutate(CrownID = as.factor(CrownID), # Pour être sure que ce soit considérer comme un facteur
@@ -42,6 +48,7 @@ pheno2 = pheno2 %>% mutate(CrownID = as.factor(CrownID), # Pour être sure que c
 ## Calcul du nombre d'especes
 paste(pheno$Genus,pheno$Species) ->
   sp
+
 
 sp %>% 
   unique() %>% 
@@ -55,7 +62,8 @@ table(sp) %>%
   print() ->
   idsp
 
-# Les 20 especes les plus abondantes
+
+## Les 20 especes les plus abondantes
 pheno2 %>% 
   filter(!is.na(PPVeg)) %>% 
   select(Genus_Spec,CrownID) %>% 
@@ -66,11 +74,12 @@ pheno2 %>%
   slice_head(n=20)
 
 
-# Creation d'une nouvelle colonne "espece"
+## Creation d'une nouvelle colonne "espece"
 pheno %>%
   mutate(espece = paste(Genus, Species)) %>% 
   print() ->
   pheno_sp
+
 
 ## Pivoter le tableau Pheno en tableau long
 pheno_sp %>% 
@@ -84,6 +93,7 @@ pheno_sp %>%
   ) %>%
   print()-> 
   pheno_fl
+
 
 ## Nombre de floraison selon l'espèce choisi 
 
@@ -628,21 +638,65 @@ summary_table_am = tibble(Genus_Spec = data_signal_am$Genus_Spec %>% unique(),
 kable(summary_table_am)
 
 
-### Chaine de Markov caché ###
 
-# Package necessaire
-install.packages("HMM")
-library(HMM)
 
-# Observations pour S.globulifera
+### Chaine de Markov ###
+
+# Installation du package necessaire
+install.packages("markovchain")
+library(markovchain)
+
+## Pour Symphonia globulifera ##
 
 pheno2 %>% 
-  filter(Genus_Spec=="Symphonia_globulifera") ->
-  pheno_globu
+  filter(Genus_Spec== "Symphonia_globulifera", Usable== 1) %>% 
+  print() ->
+  pheno2_glb
 
-observations_globu = pheno_globu$PPFlo
+# Cacluls de la probabilite d'obtenir Fl
 
-# Initialisation HMM pour S.globulifera
+N_Fl_glb=length(pheno2_glb$PPFlo)
 
-HMM = initHMM(c("Floraison","Végétatif"),observations_globu)
-print(HMM)
+pheno2_glb %>%
+  filter(PPFlo == "Fl") %>% 
+  nrow() %>% 
+  print() ->
+  n_Fl_glb
+
+P_Fl_glb = n_Fl_glb/N_Fl_glb
+
+# Cacluls de la probabilite d'obtenir L
+
+N_L_glb=length(pheno2_glb$PPVeg)
+
+pheno2_glb %>%
+  filter(PPVeg == "L") %>% 
+  nrow() %>% 
+  print() ->
+  n_L_glb
+
+P_L_glb = n_L_glb/N_L_glb
+
+
+# Cacluls de la probabilite d'obtenir F
+
+pheno2_glb %>%
+  filter(PPVeg == "F") %>% 
+  nrow() %>% 
+  print() ->
+  n_F_glb
+
+P_F_glb = n_F_glb/N_L_glb
+
+# Cacluls de la probabilite d'obtenir D
+
+pheno2_glb %>%
+  filter(PPVeg == "D") %>% 
+  nrow() %>% 
+  print() ->
+  n_D_glb
+
+P_D_glb = n_D_glb/N_L_glb
+
+
+
