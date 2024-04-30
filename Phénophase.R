@@ -695,44 +695,53 @@ pheno2_glb %>%
 P_D_glb = n_D_glb/N_L_glb
 
 # Probabilites conditionnelles de l'etat Fl
-P_Fl_Fl = P_Fl_glb * (P_Fl_glb*P_Fl_glb) # Probabilité de Fl sachant Fl
+P_Fl_Fl_glb = P_Fl_glb * (P_Fl_glb*P_Fl_glb) # Probabilité de Fl sachant Fl
 
-P_L_Fl = P_L_glb * (P_L_glb *P_Fl_glb) # Probabilité de Fl sachant L
+P_L_Fl_glb = P_L_glb * (P_L_glb *P_Fl_glb) # Probabilité de Fl sachant L
 
-P_F_Fl = P_F_glb *(P_F_glb*P_Fl_glb) # Probabilité de Fl sachant F
+P_F_Fl_glb  = P_F_glb *(P_F_glb*P_Fl_glb) # Probabilité de Fl sachant F
 
-P_D_Fl = P_D_glb * (P_D_glb*P_Fl_glb) # Probabilité de Fl sachant D
+P_D_Fl_glb  = P_D_glb * (P_D_glb*P_Fl_glb) # Probabilité de Fl sachant D
 
 
 # Probabilites conditionnelles de l'etat L
-P_L_L = P_L_glb * (P_L_glb*P_L_glb) # Probabilité de L sachant L
+P_L_L_glb  = P_L_glb * (P_L_glb*P_L_glb) # Probabilité de L sachant L
 
-P_Fl_L = P_Fl_glb * (P_Fl_glb*P_L_glb) # Probabilité de L sachant Fl
+P_Fl_L_glb  = P_Fl_glb * (P_Fl_glb*P_L_glb) # Probabilité de L sachant Fl
 
-P_F_L = P_F_glb * (P_F_glb*P_L_glb) # Probabilité de L sachant F
+P_F_L_glb  = P_F_glb * (P_F_glb*P_L_glb) # Probabilité de L sachant F
 
-P_D_L = P_D_glb* (P_D_glb*P_L_glb) # Probabilité de L sachant D
+P_D_L_glb  = P_D_glb* (P_D_glb*P_L_glb) # Probabilité de L sachant D
 
 
 # Probabilites conditionnelles de l'etat F
-P_F_F = P_F_glb * (P_F_glb*P_F_glb)
+P_F_F_glb  = P_F_glb * (P_F_glb*P_F_glb)
 
-P_L_F = P_L_glb * (P_L_glb*P_F_glb)
+P_L_F_glb  = P_L_glb * (P_L_glb*P_F_glb)
 
-P_Fl_F = P_Fl_L * (P_Fl_L*P_F_glb)
+P_Fl_F_glb  = P_Fl_L * (P_Fl_L*P_F_glb)
 
-P_D_F = P_D_glb *(P_D_glb*P_F_glb)
+P_D_F_glb  = P_D_glb *(P_D_glb*P_F_glb)
 
 # Probabilites conditionnelles de l'etat D
-P_D_D =  P_D_glb *(P_D_glb*P_D_glb)
+P_D_D_glb  =  P_D_glb *(P_D_glb*P_D_glb)
 
-P_L_D = P_L_glb *(P_L_glb*P_D_glb)
+P_L_D_glb  = P_L_glb *(P_L_glb*P_D_glb)
   
-P_Fl_D = P_Fl_L * (P_Fl_L*P_D_glb)
+P_Fl_D_glb  = P_Fl_L * (P_Fl_L*P_D_glb)
   
-P_F_D = P_F_glb * (P_F_glb*P_D_glb)
+P_F_D_glb  = P_F_glb * (P_F_glb*P_D_glb)
 
+# Etats
+statesNames = c("Fl", "L", "F", "D")
 
-
+# Matrice de transition
+matrice_glb = matrix(c(P_Fl_Fl_glb, P_L_Fl_glb, P_F_Fl_glb, P_D_Fl_glb,
+                       P_Fl_L_glb, P_L_L_glb, P_F_L_glb, P_D_L_glb,
+                       P_Fl_F_glb, P_L_F_glb, P_F_F_glb, P_D_F_glb,
+                       P_Fl_D_glb, P_L_D_glb, P_F_D_glb, P_D_D_glb),
+                     byrow = T,
+                     nrow = 4,
+                     dimnames = list(statesNames,statesNames))
 
 
