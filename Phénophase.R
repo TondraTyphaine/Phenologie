@@ -4,6 +4,8 @@
 # Dernieres modifications : 22/04/2024
 
 
+# ANALYSES QUALITATIVES DE LA PHENOLOGIE FLORALE #
+
 ## Packages necessaires
 install.packages("pacman")
 pacman::p_load ("tidyverse","plotly","strucchange","timeSeries","lubridate","bfast", "data.table",
@@ -640,108 +642,75 @@ kable(summary_table_am)
 
 
 
-### Chaine de Markov ###
+### CHAINE DE MARKOV ###
+
+## Essai 1 → FAIL ##
+
+#Package necessaire
+installed.packages("msm")
+library(msm)
+
+# data
+pheno2 %>% 
+  filter(Genus_Spec== "Symphonia_globulifera", Usable== 1) %>% 
+  select(Genus_Spec,date, Usable, PPraw) %>% 
+  na.omit %>% 
+  print() ->
+  markovdata_glb
+
+# Associer un numero a chaque etat different
+#niveaux <- unique(markovdata_glb$PPraw) # nombre d'etat differents
+#levels <- seq_along(niveaux) #incrementer de 1 le numero attribue pour chaque nouvel etat
+#PPraw2 <- factor(markovdata_glb$PPraw, levels = niveaux, labels = levels ) 
+
+# Nouvel colonne associant un numero a l'etat
+#markovdata_glb %>% 
+  #mutate(PPraw2= PPraw2) ->
+  #markovdata_glb
+
+# Matrice de transition initiale
+matrice_init_glb = rbind(c(0,1,1,1), c(1,0,1,1),c(1,1,0,1),c(1,1,1,0))
+
+# Etats
+statetable.msm(PPraw, data = markovdata_glb)
+
+# Chaine de markov 
+mc_glb = msm(PPraw~date, qmatrix = matrice_init_glb, data = markovdata_glb)
+# La somme des probabilites des lignes de la matrice de transition ne sont pas egales a 1
+
+# Matrice de transition optimisee
+pmatrix.msm(mc_glb)
+
+
+
+## Essai 2 ## 
 
 # Installation du package necessaire
 install.packages("markovchain")
 library(markovchain)
 
-## Pour Symphonia globulifera ##
-
+# data pour Symphonia globulifera
 pheno2 %>% 
+  select(Genus_Spec,date, Usable, PPraw) %>%
   filter(Genus_Spec== "Symphonia_globulifera", Usable== 1) %>% 
+  select(PPraw,date) %>% 
+  na.omit %>% 
   print() ->
-  pheno2_glb
+  markovdata_glb
 
-# Cacluls de la probabilite d'obtenir Fl
-N_Fl_glb=length(pheno2_glb$PPFlo)
+Phen_glb = markovdata_glb$PPraw
+table(Phen_glb)
 
-pheno2_glb %>%
-  filter(PPFlo == "Fl") %>% 
-  nrow() %>% 
-  print() ->
-  n_Fl_glb
+#Etats
+states_glb = unique(Phen_glb)
 
-P_Fl_glb = n_Fl_glb/N_Fl_glb
+?unique
 
-# Cacluls de la probabilite d'obtenir L
-N_L_glb=length(pheno2_glb$PPVeg)
+#Matrice de transition
+matrice_glb= markovchainFit(data= Phen_glb )
 
-pheno2_glb %>%
-  filter(PPVeg == "L") %>% 
-  nrow() %>% 
-  print() ->
-  n_L_glb
-
-P_L_glb = n_L_glb/N_L_glb
-
-
-# Cacluls de la probabilite d'obtenir F
-pheno2_glb %>%
-  filter(PPVeg == "F") %>% 
-  nrow() %>% 
-  print() ->
-  n_F_glb
-
-P_F_glb = n_F_glb/N_L_glb
-
-# Cacluls de la probabilite d'obtenir D
-pheno2_glb %>%
-  filter(PPVeg == "D") %>% 
-  nrow() %>% 
-  print() ->
-  n_D_glb
-
-P_D_glb = n_D_glb/N_L_glb
-
-# Probabilites conditionnelles de l'etat Fl
-P_Fl_Fl_glb = P_Fl_glb * (P_Fl_glb*P_Fl_glb) # Probabilité de Fl sachant Fl
-
-P_L_Fl_glb = P_L_glb * (P_L_glb *P_Fl_glb) # Probabilité de Fl sachant L
-
-P_F_Fl_glb  = P_F_glb *(P_F_glb*P_Fl_glb) # Probabilité de Fl sachant F
-
-P_D_Fl_glb  = P_D_glb * (P_D_glb*P_Fl_glb) # Probabilité de Fl sachant D
-
-
-# Probabilites conditionnelles de l'etat L
-P_L_L_glb  = P_L_glb * (P_L_glb*P_L_glb) # Probabilité de L sachant L
-
-P_Fl_L_glb  = P_Fl_glb * (P_Fl_glb*P_L_glb) # Probabilité de L sachant Fl
-
-P_F_L_glb  = P_F_glb * (P_F_glb*P_L_glb) # Probabilité de L sachant F
-
-P_D_L_glb  = P_D_glb* (P_D_glb*P_L_glb) # Probabilité de L sachant D
-
-
-# Probabilites conditionnelles de l'etat F
-P_F_F_glb  = P_F_glb * (P_F_glb*P_F_glb)
-
-P_L_F_glb  = P_L_glb * (P_L_glb*P_F_glb)
-
-P_Fl_F_glb  = P_Fl_L * (P_Fl_L*P_F_glb)
-
-P_D_F_glb  = P_D_glb *(P_D_glb*P_F_glb)
-
-# Probabilites conditionnelles de l'etat D
-P_D_D_glb  =  P_D_glb *(P_D_glb*P_D_glb)
-
-P_L_D_glb  = P_L_glb *(P_L_glb*P_D_glb)
-  
-P_Fl_D_glb  = P_Fl_L * (P_Fl_L*P_D_glb)
-  
-P_F_D_glb  = P_F_glb * (P_F_glb*P_D_glb)
-
-# Etats
-statesNames = c("Fl", "L", "F", "D")
-
-# Matrice de transition
-matrice_glb = matrix(c(P_Fl_Fl_glb, P_L_Fl_glb, P_F_Fl_glb, P_D_Fl_glb,
-                       P_Fl_L_glb, P_L_L_glb, P_F_L_glb, P_D_L_glb,
-                       P_Fl_F_glb, P_L_F_glb, P_F_F_glb, P_D_F_glb,
-                       P_Fl_D_glb, P_L_D_glb, P_F_D_glb, P_D_D_glb),
-                     byrow = T,
-                     nrow = 4,
-                     dimnames = list(statesNames,statesNames))
-
+# Modele
+mc_glb = new("markovchain", 
+             states = states_glb, 
+             transitionMatrix = matrice_glb)
 
