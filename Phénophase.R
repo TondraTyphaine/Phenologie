@@ -27,7 +27,7 @@ source("Source_custom_functions/myTheme.R")
 
 
 ## Lecture du jeu de données
-read_csv2("data/Synthese_Pheno_FINAL.csv") ->
+read_csv2("data/Synthese_Pheno.csv") ->
   pheno
 
 
@@ -95,7 +95,7 @@ pheno_sp %>%
   ) %>%
   print()-> 
   pheno_fl
-
+?pivot_longer
 
 ## Nombre de floraison selon l'espèce choisi 
 
@@ -106,7 +106,8 @@ pheno_fl %>%
   group_by(phenophases) %>% 
   summarise(n = n()) %>% 
   filter(grepl(";Fl|L;Fl|L/D;Fl|L/D?;Fl|L;Fl?|D;Fl|F;Fl|L/D/F;Fl", phenophases)) %>% 
-  ungroup() %>% pull(n) %>% 
+  ungroup() %>% 
+  pull(n) %>% 
   sum() %>% 
   print()->
   n_event_flo_globu
@@ -642,75 +643,4 @@ kable(summary_table_am)
 
 
 
-### CHAINE DE MARKOV ###
-
-## Essai 1 → FAIL ##
-
-#Package necessaire
-installed.packages("msm")
-library(msm)
-
-# data
-pheno2 %>% 
-  filter(Genus_Spec== "Symphonia_globulifera", Usable== 1) %>% 
-  select(Genus_Spec,date, Usable, PPraw) %>% 
-  na.omit %>% 
-  print() ->
-  markovdata_glb
-
-# Associer un numero a chaque etat different
-#niveaux <- unique(markovdata_glb$PPraw) # nombre d'etat differents
-#levels <- seq_along(niveaux) #incrementer de 1 le numero attribue pour chaque nouvel etat
-#PPraw2 <- factor(markovdata_glb$PPraw, levels = niveaux, labels = levels ) 
-
-# Nouvel colonne associant un numero a l'etat
-#markovdata_glb %>% 
-  #mutate(PPraw2= PPraw2) ->
-  #markovdata_glb
-
-# Matrice de transition initiale
-matrice_init_glb = rbind(c(0,1,1,1), c(1,0,1,1),c(1,1,0,1),c(1,1,1,0))
-
-# Etats
-statetable.msm(PPraw, data = markovdata_glb)
-
-# Chaine de markov 
-mc_glb = msm(PPraw~date, qmatrix = matrice_init_glb, data = markovdata_glb)
-# La somme des probabilites des lignes de la matrice de transition ne sont pas egales a 1
-
-# Matrice de transition optimisee
-pmatrix.msm(mc_glb)
-
-
-
-## Essai 2 ## 
-
-# Installation du package necessaire
-install.packages("markovchain")
-library(markovchain)
-
-# data pour Symphonia globulifera
-pheno2 %>% 
-  select(Genus_Spec,date, Usable, PPraw) %>%
-  filter(Genus_Spec== "Symphonia_globulifera", Usable== 1) %>% 
-  select(PPraw,date) %>% 
-  na.omit %>% 
-  print() ->
-  markovdata_glb
-
-Phen_glb = markovdata_glb$PPraw
-table(Phen_glb)
-
-#Etats
-states_glb = unique(Phen_glb)
-
-?unique
-
-#Matrice de transition
-matrice_glb= markovchainFit(data= Phen_glb )
-
-# Modele
-mc_glb = new("markovchain", 
-             states = states_glb, 
-             transitionMatrix = matrice_glb)
 
