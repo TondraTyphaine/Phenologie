@@ -1,29 +1,48 @@
 
 ### Code hors script PhenObs ###       
 
-## Nombre de floraison
+install.packages("tidyverse")
+library(tidyverse)
 
-# Conversion en tableau long pour pouvoir realiser un ggplot
-globu %>% 
-  pivot_longer(
-    cols = starts_with("X"),
-    names_to = "date",
-    values_to = "phenohases"
-  ) %>% 
+## Data
+## Lecture du jeu de données
+read_csv2("data/Synthese_Pheno.csv") ->
+  pheno
+
+## Creation d'une nouvelle colonne "espece"
+pheno %>%
+  mutate(espece = paste(Genus, Species)) %>% 
+  select(Num_crown,Usable,espece, Family:Species, `23/10/2020` : `23/01/2024`) %>% 
   print() ->
-  globu_fl
+  pheno_sp
+
+# Pivotement en tableau long
+pheno_sp %>% 
+  pivot_longer(
+    cols =c(`23/10/2020` : `23/01/2024`),
+    names_to = "date",
+    values_to = "phenophases"
+  ) %>%
+  print()-> 
+  pheno_fl
+
+# Filtrer pour ne garder que S.globulifera
+pheno_fl %>% 
+  filter(espece == "Symphonia globulifera") %>% 
+  print() ->
+  globu
 
 
 ## Histogramme des phenophases par date d'observation
 
 # Dates des observations
-date <- globu_fl$date
+date <- globu$date
 
 # Les phenophases observees
-phenophases <- globu_fl$phenohases
+phenophases <- globu$phenophases
 
 
-globu_fl %>% 
+globu %>% 
   ggplot(aes(x = date, fill = phenophases)) +
   geom_bar() +
   
