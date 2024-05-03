@@ -114,9 +114,7 @@ bind_rows(data2020) %>%
   bind_rows(data2023) ->
   data_resume
 
-# Creation d'une colonne date
-data_resume %>% 
-  mutate(Date = )
+
 
   
   
