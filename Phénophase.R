@@ -640,7 +640,3 @@ summary_table_am = tibble(Genus_Spec = data_signal_am$Genus_Spec %>% unique(),
 # Representation formatee pour Markdown (une table)
 kable(summary_table_am)
 
-
-
-
-
