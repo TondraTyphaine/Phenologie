@@ -146,24 +146,118 @@ data_resume %>%
 
 df$date <- as.Date(with(df, paste(year, month, day, sep="-")))  
 
+
+
+
   
-### Avec les donnees de M.Bonal
+### Avec les donnees de M.Bonal ###
 
 ## Data 
-data2<- read_csv2("data/GX-METEO-2020 - 2024E - AK.csv")
+dataB<- read_csv2("data/GX-METEO-2020 - 2024E - AK.csv")
 
-#" Reduction des donnees
-data2 %>% 
-  filter(Year == 2020 : 2023) %>% 
+## Reduction deu jeu de donnees
+dataB %>% 
   select(Year,Month, Day,`J/N`, 
-         `Temp(55)`, `Hr(55)`,
-         vpd55,
-         Rain, 
-         ETP,
+        `Temp(55)`, `Hr(55)`,
+        vpd55,
+        Rain, 
+        ETP,
         VWC_10cm,
         T_10cm) ->
-  data2
+  dataB
+
+## Moyenne des variables quantitatives par jour et ajout colonne date
+
+# Pour 2020
+dataB %>% 
+  filter(Year == 2020) %>% 
+  group_by(Year, Month, Day,`J/N`) %>% 
+  summarise(`Temp(55)` = mean(`Temp(55)`),
+            `Hr(55)`= mean(`Hr(55)`),
+            vpd55= mean(vpd55),
+            Rain= mean(Rain),
+            ETP = mean(ETP),
+            VWC_10cm = mean(VWC_10cm),
+            T_10cm = mean(T_10cm))%>% 
+  print() ->
+  dataB2020
+
+# Pour 2021
+dataB %>% 
+  filter(Year == 2021) %>% 
+  group_by(Year, Month, Day,`J/N`) %>% 
+  summarise(`Temp(55)` = mean(`Temp(55)`),
+            `Hr(55)`= mean(`Hr(55)`),
+            vpd55= mean(vpd55),
+            Rain= mean(Rain),
+            ETP = mean(ETP),
+            VWC_10cm = mean(VWC_10cm),
+            T_10cm = mean(T_10cm))%>% 
+  print() ->
+  dataB2021
+
+date2021 <- seq(as.Date(paste(2021, "01-01", sep="-")), as.Date(paste(2021, "12-31", sep="-")), by="day")
+date2021<- data.frame(date= date2021)
+
+data2021 %>% 
+  mutate(Date= date2021) %>% 
+  print()->
+  data2021
+
+# Pour 2022
+dataB %>% 
+  filter(Year == 2022) %>% 
+  group_by(Year, Month, Day,`J/N`) %>% 
+  summarise(`Temp(55)` = mean(`Temp(55)`),
+            `Hr(55)`= mean(`Hr(55)`),
+            vpd55= mean(vpd55),
+            Rain= mean(Rain),
+            ETP = mean(ETP),
+            VWC_10cm = mean(VWC_10cm),
+            T_10cm = mean(T_10cm))%>% 
+  print() ->
+  dataB2022
+
+# Pour 2023
+dataB %>% 
+  filter(Year == 2023) %>% 
+  group_by(Year, Month, Day,`J/N`) %>% 
+  summarise(`Temp(55)` = mean(`Temp(55)`),
+            `Hr(55)`= mean(`Hr(55)`),
+            vpd55= mean(vpd55),
+            Rain= mean(Rain),
+            ETP = mean(ETP),
+            VWC_10cm = mean(VWC_10cm),
+            T_10cm = mean(T_10cm))%>% 
+  print() ->
+  dataB2023
+
+# Pour 2024
+dataB %>% 
+  filter(Year == 2024) %>% 
+  group_by(Year, Month, Day,`J/N`) %>% 
+  summarise(`Temp(55)` = mean(`Temp(55)`),
+            `Hr(55)`= mean(`Hr(55)`),
+            vpd55= mean(vpd55),
+            Rain= mean(Rain),
+            ETP = mean(ETP),
+            VWC_10cm = mean(VWC_10cm),
+            T_10cm = mean(T_10cm))%>% 
+  print() ->
+  dataB2024
+
+## Empilement 
+bind_rows(dataB2020) %>% 
+  bind_rows(dataB2021) %>% 
+  bind_rows(dataB2022) %>% 
+  bind_rows(dataB2023) %>% 
+  bind_rows(dataB2024) %>% 
+  print ->
+  dataB_resume
 
 
-  
-  
+
+
+
+
+
