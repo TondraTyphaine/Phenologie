@@ -239,12 +239,6 @@ bind_rows(dataB2020) %>%
 
 # Donnees pour 2020
 
-dataB_resume %>% 
-  select(Year, Month, Day, Rain, date) %>% 
-  group_by(Year, Month, Day, date) %>% 
-  summarise(Rain= mean(Rain))%>%
-  
-  
 ggplot() +
   geom_line(aes(x= dataB2020$date, y= dataB2020$Rain), data = dataB2020, colour = "red")+
   geom_line(aes(x= dataB2021$date, y= dataB2021$Rain), data = dataB2021, colour = "blue")+
