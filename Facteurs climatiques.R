@@ -4,9 +4,11 @@
 # Derniere modification : 03/05/2024
 
 
-## Package necessaire
+## Packages necessaires
 install.packages("tidyverse")
+install.packages("lubridate")
 library(tidyverse)
+library(lubridate)
 
 #### Avec les donnees de M.Badouard 
 
@@ -47,20 +49,10 @@ data %>%
             CNR4_temp= mean(CNR4_temp),
             TempC_55_CR3000= mean(TempC_55_CR3000),
             RH_55_CR3000= mean(RH_55_CR3000))%>% 
+  mutate(date = ymd("2020-01-01") + days(Day - 1)) %>%
   print() ->
   data2020
 
-date2020= seq.Date(as.Date(paste(2020, "01-01", sep="-")), 
-                   as.Date(paste(2020, "12-31", sep="-")), 
-                   by="1 day")
-date2020= data.frame(Jour_de_l_annee = 1:366, Date = date2020)
-
-data2020 %>% 
-  mutate(Date = date2020$Date) %>%
-  print() ->
-  data2020
-
-seq(as.Date("2020-01-01", sep="-"), as.Date("2020-01-31", sep="-"), by="day")
 
 # Pour 2021
 data %>% 
@@ -78,16 +70,9 @@ data %>%
             `ETP (mm h-1) NEW CNR4`= mean(`ETP (mm h-1) NEW CNR4`),
             CNR4_temp= mean(CNR4_temp),
             TempC_55_CR3000= mean(TempC_55_CR3000),
-            RH_55_CR3000= mean(RH_55_CR3000))%>% 
+            RH_55_CR3000= mean(RH_55_CR3000))%>%
+  mutate(date = ymd("2021-01-01") + days(Day - 1)) %>%
   print() ->
-  data2021
-
-date2021 <- seq(as.Date(paste(2021, "01-01", sep="-")), as.Date(paste(2021, "12-31", sep="-")), by="day")
-date2021<- data.frame(date= date2021)
-
-data2021 %>% 
-  mutate(Date= date2021) %>% 
-  print()->
   data2021
 
 # Pour 2022
@@ -107,6 +92,7 @@ data %>%
             CNR4_temp= mean(CNR4_temp),
             TempC_55_CR3000= mean(TempC_55_CR3000),
             RH_55_CR3000= mean(RH_55_CR3000))%>% 
+  mutate(date = ymd("2022-01-01") + days(Day - 1)) %>%
   print() ->
   data2022
 
@@ -127,6 +113,7 @@ data %>%
             CNR4_temp= mean(CNR4_temp),
             TempC_55_CR3000= mean(TempC_55_CR3000),
             RH_55_CR3000= mean(RH_55_CR3000))%>% 
+  mutate(date = ymd("2023-01-01") + days(Day - 1)) %>%
   print() ->
   data2023
 
@@ -137,15 +124,6 @@ bind_rows(data2020) %>%
   bind_rows(data2022) %>% 
   bind_rows(data2023) ->
   data_resume
-
-## Creation d'une colonne date
-data_resume %>% 
-  mutate(Date = as.Date(with(data_resume, paste(Year,Month, Day, sep = "/")))) %>% 
-  print() ->
-  data_resume
-
-df$date <- as.Date(with(df, paste(year, month, day, sep="-")))  
-
 
 
 
@@ -169,6 +147,7 @@ dataB %>%
 ## Moyenne des variables quantitatives par jour et ajout colonne date
 
 # Pour 2020
+
 dataB %>% 
   filter(Year == 2020) %>% 
   group_by(Year, Month, Day,`J/N`) %>% 
@@ -179,6 +158,7 @@ dataB %>%
             ETP = mean(ETP),
             VWC_10cm = mean(VWC_10cm),
             T_10cm = mean(T_10cm))%>% 
+  mutate(date = ymd("2020-01-01") + days(Day - 1)) %>% 
   print() ->
   dataB2020
 
@@ -193,16 +173,9 @@ dataB %>%
             ETP = mean(ETP),
             VWC_10cm = mean(VWC_10cm),
             T_10cm = mean(T_10cm))%>% 
+  mutate(date = ymd("2021-01-01") + days(Day - 1)) %>%
   print() ->
   dataB2021
-
-date2021 <- seq(as.Date(paste(2021, "01-01", sep="-")), as.Date(paste(2021, "12-31", sep="-")), by="day")
-date2021<- data.frame(date= date2021)
-
-data2021 %>% 
-  mutate(Date= date2021) %>% 
-  print()->
-  data2021
 
 # Pour 2022
 dataB %>% 
@@ -215,6 +188,7 @@ dataB %>%
             ETP = mean(ETP),
             VWC_10cm = mean(VWC_10cm),
             T_10cm = mean(T_10cm))%>% 
+  mutate(date = ymd("2022-01-01") + days(Day - 1)) %>%
   print() ->
   dataB2022
 
@@ -229,6 +203,7 @@ dataB %>%
             ETP = mean(ETP),
             VWC_10cm = mean(VWC_10cm),
             T_10cm = mean(T_10cm))%>% 
+  mutate(date = ymd("2023-01-01") + days(Day - 1)) %>%
   print() ->
   dataB2023
 
@@ -243,6 +218,7 @@ dataB %>%
             ETP = mean(ETP),
             VWC_10cm = mean(VWC_10cm),
             T_10cm = mean(T_10cm))%>% 
+  mutate(date = ymd("2024-01-01") + days(Day - 1)) %>%
   print() ->
   dataB2024
 
