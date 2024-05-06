@@ -4,14 +4,16 @@
 # Derniere modification : 03/05/2024
 
 
-# Package necessaire
+## Package necessaire
 install.packages("tidyverse")
 library(tidyverse)
 
-# Data
+#### Avec les donnees de M.Badouard 
+
+## Data 
 data<- read_csv2("data/TourAFlux-2004-2023.csv")
 
-# Reduction des donnees
+#" Reduction des donnees
 data %>% 
   filter(Year == 2020 : 2023) %>% 
   select(Year,Month, Day,
@@ -25,7 +27,8 @@ data %>%
          RH_55_CR3000) ->
   data
 
-# Moyenne des variables par jour par annee
+
+## Moyenne des variables par jour par annee et ajout colonne date
 
 # Pour 2020
 data %>% 
@@ -47,6 +50,18 @@ data %>%
   print() ->
   data2020
 
+date2020= seq.Date(as.Date(paste(2020, "01-01", sep="-")), 
+                   as.Date(paste(2020, "12-31", sep="-")), 
+                   by="1 day")
+date2020= data.frame(Jour_de_l_annee = 1:366, Date = date2020)
+
+data2020 %>% 
+  mutate(Date = date2020$Date) %>%
+  print() ->
+  data2020
+
+seq(as.Date("2020-01-01", sep="-"), as.Date("2020-01-31", sep="-"), by="day")
+
 # Pour 2021
 data %>% 
   filter(Year == 2021) %>% 
@@ -65,6 +80,14 @@ data %>%
             TempC_55_CR3000= mean(TempC_55_CR3000),
             RH_55_CR3000= mean(RH_55_CR3000))%>% 
   print() ->
+  data2021
+
+date2021 <- seq(as.Date(paste(2021, "01-01", sep="-")), as.Date(paste(2021, "12-31", sep="-")), by="day")
+date2021<- data.frame(date= date2021)
+
+data2021 %>% 
+  mutate(Date= date2021) %>% 
+  print()->
   data2021
 
 # Pour 2022
@@ -107,20 +130,40 @@ data %>%
   print() ->
   data2023
 
-# Empilement des donnees
+
+## Empilement des donnees
 bind_rows(data2020) %>% 
   bind_rows(data2021) %>% 
   bind_rows(data2022) %>% 
   bind_rows(data2023) ->
   data_resume
 
+## Creation d'une colonne date
+data_resume %>% 
+  mutate(Date = as.Date(with(data_resume, paste(Year,Month, Day, sep = "/")))) %>% 
+  print() ->
+  data_resume
+
+df$date <- as.Date(with(df, paste(year, month, day, sep="-")))  
+
+  
+### Avec les donnees de M.Bonal
+
+## Data 
+data2<- read_csv2("data/GX-METEO-2020 - 2024E - AK.csv")
+
+#" Reduction des donnees
+data2 %>% 
+  filter(Year == 2020 : 2023) %>% 
+  select(Year,Month, Day,`J/N`, 
+         `Temp(55)`, `Hr(55)`,
+         vpd55,
+         Rain, 
+         ETP,
+        VWC_10cm,
+        T_10cm) ->
+  data2
 
 
-  
-  
-  
-  
-  
-  
   
   
