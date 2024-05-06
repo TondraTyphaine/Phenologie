@@ -7,8 +7,10 @@
 ## Packages necessaires
 install.packages("tidyverse")
 install.packages("lubridate")
+install.packages("RColorBrewer")
 library(tidyverse)
 library(lubridate)
+library(RColorBrewer)
 
 #### Avec les donnees de M.Badouard 
 
@@ -237,21 +239,73 @@ bind_rows(dataB2020) %>%
 
 # Graphique de la pluviometrie par annee
 
-# Donnees pour 2020
+# Vue d'ensemble sur les 4 ans
+
+display.brewer.all(colorblindFriendly = TRUE)
+brewer.pal(n = 5, name = "Dark2")
 
 ggplot() +
-  geom_line(aes(x= dataB2020$date, y= dataB2020$Rain), data = dataB2020, colour = "red")+
-  geom_line(aes(x= dataB2021$date, y= dataB2021$Rain), data = dataB2021, colour = "blue")+
-  geom_line(aes(x= dataB2022$date, y= dataB2022$Rain),data = dataB2022, colour = "green")+
-  geom_line(aes(x= dataB2023$date, y= dataB2023$Rain),data = dataB2023, colour = "orange")+
-  geom_line(aes(x= dataB2024$date, y= dataB2024$Rain),data = dataB2024, colour = "black")+
+  geom_line(aes(x= dataB2020$date, y= dataB2020$Rain), data = dataB2020, colour = "#1B9E77")+
+  geom_line(aes(x= dataB2021$date, y= dataB2021$Rain), data = dataB2021, colour = "#D95F02")+
+  geom_line(aes(x= dataB2022$date, y= dataB2022$Rain),data = dataB2022, colour = "#7570B3")+
+  geom_line(aes(x= dataB2023$date, y= dataB2023$Rain),data = dataB2023, colour = "#E7298A")+
+  geom_line(aes(x= dataB2024$date, y= dataB2024$Rain),data = dataB2024, colour = "#66A61E")+
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
   labs(
     title = "Pluviométrie au cours des 4 années de suivies phénologique",
     x = "Dates",
     y = "Pluviométrie (mm)"
   )
 
+# Pour 2020
+ggplot() +
+  geom_line(aes(x= dataB2020$date, y= dataB2020$Rain), data = dataB2020, colour = "#1B9E77")+
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
+  labs(
+    title = "Pluviométrie au cours de l'année 2020",
+    x = "Dates",
+    y = "Pluviométrie (mm)"
+  )
 
+# Pour 2021
+ggplot()+
+  geom_line(aes(x= dataB2021$date, y= dataB2021$Rain), data = dataB2021, colour = "#D95F02")+
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
+  labs(
+    title = "Pluviométrie au cours de l'année 2021",
+    x = "Dates",
+    y = "Pluviométrie (mm)"
+  )
+
+# Pour 2022
+ggplot()+
+  geom_line(aes(x= dataB2022$date, y= dataB2022$Rain),data = dataB2022, colour = "#7570B3")+
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
+  labs(
+    title = "Pluviométrie au cours de l'année 2022",
+    x = "Dates",
+    y = "Pluviométrie (mm)"
+  )
+
+# Pour 2023
+ggplot()+
+  geom_line(aes(x= dataB2023$date, y= dataB2023$Rain),data = dataB2023, colour = "#E7298A")+
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
+  labs(
+    title = "Pluviométrie au cours de l'année 2023",
+    x = "Dates",
+    y = "Pluviométrie (mm)"
+  )
+
+# Pour 2024
+ggplot()+
+  geom_line(aes(x= dataB2024$date, y= dataB2024$Rain),data = dataB2024, colour = "#66A61E")+
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
+  labs(
+    title = "Pluviométrie au cours de l'année 2024",
+    x = "Dates",
+    y = "Pluviométrie (mm)"
+  )
 
 
 
