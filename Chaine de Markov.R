@@ -82,6 +82,12 @@ pmatrix.msm(mc_glb)
 install.packages("markovchain")
 library(markovchain)
 
+
+phenotest1 <- c("L","F","L","L","Fl","Fl","L","L","L","L")
+phenotest2 <- c("L","L","L","L","L","Fl","L","L","L","L")
+phenotest = list(phenotest1,phenotest2)
+markovchainFit(phenotest)
+
 # data pour Symphonia globulifera
 pheno2 %>%
   filter(Genus_Spec== "Symphonia_globulifera", Usable== 1) %>% 
