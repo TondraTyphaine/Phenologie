@@ -144,6 +144,7 @@ dataB %>%
         T_10cm) ->
   dataB
 
+
 ## Moyenne des variables quantitatives par jour et ajout colonne date
 
 # Pour 2020
@@ -232,6 +233,29 @@ bind_rows(dataB2020) %>%
   dataB_resume
 
 
+## PLUIE ##
+
+# Graphique de la pluviometrie par annee
+
+# Donnees pour 2020
+
+dataB_resume %>% 
+  select(Year, Month, Day, Rain, date) %>% 
+  group_by(Year, Month, Day, date) %>% 
+  summarise(Rain= mean(Rain))%>%
+  
+  
+ggplot() +
+  geom_line(aes(x= dataB2020$date, y= dataB2020$Rain), data = dataB2020, colour = "red")+
+  geom_line(aes(x= dataB2021$date, y= dataB2021$Rain), data = dataB2021, colour = "blue")+
+  geom_line(aes(x= dataB2022$date, y= dataB2022$Rain),data = dataB2022, colour = "green")+
+  geom_line(aes(x= dataB2023$date, y= dataB2023$Rain),data = dataB2023, colour = "orange")+
+  geom_line(aes(x= dataB2024$date, y= dataB2024$Rain),data = dataB2024, colour = "black")+
+  labs(
+    title = "Pluviométrie au cours des 4 années de suivies phénologique",
+    x = "Dates",
+    y = "Pluviométrie (mm)"
+  )
 
 
 
