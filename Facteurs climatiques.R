@@ -237,7 +237,7 @@ bind_rows(dataB2020) %>%
 
 ## PLUIE ##
 
-# Graphique de la pluviometrie par annee
+## Graphiques de la pluviometrie 
 
 # Vue d'ensemble sur les 4 ans
 
@@ -258,8 +258,12 @@ ggplot() +
   )
 
 # Pour 2020
-ggplot() +
-  geom_line(aes(x= dataB2020$date, y= dataB2020$Rain), data = dataB2020, colour = "#1B9E77")+
+ggplot(dataB2020, aes(x = date, y = Rain)) +
+  geom_line(colour = "#1B9E77") +
+  scale_x_date(breaks = as.Date(c("2020-01-01", "2020-02-01", "2020-03-01", "2020-04-01",
+                                  "2020-05-01", "2020-06-01", "2020-07-01", "2020-08-01",
+                                  "2020-09-01", "2020-10-01", "2020-11-01", "2020-12-01")),
+               date_labels = "%Y-%m-%d") +
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
   labs(
     title = "Pluviométrie au cours de l'année 2020",
@@ -268,8 +272,12 @@ ggplot() +
   )
 
 # Pour 2021
-ggplot()+
-  geom_line(aes(x= dataB2021$date, y= dataB2021$Rain), data = dataB2021, colour = "#D95F02")+
+ggplot(dataB2021, aes(x = date, y = Rain))+
+  geom_line(colour = "#D95F02")+
+  scale_x_date(breaks = as.Date(c("2021-01-01", "2021-02-01", "2021-03-01", "2021-04-01",
+                                  "2021-05-01", "2021-06-01", "2021-07-01", "2021-08-01",
+                                  "2021-09-01", "2021-10-01", "2021-11-01", "2021-12-01")),
+               date_labels = "%Y-%m-%d") +
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
   labs(
     title = "Pluviométrie au cours de l'année 2021",
@@ -278,8 +286,12 @@ ggplot()+
   )
 
 # Pour 2022
-ggplot()+
-  geom_line(aes(x= dataB2022$date, y= dataB2022$Rain),data = dataB2022, colour = "#7570B3")+
+ggplot(dataB2022, aes(x = date, y = Rain))+
+  geom_line( colour = "#7570B3")+
+  scale_x_date(breaks = as.Date(c("2022-01-01", "2022-02-01", "2022-03-01", "2022-04-01",
+                                  "2022-05-01", "2022-06-01", "2022-07-01", "2022-08-01",
+                                  "2022-09-01", "2022-10-01", "2022-11-01", "2022-12-01")),
+               date_labels = "%Y-%m-%d") +
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
   labs(
     title = "Pluviométrie au cours de l'année 2022",
@@ -288,8 +300,12 @@ ggplot()+
   )
 
 # Pour 2023
-ggplot()+
-  geom_line(aes(x= dataB2023$date, y= dataB2023$Rain),data = dataB2023, colour = "#E7298A")+
+ggplot(dataB2023, aes(x = date, y = Rain))+
+  geom_line(colour = "#E7298A")+
+  scale_x_date(breaks = as.Date(c("2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01",
+                                  "2023-05-01", "2023-06-01", "2023-07-01", "2023-08-01",
+                                  "2023-09-01", "2023-10-01", "2023-11-01", "2023-12-01")),
+               date_labels = "%Y-%m-%d") +
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
   labs(
     title = "Pluviométrie au cours de l'année 2023",
@@ -298,8 +314,12 @@ ggplot()+
   )
 
 # Pour 2024
-ggplot()+
-  geom_line(aes(x= dataB2024$date, y= dataB2024$Rain),data = dataB2024, colour = "#66A61E")+
+ggplot(dataB2024, aes(x = date, y = Rain))+
+  geom_line(colour = "#66A61E")+
+  scale_x_date(breaks = as.Date(c("2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01",
+                                  "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01",
+                                  "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01")),
+               date_labels = "%Y-%m-%d") +
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
   labs(
     title = "Pluviométrie au cours de l'année 2024",
