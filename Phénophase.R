@@ -27,7 +27,7 @@ source("Source_custom_functions/myTheme.R")
 
 
 ## Lecture du jeu de données
-read_csv2("data/Synthese_Pheno.csv") ->
+read_csv2("data/Synthese_Pheno_FINAL.csv") ->
   pheno
 
 
