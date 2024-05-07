@@ -364,7 +364,7 @@ dates_globu = data_signal_globu %>%
 
 # the maximum of pics
 # sort () permet d'ordonner dans l'ordre croissant les elements d'un vecteur
-# findpeaks () premet de trouver les pics de maximum de foraison
+# findpeaks () premet de trouver les pics de maximum de floraison
 dates_max_globu = sort(findpeaks(moyenne_mobile_globu,minpeakheight  = 10,nups =1)[,2])
 
 # When the pics begin
