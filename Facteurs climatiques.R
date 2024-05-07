@@ -150,7 +150,6 @@ dataB %>%
 ## Moyenne des variables quantitatives par jour et ajout colonne date
 
 # Pour 2020
-
 dataB %>% 
   filter(Year == 2020) %>% 
   group_by(Year, Month, Day,`J/N`) %>% 
@@ -237,29 +236,72 @@ bind_rows(dataB2020) %>%
 
 ## PLUIE ##
 
-## Trouver les pics de pluviometrie
-# Pour 2020
-pic2020 <- sort(findpeaks(dataB2020$Rain, minpeakheight = 2, nups = 1)[,1])
+## Moyenne de la pluviométrie entre le jour et la nuit
 
+# Pour 2020
+dataB2020 %>% 
+  select(Year, Month, Day,Rain,date) %>% 
+  group_by(Year, Month, Day,date) %>% 
+  summarise(Rain = mean(Rain)) %>% 
+  print ->
+  Rain2020
+  
 # Pour 2021
-pic2021 <- sort(findpeaks(dataB2021$Rain, minpeakheight = 2, nups = 1)[,1])
+dataB2021 %>% 
+  select(Year, Month, Day,Rain,date) %>% 
+  group_by(Year, Month, Day,date) %>% 
+  summarise(Rain = mean(Rain)) %>% 
+  print ->
+  Rain2021
 
 # Pour 2022
-pic2022 <- sort(findpeaks(dataB2022$Rain, minpeakheight = 2, nups = 1)[,1])
+dataB2022 %>% 
+  select(Year, Month, Day,Rain,date) %>% 
+  group_by(Year, Month, Day,date) %>% 
+  summarise(Rain = mean(Rain)) %>% 
+  print ->
+  Rain2022
 
 # Pour 2023
-pic2023 <- sort(findpeaks(dataB2023$Rain, minpeakheight = 2, nups = 1)[,1])
+dataB2023 %>% 
+  select(Year, Month, Day,Rain,date) %>% 
+  group_by(Year, Month, Day,date) %>% 
+  summarise(Rain = mean(Rain)) %>% 
+  print ->
+  Rain2023
 
 # Pour 2024
-dataB2024 %>% 
-  select(Rain) %>% 
-  filter(!is.na(Rain)) %>%
-  print()->
+dataB2024 %>%
+  filter(!is.na(Rain)) %>% 
+  select(Year, Month, Day,Rain,date) %>% 
+  group_by(Year, Month, Day,date) %>% 
+  summarise(Rain = mean(Rain)) %>% 
+  print ->
   Rain2024
 
-Rain2024 <- Rain2024$Rain
 
-pic2024 <- sort(findpeaks(Rain2024, minpeakheight = 0.50, nups = 1)[,1])
+## Trouver les pics de pluviometrie
+
+# Pour 2020
+pic2020 <- sort(findpeaks(Rain2020$Rain, minpeakheight = 2, nups = 1)[,2])
+pic2020_Y <-sort(findpeaks(Rain2020$Rain, minpeakheight = 2, nups = 1)[,1])
+dates2020 <- unique(Rain2020$date)
+  
+# Pour 2021
+pic2021 <- sort(findpeaks(Rain2021$Rain, minpeakheight = 2, nups = 1)[,2])
+dates2021 <- unique(Rain2021$date)
+
+# Pour 2022
+pic2022 <- sort(findpeaks(Rain2022$Rain, minpeakheight = 1.75, nups = 1)[,2])
+dates2022 <- unique(Rain2022$date)
+
+# Pour 2023
+pic2023 <- sort(findpeaks(Rain2023$Rain, minpeakheight = 2, nups = 1)[,2])
+dates2023 <- unique(Rain2023$date)
+
+# Pour 2024
+pic2024 <- sort(findpeaks(Rain2024$Rain, minpeakheight = 0.50, nups = 1)[,2])
+dates2024 <- Rain2024$date
 
 
 ## Graphiques de la pluviometrie 
@@ -284,10 +326,11 @@ ggplot() +
 
 
 # Pour 2020
-ggplot(dataB2020, aes(x = date, y = Rain)) +
+ggplot(Rain2020, aes(x = date, y = Rain)) +
   geom_line(colour = "#1B9E77") +
-  geom_vline()
-  
+  geom_vline(xintercept = dates2020[pic2020],
+             col = "black", linetype = "dashed")+
+
   # Scale_x_date Pour specifier que des dates sont utilisees en abscisse 
   scale_x_date(breaks = as.Date(c("2020-01-01", "2020-02-01", "2020-03-01", "2020-04-01",
                                   "2020-05-01", "2020-06-01", "2020-07-01", "2020-08-01",
@@ -303,9 +346,12 @@ ggplot(dataB2020, aes(x = date, y = Rain)) +
     y = "Pluviométrie (mm)"
   )
 
+
 # Pour 2021
-ggplot(dataB2021, aes(x = date, y = Rain))+
+ggplot(Rain2021, aes(x = date, y = Rain))+
   geom_line(colour = "#D95F02")+
+  geom_vline(xintercept = dates2021[pic2021],
+             col = "black", linetype = "dashed")+
   scale_x_date(breaks = as.Date(c("2021-01-01", "2021-02-01", "2021-03-01", "2021-04-01",
                                   "2021-05-01", "2021-06-01", "2021-07-01", "2021-08-01",
                                   "2021-09-01", "2021-10-01", "2021-11-01", "2021-12-01")),
@@ -318,8 +364,10 @@ ggplot(dataB2021, aes(x = date, y = Rain))+
   )
 
 # Pour 2022
-ggplot(dataB2022, aes(x = date, y = Rain))+
+ggplot(Rain2022, aes(x = date, y = Rain))+
   geom_line( colour = "#7570B3")+
+  geom_vline(xintercept = dates2022[pic2022],
+             col = "black", linetype = "dashed")+
   scale_x_date(breaks = as.Date(c("2022-01-01", "2022-02-01", "2022-03-01", "2022-04-01",
                                   "2022-05-01", "2022-06-01", "2022-07-01", "2022-08-01",
                                   "2022-09-01", "2022-10-01", "2022-11-01", "2022-12-01")),
@@ -332,8 +380,10 @@ ggplot(dataB2022, aes(x = date, y = Rain))+
   )
 
 # Pour 2023
-ggplot(dataB2023, aes(x = date, y = Rain))+
+ggplot(Rain2023, aes(x = date, y = Rain))+
   geom_line(colour = "#E7298A")+
+  geom_vline(xintercept = dates2023[pic2023],
+             col = "black", linetype = "dashed")+
   scale_x_date(breaks = as.Date(c("2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01",
                                   "2023-05-01", "2023-06-01", "2023-07-01", "2023-08-01",
                                   "2023-09-01", "2023-10-01", "2023-11-01", "2023-12-01")),
@@ -346,8 +396,10 @@ ggplot(dataB2023, aes(x = date, y = Rain))+
   )
 
 # Pour 2024
-ggplot(dataB2024, aes(x = date, y = Rain))+
+ggplot(Rain2024, aes(x = date, y = Rain))+
   geom_line(colour = "#66A61E")+
+  geom_vline(xintercept = dates2024[pic2024],
+             col = "black", linetype = "dashed")+
   scale_x_date(breaks = as.Date(c("2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01",
                                   "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01",
                                   "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01")),
