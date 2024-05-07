@@ -567,8 +567,8 @@ dates_am = data_signal_am %>%
   pull() # Extraction des différentes dates
 
 # the maximum of pics
-# sort () permet de 
-# findpeaks () premet de trouver
+# sort () permet de trier les elements d'un vecteur
+# findpeaks () premet de trouver les pics de floraison
 dates_max_am = sort(findpeaks(moyenne_mobile_am,minpeakheight  = 10,nups =1)[,2])
 
 # When the pics begin
