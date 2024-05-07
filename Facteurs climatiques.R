@@ -237,6 +237,31 @@ bind_rows(dataB2020) %>%
 
 ## PLUIE ##
 
+## Trouver les pics de pluviometrie
+# Pour 2020
+pic2020 <- sort(findpeaks(dataB2020$Rain, minpeakheight = 2, nups = 1)[,1])
+
+# Pour 2021
+pic2021 <- sort(findpeaks(dataB2021$Rain, minpeakheight = 2, nups = 1)[,1])
+
+# Pour 2022
+pic2022 <- sort(findpeaks(dataB2022$Rain, minpeakheight = 2, nups = 1)[,1])
+
+# Pour 2023
+pic2023 <- sort(findpeaks(dataB2023$Rain, minpeakheight = 2, nups = 1)[,1])
+
+# Pour 2024
+dataB2024 %>% 
+  select(Rain) %>% 
+  filter(!is.na(Rain)) %>%
+  print()->
+  Rain2024
+
+Rain2024 <- Rain2024$Rain
+
+pic2024 <- sort(findpeaks(Rain2024, minpeakheight = 0.50, nups = 1)[,1])
+
+
 ## Graphiques de la pluviometrie 
 
 # Vue d'ensemble sur les 4 ans
@@ -257,14 +282,21 @@ ggplot() +
     y = "Pluviométrie (mm)"
   )
 
+
 # Pour 2020
 ggplot(dataB2020, aes(x = date, y = Rain)) +
   geom_line(colour = "#1B9E77") +
+  geom_vline()
+  
+  # Scale_x_date Pour specifier que des dates sont utilisees en abscisse 
   scale_x_date(breaks = as.Date(c("2020-01-01", "2020-02-01", "2020-03-01", "2020-04-01",
                                   "2020-05-01", "2020-06-01", "2020-07-01", "2020-08-01",
                                   "2020-09-01", "2020-10-01", "2020-11-01", "2020-12-01")),
                date_labels = "%Y-%m-%d") +
+  
+  # Mise en forme des labels de l'axe des abscisses
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
+  
   labs(
     title = "Pluviométrie au cours de l'année 2020",
     x = "Dates",
