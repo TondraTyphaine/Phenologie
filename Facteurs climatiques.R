@@ -8,9 +8,11 @@
 install.packages("tidyverse")
 install.packages("lubridate")
 install.packages("RColorBrewer")
+install.packages("pracma")
 library(tidyverse)
 library(lubridate)
 library(RColorBrewer)
+library(pracma)
 
 #### Avec les donnees de M.Badouard ####
 
@@ -137,13 +139,22 @@ dataB<- read_csv2("data/GX-METEO-2020 - 2024E - AK.csv")
 
 ## Reduction deu jeu de donnees
 dataB %>% 
+  filter(!is.na(`Temp(55)`)) %>% 
   select(Year,Month, Day,`J/N`, 
         `Temp(55)`, `Hr(55)`,
         vpd55,
         Rain, 
         ETP,
         VWC_10cm,
-        T_10cm) ->
+        T_10cm) %>% 
+  group_by(Year, Month, Day,`J/N`) %>% 
+  summarise(`Temp(55)` = mean(`Temp(55)`),
+            `Hr(55)`= mean(`Hr(55)`),
+            vpd55= mean(vpd55),
+            Rain= sum(Rain),
+            ETP = mean(ETP),
+            VWC_10cm = mean(VWC_10cm),
+            T_10cm = mean(T_10cm)) ->
   dataB
 
 
@@ -152,14 +163,6 @@ dataB %>%
 # Pour 2020
 dataB %>% 
   filter(Year == 2020) %>% 
-  group_by(Year, Month, Day,`J/N`) %>% 
-  summarise(`Temp(55)` = mean(`Temp(55)`),
-            `Hr(55)`= mean(`Hr(55)`),
-            vpd55= mean(vpd55),
-            Rain= mean(Rain),
-            ETP = mean(ETP),
-            VWC_10cm = mean(VWC_10cm),
-            T_10cm = mean(T_10cm))%>% 
   mutate(date = ymd("2020-01-01") + days(Day - 1)) %>% 
   print() ->
   dataB2020
@@ -167,14 +170,6 @@ dataB %>%
 # Pour 2021
 dataB %>% 
   filter(Year == 2021) %>% 
-  group_by(Year, Month, Day,`J/N`) %>% 
-  summarise(`Temp(55)` = mean(`Temp(55)`),
-            `Hr(55)`= mean(`Hr(55)`),
-            vpd55= mean(vpd55),
-            Rain= mean(Rain),
-            ETP = mean(ETP),
-            VWC_10cm = mean(VWC_10cm),
-            T_10cm = mean(T_10cm))%>% 
   mutate(date = ymd("2021-01-01") + days(Day - 1)) %>%
   print() ->
   dataB2021
@@ -182,14 +177,6 @@ dataB %>%
 # Pour 2022
 dataB %>% 
   filter(Year == 2022) %>% 
-  group_by(Year, Month, Day,`J/N`) %>% 
-  summarise(`Temp(55)` = mean(`Temp(55)`),
-            `Hr(55)`= mean(`Hr(55)`),
-            vpd55= mean(vpd55),
-            Rain= mean(Rain),
-            ETP = mean(ETP),
-            VWC_10cm = mean(VWC_10cm),
-            T_10cm = mean(T_10cm))%>% 
   mutate(date = ymd("2022-01-01") + days(Day - 1)) %>%
   print() ->
   dataB2022
@@ -197,14 +184,6 @@ dataB %>%
 # Pour 2023
 dataB %>% 
   filter(Year == 2023) %>% 
-  group_by(Year, Month, Day,`J/N`) %>% 
-  summarise(`Temp(55)` = mean(`Temp(55)`),
-            `Hr(55)`= mean(`Hr(55)`),
-            vpd55= mean(vpd55),
-            Rain= mean(Rain),
-            ETP = mean(ETP),
-            VWC_10cm = mean(VWC_10cm),
-            T_10cm = mean(T_10cm))%>% 
   mutate(date = ymd("2023-01-01") + days(Day - 1)) %>%
   print() ->
   dataB2023
@@ -212,14 +191,6 @@ dataB %>%
 # Pour 2024
 dataB %>% 
   filter(Year == 2024) %>% 
-  group_by(Year, Month, Day,`J/N`) %>% 
-  summarise(`Temp(55)` = mean(`Temp(55)`),
-            `Hr(55)`= mean(`Hr(55)`),
-            vpd55= mean(vpd55),
-            Rain= mean(Rain),
-            ETP = mean(ETP),
-            VWC_10cm = mean(VWC_10cm),
-            T_10cm = mean(T_10cm))%>% 
   mutate(date = ymd("2024-01-01") + days(Day - 1)) %>%
   print() ->
   dataB2024
@@ -240,42 +211,42 @@ bind_rows(dataB2020) %>%
 
 # Pour 2020
 dataB2020 %>% 
-  select(Year, Month, Day,Rain,date) %>% 
-  group_by(Year, Month, Day,date) %>% 
-  summarise(Rain = mean(Rain)) %>% 
+  select(Year, Month, date, Rain,`Temp(55)`) %>% 
+  group_by(Year, Month, date) %>% 
+  summarise(Rain = sum(Rain), `Temp(55)`= mean(`Temp(55)`)) %>% 
   print ->
   Rain2020
-  
+
 # Pour 2021
 dataB2021 %>% 
-  select(Year, Month, Day,Rain,date) %>% 
-  group_by(Year, Month, Day,date) %>% 
-  summarise(Rain = mean(Rain)) %>% 
+  select(Year, Month, date, Rain,`Temp(55)`) %>% 
+  group_by(Year, Month, date) %>% 
+  summarise(Rain = sum(Rain), `Temp(55)`= mean(`Temp(55)`)) %>%
   print ->
   Rain2021
 
 # Pour 2022
 dataB2022 %>% 
-  select(Year, Month, Day,Rain,date) %>% 
-  group_by(Year, Month, Day,date) %>% 
-  summarise(Rain = mean(Rain)) %>% 
+  select(Year, Month, date, Rain,`Temp(55)`) %>% 
+  group_by(Year, Month, date) %>% 
+  summarise(Rain = sum(Rain), `Temp(55)`= mean(`Temp(55)`)) %>%
   print ->
   Rain2022
 
 # Pour 2023
 dataB2023 %>% 
-  select(Year, Month, Day,Rain,date) %>% 
-  group_by(Year, Month, Day,date) %>% 
-  summarise(Rain = mean(Rain)) %>% 
+  select(Year, Month, date, Rain,`Temp(55)`) %>% 
+  group_by(Year, Month, date) %>% 
+  summarise(Rain = sum(Rain), `Temp(55)`= mean(`Temp(55)`)) %>%
   print ->
   Rain2023
 
 # Pour 2024
 dataB2024 %>%
   filter(!is.na(Rain)) %>% 
-  select(Year, Month, Day,Rain,date) %>% 
-  group_by(Year, Month, Day,date) %>% 
-  summarise(Rain = mean(Rain)) %>% 
+  select(Year, Month, date, Rain,`Temp(55)`) %>% 
+  group_by(Year, Month, date) %>% 
+  summarise(Rain = sum(Rain), `Temp(55)`= mean(`Temp(55)`)) %>%
   print ->
   Rain2024
 
@@ -283,29 +254,59 @@ dataB2024 %>%
 ## Trouver les pics de pluie
 
 # Pour 2020
-pic2020 <- sort(findpeaks(Rain2020$Rain, minpeakheight = 2, nups = 1)[,2])
-pic2020_Y <- sort(findpeaks(Rain2020$Rain, minpeakheight = 2.05, nups = )[,1])
-dates2020 <- unique(Rain2020$date)
+pic2020 <- sort(findpeaks(Rain2020$Rain, minpeakheight = 100, nups = 1)[,2]) # Position du pic
+pic2020_Y <- sort(findpeaks(Rain2020$Rain, minpeakheight = 100, nups = 1)[,1]) # Valeur du pic
+dates2020 <- unique(Rain2020$date) # Extraction des dates
   
 # Pour 2021
-pic2021 <- sort(findpeaks(Rain2021$Rain, minpeakheight = 2, nups = 1)[,2])
-pic2021_Y <- sort(findpeaks(Rain2021$Rain, minpeakheight = 2.4, nups = )[,1])
+pic2021 <- sort(findpeaks(Rain2021$Rain, minpeakheight = 120, nups = 1)[,2])
+pic2021_Y <- sort(findpeaks(Rain2021$Rain, minpeakheight = 120, nups = )[,1])
 dates2021 <- unique(Rain2021$date)
 
 # Pour 2022
-pic2022 <- sort(findpeaks(Rain2022$Rain, minpeakheight = 1.75, nups = 1)[,2])
-pic2022_Y <- sort(findpeaks(Rain2022$Rain, minpeakheight = 1.9, nups = )[,1])
+pic2022 <- sort(findpeaks(Rain2022$Rain, minpeakheight = 86, nups = 1)[,2])
+pic2022_Y <- sort(findpeaks(Rain2022$Rain, minpeakheight = 86, nups = )[,1])
 dates2022 <- unique(Rain2022$date)
 
 # Pour 2023
-pic2023 <- sort(findpeaks(Rain2023$Rain, minpeakheight = 2, nups = 1)[,2])
-pic2023_Y <- sort(findpeaks(Rain2023$Rain, minpeakheight = 2.1, nups = )[,1])
+pic2023 <- sort(findpeaks(Rain2023$Rain, minpeakheight = 100, nups = 1)[,2])
+pic2023_Y <- sort(findpeaks(Rain2023$Rain, minpeakheight = 100, nups = )[,1])
 dates2023 <- unique(Rain2023$date)
 
 # Pour 2024
-pic2024 <- sort(findpeaks(Rain2024$Rain, minpeakheight = 0.50, nups = 1)[,2])
-pic2024_Y <- sort(findpeaks(Rain2024$Rain, minpeakheight = 0.6, nups = 1 )[,1])
+pic2024 <- sort(findpeaks(Rain2024$Rain, minpeakheight = 29, nups = 1)[,2])
+pic2024_Y <- sort(findpeaks(Rain2024$Rain, minpeakheight = 29, nups = 1 )[,1])
 dates2024 <- Rain2024$date
+
+
+## Identifier les mois secs selon la definition de Banyuls et Gaussen (P inferieure ou egale a deux fois la °C)
+
+# Pour 2020
+
+dataB2020 %>% 
+  select(Year, Month, Day, date, Rain,`Temp(55)`) %>% 
+  group_by(Year, Month, Day, date) %>% 
+  summarise(Rain = mean(Rain), `Temp(55)`= mean(`Temp(55)`)) %>% 
+  print ->
+  data_Dry2020
+
+ggplot()+
+  geom_line(data = data_Dry2020, aes(x = date, y = Rain),colour = "#1B9E77")+
+  geom_line(data = data_Dry2020, aes(x = date, y = `Temp(55)`), colour = "red") +
+  scale_y_continuous(name = "Pluviométrie (mm)", sec.axis = sec_axis(~., name = "Température (°C)")) +
+  scale_x_date(breaks = as.Date(c("2020-01-01", "2020-02-01", "2020-03-01", "2020-04-01",
+                                  "2020-05-01", "2020-06-01", "2020-07-01", "2020-08-01",
+                                  "2020-09-01", "2020-10-01", "2020-11-01", "2020-12-01")),
+               date_labels = "%Y-%m-%d") +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
+  labs(
+    title = "Pluviométrie et températures au cours de l'année 2020",
+    x = "Dates"
+    )
+
+
+
+Dry2020 <- data_Dry2020$Rain <= 2*data_Dry2020$`Temp(55)`
 
 
 ## Graphiques de la pluviometrie 
@@ -314,28 +315,30 @@ dates2024 <- Rain2024$date
 
 display.brewer.all(colorblindFriendly = TRUE)
 brewer.pal(n = 5, name = "Dark2")
+brewer.pal(n = 5, name = "RdBu")
 
 ggplot() +
-  geom_line(data = Rain2020, aes(x= date, y= Rain),colour = "#1B9E77")+
-  geom_line(data = Rain2021, aes(x= date, y= Rain), colour = "#D95F02")+
-  geom_line(data = Rain2022, aes(x= date, y= Rain), colour = "#7570B3")+
-  geom_line(data = Rain2023, aes(x= date, y= Rain), colour = "#E7298A")+
-  geom_line(data = Rain2024, aes(x= date, y= Rain), colour = "#66A61E")+
+  geom_line(data = Rain2020, aes(x= date, y= Rain),colour = "#1B9E77") +
+  geom_line(data = Rain2021, aes(x= date, y= Rain), colour = "#D95F02") +
+  geom_line(data = Rain2022, aes(x= date, y= Rain), colour = "#7570B3") +
+  geom_line(data = Rain2023, aes(x= date, y= Rain), colour = "#E7298A") +
+  geom_line(data = Rain2024, aes(x= date, y= Rain), colour = "#66A61E") +
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
+  geom_point(aes(x = dates2020[117], y = 2.09)) +
+  geom_point(aes(x = dates2021[152], y = 2.48)) +
+  geom_point(aes(x = dates2022[111], y = 1.91)) +
+  geom_point(aes(x = dates2023[57], y = 2.13)) +
+  geom_point(aes(x = dates2024[14], y = 0.61)) +
   geom_vline(xintercept = dates2020[117],
-             col = "black", linetype = "dashed")+
+             col = "black", linetype = "dashed") +
   geom_vline(xintercept = dates2021[152],
-             col = "black", linetype = "dashed")+
-  geom_hline(yintercept = pic2020_Y, 
-             col = "#1B9E77", linetype = "dashed")+
-  geom_hline(yintercept = pic2021_Y, 
-             col = "#D95F02", linetype = "dashed")+
-  geom_hline(yintercept = pic2022_Y, 
-             col = "#7570B3", linetype = "dashed")+
-  geom_hline(yintercept = pic2023_Y, 
-             col = "#E7298A", linetype = "dashed")+
-  geom_hline(yintercept = pic2024_Y, 
-             col = "#66A61E", linetype = "dashed")+
+             col = "black", linetype = "dashed") +
+  geom_vline(xintercept = dates2022[111],
+             col = "black", linetype = "dashed") +
+  geom_vline(xintercept = dates2023[57],
+             col = "black", linetype = "dashed") +
+  geom_vline(xintercept = dates2024[14],
+             col = "black", linetype = "dashed") +
   scale_x_date(breaks = as.Date(c("2020-01-01", "2020-02-01", "2020-03-01", "2020-04-01",
                                   "2020-05-01", "2020-06-01", "2020-07-01", "2020-08-01",
                                   "2020-09-01", "2020-10-01", "2020-11-01", "2020-12-01",
@@ -352,24 +355,6 @@ ggplot() +
                                   "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01",
                                   "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01")),
                date_labels = "%Y-%m-%d") +
-  annotate("text",x = dates2020[117], 
-           y= pic2020_Y,label = round(pic2020_Y, digits = 2),
-           col = "black", size = 3)+
-  annotate("text",x = dates2021[152], 
-           y= pic2021_Y,label = round(pic2021_Y, digits = 2),
-           col = "black", size = 3)+
-  annotate("text",x = dates2022[152], 
-           y= pic2022_Y,label = round(pic2022_Y, digits = 2),
-           col = "black", size = 3)+
-  annotate("text",x = dates2023[111], 
-           y= pic2023_Y,label = round(pic2023_Y, digits = 2),
-           col = "black", size = 3)+
-  annotate("text",x = dates2023[57], 
-           y= pic2023_Y,label = round(pic2023_Y, digits = 2),
-           col = "black", size = 3)+
-  annotate("text",x = dates2024[14], 
-           y= pic2024_Y,label = round(pic2024_Y, digits = 2),
-           col = "black", size = 3)+
   theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust = 1, size = 8)) +
   
   labs(
