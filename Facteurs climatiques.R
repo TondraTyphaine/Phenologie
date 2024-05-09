@@ -281,15 +281,27 @@ dates2024 <- Rain2024$date
 
 ## Identifier les mois secs selon la definition de Banyuls et Gaussen (P inferieure ou egale a deux fois la °C)
 
-# Pour 2020
+# Pour 2020 #
 
+# Data par jour
 dataB2020 %>% 
   select(Year, Month, Day, date, Rain,`Temp(55)`) %>% 
   group_by(Year, Month, Day, date) %>% 
-  summarise(Rain = mean(Rain), `Temp(55)`= mean(`Temp(55)`)) %>% 
+  summarise(Rain = sum(Rain), `Temp(55)`= mean(`Temp(55)`)) %>% 
   print ->
   data_Dry2020
 
+# Data par mois
+data_Dry2020 %>%
+  group_by(Year, Month) %>%
+  summarise(Rain = sum(Rain), `Temp(55)`= mean(`Temp(55)`)) %>%
+  mutate(Temp_X2 = 2 * `Temp(55)`) %>%
+  mutate(Dry_month = Rain <= Temp_X2) %>%
+  mutate(date = floor_date(ymd(paste(Year, Month, "01")), unit = "month")) %>% 
+  print ->
+  data_Dry_month2020
+
+# Graphique comparant la pluviometrie journaliere et les temperatures au cours de l'annee
 ggplot()+
   geom_line(data = data_Dry2020, aes(x = date, y = Rain),colour = "#1B9E77")+
   geom_line(data = data_Dry2020, aes(x = date, y = `Temp(55)`), colour = "red") +
@@ -300,13 +312,31 @@ ggplot()+
                date_labels = "%Y-%m-%d") +
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
   labs(
-    title = "Pluviométrie et températures au cours de l'année 2020",
+    title = "Pluviométrie et températures journalières au cours de l'année 2020",
     x = "Dates"
     )
 
-
-Dry2020 <- data_Dry2020$Rain <= 2*data_Dry2020$`Temp(55)`
-
+# Graphique comparant la pluviometrie moyenne par mois et les temperatures au cours de l'annee
+ggplot()+
+  geom_line(data = data_Dry_month2020, aes(x = date , y = Rain),,colour = "#1B9E77")+
+  geom_line(data = data_Dry_month2020, aes(x = date , y = `Temp_X2`), colour = "red")+
+  scale_y_continuous(name = "Pluviométrie (mm)", sec.axis = sec_axis(~., name = "Température (°C)")) +
+  geom_point(data = data_Dry_month2020, aes(x = date[5], y = Rain[5]))+
+  geom_point(data = data_Dry_month2020, aes(x = date[10], y = Rain[10]))+
+  annotate("text",x = data_Dry_month2020$date[5], 
+           y = data_Dry_month2020$Rain[5]+20,label = data_Dry_month2020$Rain[5],
+           col = "grey40", size = 3)+
+  annotate("text",x = data_Dry_month2020$date[10], 
+           y = data_Dry_month2020$Rain[10]-20,label =  data_Dry_month2020$Rain[10],
+           col = "grey40", size = 3)+
+  scale_x_date(breaks = as.Date(c("2020-01-01", "2020-02-01", "2020-03-01", "2020-04-01",
+                                  "2020-05-01", "2020-06-01", "2020-07-01", "2020-08-01",
+                                  "2020-09-01", "2020-10-01", "2020-11-01", "2020-12-01")),
+               date_labels = "%Y-%m-%d") +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
+  labs(
+    title = "Pluviométrie et températures mensuelles au cours de l'année 2020"
+    )
 
 ## Graphiques de la pluviometrie 
 
