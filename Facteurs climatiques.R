@@ -158,7 +158,7 @@ dataB %>%
   dataB
 
 
-## Moyenne des variables quantitatives par jour et ajout colonne date
+## Data pour chaque annee
 
 # Pour 2020
 dataB %>% 
@@ -205,9 +205,9 @@ bind_rows(dataB2020) %>%
   dataB_resume
 
 
-## PLUIE ##
+## PLUIE ET TEMPERATURES ##
 
-## Moyenne de la pluviométrie entre le jour et la nuit
+## Somme de la pluviométrie entre le jour et la nuit et moyenne des temperatures
 
 # Pour 2020
 dataB2020 %>% 
@@ -303,7 +303,6 @@ ggplot()+
     title = "Pluviométrie et températures au cours de l'année 2020",
     x = "Dates"
     )
-
 
 
 Dry2020 <- data_Dry2020$Rain <= 2*data_Dry2020$`Temp(55)`
