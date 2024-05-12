@@ -1114,3 +1114,107 @@ ggplot() +
     x = "Dates",
     y = "VPD (kPa)"
   )
+
+
+
+# Pour 2024 #
+dataB2024 %>% 
+  filter(!is.na(`Hr(55)`)) %>% 
+  filter(!is.na(ETP)) %>% 
+  filter(!is.na(VWC_10cm)) %>% 
+  filter(!is.na(vpd55)) %>% 
+  select(Year, Month, Day, date, `Hr(55)`, ETP, VWC_10cm, vpd55) %>% 
+  group_by(Year, Month, Day, date) %>% 
+  summarise(`Hr(55)` = mean(`Hr(55)`), ETP = sum(ETP), VWC_10cm = mean(VWC_10cm), vpd55 = mean(vpd55)) %>% 
+  print() ->
+  humidity2024
+
+dataB2024 %>% 
+  filter(!is.na(ETP)) %>% 
+  filter(!is.na(VWC_10cm)) %>% 
+  filter(!is.na(vpd55)) %>% 
+  select(Year, Month, Day, date,`J/N`, `Hr(55)`, ETP, VWC_10cm, vpd55) %>% 
+  filter(`J/N` == "J") %>% 
+  group_by(Year, Month, Day, date) %>% 
+  print() ->
+  humidity2024_J
+
+dataB2024 %>% 
+  filter(!is.na(`Hr(55)`)) %>% 
+  filter(!is.na(ETP)) %>% 
+  filter(!is.na(VWC_10cm)) %>% 
+  filter(!is.na(vpd55)) %>% 
+  select(Year, Month, Day, date,`J/N`, `Hr(55)`, ETP, VWC_10cm, vpd55) %>% 
+  filter(`J/N` == "N") %>% 
+  group_by(Year, Month, Day, date) %>% 
+  print() ->
+  humidity2024_N
+
+# Graphique Hr(55)
+ggplot() +
+  #geom_line(data = humidity2024, aes(x = date, y = `Hr(55)`), colour = "black") +
+  geom_line(data = humidity2024_J, aes(x = date, y = `Hr(55)`, color = "J")) +
+  geom_line(data = humidity2024_N, aes(x = date, y = `Hr(55)`, color = "N")) +
+  scale_color_manual(name = "Légende", values = c(J = "red", N ="blue")) +
+  scale_x_date(breaks = as.Date(c("2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01",
+                                  "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01",
+                                  "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01")),
+               date_labels = "%Y-%m-%d") +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
+  labs(
+    title = "Humidité de l'air de jour et de nuit en 2024",
+    x = "Dates",
+    y = "Humidité de l'air à 55m (%)"
+  )
+
+# Graphique ETP
+ggplot() +
+  #geom_line(data = humidity2024, aes(x = date, y = `Hr(55)`), colour = "black") +
+  geom_line(data = humidity2024_J, aes(x = date, y = ETP, color = "J")) +
+  geom_line(data = humidity2024_N, aes(x = date, y = ETP, color = "N")) +
+  scale_color_manual(name = "Légende", values = c(J = "red", N ="blue")) +
+  scale_x_date(breaks = as.Date(c("2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01",
+                                  "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01",
+                                  "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01")),
+               date_labels = "%Y-%m-%d") +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
+  labs(
+    title = "Evapotranspiration potentielle de jour et de nuit en 2024",
+    x = "Dates",
+    y = "ETP (mm)"
+  )
+
+
+# Graphique VWC_10cm
+ggplot() +
+  #geom_line(data = humidity2024, aes(x = date, y = `Hr(55)`), colour = "black") +
+  geom_line(data = humidity2024_J, aes(x = date, y = VWC_10cm, color = "J")) +
+  geom_line(data = humidity2024_N, aes(x = date, y = VWC_10cm, color = "N")) +
+  scale_color_manual(name = "Légende", values = c(J = "red", N ="blue")) +
+  scale_x_date(breaks = as.Date(c("2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01",
+                                  "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01",
+                                  "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01")),
+               date_labels = "%Y-%m-%d") +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
+  labs(
+    title = "Humidité du sol de jour et de nuit en 2024",
+    x = "Dates",
+    y = "Humidité du sol (m³/m³)"
+  )
+
+# Graphique vpd55
+ggplot() +
+  #geom_line(data = humidity2024, aes(x = date, y = `Hr(55)`), colour = "black") +
+  geom_line(data = humidity2024_J, aes(x = date, y = vpd55, color = "J")) +
+  geom_line(data = humidity2024_N, aes(x = date, y = vpd55, color = "N")) +
+  scale_color_manual(name = "Légende", values = c(J = "red", N ="blue")) +
+  scale_x_date(breaks = as.Date(c("2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01",
+                                  "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01",
+                                  "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01")),
+               date_labels = "%Y-%m-%d") +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
+  labs(
+    title = "Déficit de pression de vapeur de jour et de nuit en 2024",
+    x = "Dates",
+    y = "VPD (kPa)"
+  )
