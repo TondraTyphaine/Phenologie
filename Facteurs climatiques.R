@@ -698,3 +698,68 @@ ggplot(Rain2024, aes(x = date, y = Rain))+
 
 
 
+## HUMIDITE DE L'AIR (Hr55), ETP, HUMIDITE DU SOL (VWC_10cm) ET DEFICIT DE SATURATION (vpd55) ##
+
+
+# Pour 2020 #
+dataB2020 %>% 
+  filter(!is.na(`Hr(55)`)) %>% 
+  filter(!is.na(ETP)) %>% 
+  filter(!is.na(VWC_10cm)) %>% 
+  filter(!is.na(vpd55)) %>% 
+  select(Year, Month, Day, date, `Hr(55)`, ETP, VWC_10cm, vpd55) %>% 
+  group_by(Year, Month, Day, date) %>% 
+  summarise(`Hr(55)` = mean(`Hr(55)`), ETP = sum(ETP), VWC_10cm = mean(VWC_10cm), vpd55 = mean(vpd55)) %>% 
+  print() ->
+  humidity2020
+
+dataB2020 %>% 
+  filter(!is.na(ETP)) %>% 
+  filter(!is.na(VWC_10cm)) %>% 
+  filter(!is.na(vpd55)) %>% 
+  select(Year, Month, Day, date,`J/N`, `Hr(55)`, ETP, VWC_10cm, vpd55) %>% 
+  filter(`J/N` == "J") %>% 
+  group_by(Year, Month, Day, date) %>% 
+  print() ->
+  humidity2020_J
+
+dataB2020 %>% 
+  filter(!is.na(`Hr(55)`)) %>% 
+  filter(!is.na(ETP)) %>% 
+  filter(!is.na(VWC_10cm)) %>% 
+  filter(!is.na(vpd55)) %>% 
+  select(Year, Month, Day, date,`J/N`, `Hr(55)`, ETP, VWC_10cm, vpd55) %>% 
+  filter(`J/N` == "N") %>% 
+  group_by(Year, Month, Day, date) %>% 
+  print() ->
+  humidity2020_N
+
+display.brewer.all(colorblindFriendly = TRUE)
+brewer.pal(n = 8, name = "Dark2")
+
+# Graphique Hr(55)
+ggplot() +
+  #geom_line(data = humidity2020, aes(x = date, y = `Hr(55)`), colour = "black") +
+  geom_line(data = humidity2020_J, aes(x = date, y = `Hr(55)`, color = "J")) +
+  geom_line(data = humidity2020_N, aes(x = date, y = `Hr(55)`, color = "N")) +
+  scale_color_manual(name = "Légende", values = c(J = "red", N ="blue")) +
+  scale_x_date(breaks = as.Date(c("2020-01-01", "2020-02-01", "2020-03-01", "2020-04-01",
+                                  "2020-05-01", "2020-06-01", "2020-07-01", "2020-08-01",
+                                  "2020-09-01", "2020-10-01", "2020-11-01", "2020-12-01")),
+               date_labels = "%Y-%m-%d") +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
+  labs(
+    title = "Humidité de l'air de jour et de nuit",
+    x = "Dates",
+    y = "Humidité de l'air à 55m (%)"
+  )
+
+
+
+
+
+
+
+
+
+
