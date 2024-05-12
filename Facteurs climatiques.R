@@ -772,6 +772,22 @@ ggplot() +
   )
 
 
+# Graphique VWC_10cm
+ggplot() +
+  #geom_line(data = humidity2020, aes(x = date, y = `Hr(55)`), colour = "black") +
+  geom_line(data = humidity2020_J, aes(x = date, y = VWC_10cm, color = "J")) +
+  geom_line(data = humidity2020_N, aes(x = date, y = VWC_10cm, color = "N")) +
+  scale_color_manual(name = "Légende", values = c(J = "red", N ="blue")) +
+  scale_x_date(breaks = as.Date(c("2020-01-01", "2020-02-01", "2020-03-01", "2020-04-01",
+                                  "2020-05-01", "2020-06-01", "2020-07-01", "2020-08-01",
+                                  "2020-09-01", "2020-10-01", "2020-11-01", "2020-12-01")),
+               date_labels = "%Y-%m-%d") +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
+  labs(
+    title = "Humidité du sol de jour et de nuit",
+    x = "Dates",
+    y = "Humidité du sol (m³/m³)"
+  )
 
 
 
