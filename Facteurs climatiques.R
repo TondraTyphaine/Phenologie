@@ -285,12 +285,7 @@ dates2024 <- Rain2024$date
 # Pour 2020 #
 
 # Data par jour
-dataB2020 %>% 
-  select(Year, Month, Day, date, Rain,`Temp(55)`) %>% 
-  group_by(Year, Month, Day, date) %>% 
-  summarise(Rain = sum(Rain), `Temp(55)`= mean(`Temp(55)`)) %>% 
-  print ->
-  data_Dry2020
+Rain2020
 
 # Data par mois
 data_Dry2020 %>%
@@ -306,8 +301,8 @@ data_Dry2020 %>%
 
 # Graphique comparant la pluviometrie journaliere et les temperatures au cours de l'annee
 ggplot()+
-  geom_line(data = data_Dry2020, aes(x = date, y = Rain),colour = "#1B9E77")+
-  geom_line(data = data_Dry2020, aes(x = date, y = `Temp(55)`), colour = "red") +
+  geom_line(data = Rain2020, aes(x = date, y = Rain),colour = "#1B9E77")+
+  geom_line(data = Rain2020, aes(x = date, y = `Temp(55)`), colour = "red") +
   scale_y_continuous(name = "Pluviométrie (mm)", sec.axis = sec_axis(~., name = "Température (°C)")) +
   scale_x_date(breaks = as.Date(c("2020-01-01", "2020-02-01", "2020-03-01", "2020-04-01",
                                   "2020-05-01", "2020-06-01", "2020-07-01", "2020-08-01",
@@ -323,7 +318,7 @@ ggplot()+
 ggplot()+
   geom_line(data = data_Dry_month2020, aes(x = date , y = Rain),,colour = "#1B9E77")+
   geom_line(data = data_Dry_month2020, aes(x = date , y = `Temp_X2`), colour = "red")+
-  scale_y_continuous(name = "Pluviométrie (mm)", sec.axis = sec_axis(~., name = "Température (°C)")) +
+  scale_y_continuous(name = "Pluviométrie (mm)", sec.axis = sec_axis(~., name = "Température X2 (°C)")) +
   geom_point(data = data_Dry_month2020, aes(x = date[5], y = max(data_Dry_month2020$Rain)))+
   geom_point(data = data_Dry_month2020, aes(x = date[10], y = min(data_Dry_month2020$Rain)))+
   annotate("text",x = data_Dry_month2020$date[5], 
@@ -345,12 +340,7 @@ ggplot()+
 # Pour 2021 #
 
 # Data par jour
-dataB2021 %>% 
-  select(Year, Month, Day, date, Rain,`Temp(55)`) %>% 
-  group_by(Year, Month, Day, date) %>% 
-  summarise(Rain = sum(Rain), `Temp(55)`= mean(`Temp(55)`)) %>% 
-  print ->
-  data_Dry2021
+Rain2021
 
 # Data par mois
 data_Dry2021 %>%
@@ -364,8 +354,8 @@ data_Dry2021 %>%
 
 # Graphique comparant la pluviometrie journaliere et les temperatures au cours de l'annee
 ggplot()+
-  geom_line(data = data_Dry2021, aes(x = date, y = Rain),colour = "#D95F02")+
-  geom_line(data = data_Dry2021, aes(x = date, y = `Temp(55)`), colour = "red") +
+  geom_line(data = Rain2021, aes(x = date, y = Rain),colour = "#D95F02")+
+  geom_line(data = Rain2021, aes(x = date, y = `Temp(55)`), colour = "red") +
   scale_y_continuous(name = "Pluviométrie (mm)", sec.axis = sec_axis(~., name = "Température (°C)")) +
   scale_x_date(breaks = as.Date(c("2021-01-01", "2021-02-01", "2021-03-01", "2021-04-01",
                                   "2021-05-01", "2021-06-01", "2021-07-01", "2021-08-01",
@@ -381,7 +371,7 @@ ggplot()+
 ggplot()+
   geom_line(data = data_Dry_month2021, aes(x = date , y = Rain),,colour = "#D95F02")+
   geom_line(data = data_Dry_month2021, aes(x = date , y = `Temp_X2`), colour = "red")+
-  scale_y_continuous(name = "Pluviométrie (mm)", sec.axis = sec_axis(~., name = "Température (°C)")) +
+  scale_y_continuous(name = "Pluviométrie (mm)", sec.axis = sec_axis(~., name = "Température X2 (°C)")) +
   geom_point(data = data_Dry_month2021, aes(x = date[4], y = max(data_Dry_month2021$Rain)))+
   geom_point(data = data_Dry_month2021, aes(x = date[10], y = min(data_Dry_month2021$Rain)))+
   annotate("text",x = data_Dry_month2021$date[4], 
@@ -403,12 +393,7 @@ ggplot()+
 # Pour 2022 #
 
 # Data par jour
-dataB2022 %>% 
-  select(Year, Month, Day, date, Rain,`Temp(55)`) %>% 
-  group_by(Year, Month, Day, date) %>% 
-  summarise(Rain = sum(Rain), `Temp(55)`= mean(`Temp(55)`)) %>% 
-  print ->
-  data_Dry2022
+Rain2022
 
 # Data par mois
 data_Dry2022 %>%
@@ -422,8 +407,8 @@ data_Dry2022 %>%
 
 # Graphique comparant la pluviometrie journaliere et les temperatures au cours de l'annee
 ggplot()+
-  geom_line(data = data_Dry2022, aes(x = date, y = Rain),colour = "#7570B3")+
-  geom_line(data = data_Dry2022, aes(x = date, y = `Temp(55)`), colour = "red") +
+  geom_line(data = Rain2022, aes(x = date, y = Rain),colour = "#7570B3")+
+  geom_line(data = Rain2022, aes(x = date, y = `Temp(55)`), colour = "red") +
   scale_y_continuous(name = "Pluviométrie (mm)", sec.axis = sec_axis(~., name = "Température (°C)")) +
   scale_x_date(breaks = as.Date(c("2022-01-01", "2022-02-01", "2022-03-01", "2022-04-01",
                                   "2022-05-01", "2022-06-01", "2022-07-01", "2022-08-01",
@@ -439,7 +424,7 @@ ggplot()+
 ggplot()+
   geom_line(data = data_Dry_month2022, aes(x = date , y = Rain),colour = "#7570B3")+
   geom_line(data = data_Dry_month2022, aes(x = date , y = `Temp_X2`), colour = "red")+
-  scale_y_continuous(name = "Pluviométrie (mm)", sec.axis = sec_axis(~., name = "Température (°C)")) +
+  scale_y_continuous(name = "Pluviométrie (mm)", sec.axis = sec_axis(~., name = "Température X2 (°C)")) +
   geom_point(data = data_Dry_month2022, aes(x = date[2], y = max(data_Dry_month2022$Rain)))+
   geom_point(data = data_Dry_month2022, aes(x = date[9], y = min(data_Dry_month2022$Rain)))+
   annotate("text",x = data_Dry_month2022$date[2], 
@@ -461,15 +446,10 @@ ggplot()+
 # Pour 2023 #
 
 # Data par jour
-dataB2023 %>% 
-  select(Year, Month, Day, date, Rain,`Temp(55)`) %>% 
-  group_by(Year, Month, Day, date) %>% 
-  summarise(Rain = sum(Rain), `Temp(55)`= mean(`Temp(55)`)) %>% 
-  print ->
-  data_Dry2023
+Rain2023
 
 # Data par mois
-data_Dry2023 %>%
+Rain2023 %>%
   group_by(Year, Month) %>%
   summarise(Rain = sum(Rain), `Temp(55)`= mean(`Temp(55)`)) %>%
   mutate(Temp_X2 = 2 * `Temp(55)`) %>%
@@ -480,8 +460,8 @@ data_Dry2023 %>%
 
 # Graphique comparant la pluviometrie journaliere et les temperatures au cours de l'annee
 ggplot()+
-  geom_line(data = data_Dry2023, aes(x = date, y = Rain),colour = "#E7298A")+
-  geom_line(data = data_Dry2023, aes(x = date, y = `Temp(55)`), colour = "red") +
+  geom_line(data = Rain2023, aes(x = date, y = Rain),colour = "#E7298A")+
+  geom_line(data = Rain2023, aes(x = date, y = `Temp(55)`), colour = "red") +
   scale_y_continuous(name = "Pluviométrie (mm)", sec.axis = sec_axis(~., name = "Température (°C)")) +
   scale_x_date(breaks = as.Date(c("2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01",
                                   "2023-05-01", "2023-06-01", "2023-07-01", "2023-08-01",
@@ -497,7 +477,7 @@ ggplot()+
 ggplot()+
   geom_line(data = data_Dry_month2023, aes(x = date , y = Rain),colour = "#E7298A")+
   geom_line(data = data_Dry_month2023, aes(x = date , y = `Temp_X2`), colour = "red")+
-  scale_y_continuous(name = "Pluviométrie (mm)", sec.axis = sec_axis(~., name = "Température (°C)")) +
+  scale_y_continuous(name = "Pluviométrie (mm)", sec.axis = sec_axis(~., name = "Température X2 (°C)")) +
   geom_point(data = data_Dry_month2023, aes(x = date[2], y = max(data_Dry_month2023$Rain)))+
   geom_point(data = data_Dry_month2023, aes(x = date[10], y = min(data_Dry_month2023$Rain)))+
   annotate("text",x = data_Dry_month2023$date[2], 
@@ -519,12 +499,7 @@ ggplot()+
 # Pour 2024 #
 
 # Data par jour
-dataB2024 %>% 
-  select(Year, Month, Day, date, Rain,`Temp(55)`) %>% 
-  group_by(Year, Month, Day, date) %>% 
-  summarise(Rain = sum(Rain), `Temp(55)`= mean(`Temp(55)`)) %>% 
-  print ->
-  data_Dry2024
+Rain2024
 
 # Data par mois
 data_Dry2024 %>%
@@ -538,8 +513,8 @@ data_Dry2024 %>%
 
 # Graphique comparant la pluviometrie journaliere et les temperatures au cours de l'annee
 ggplot()+
-  geom_line(data = data_Dry2024, aes(x = date, y = Rain),colour = "#66A61E")+
-  geom_line(data = data_Dry2024, aes(x = date, y = `Temp(55)`), colour = "red") +
+  geom_line(data = Rain2024, aes(x = date, y = Rain),colour = "#66A61E")+
+  geom_line(data = Rain2024, aes(x = date, y = `Temp(55)`), colour = "red") +
   scale_y_continuous(name = "Pluviométrie (mm)", sec.axis = sec_axis(~., name = "Température (°C)")) +
   scale_x_date(breaks = as.Date(c("2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01",
                                   "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01",
@@ -555,7 +530,7 @@ ggplot()+
 ggplot()+
   geom_line(data = data_Dry_month2024, aes(x = date , y = Rain),colour = "#66A61E")+
   geom_line(data = data_Dry_month2024, aes(x = date , y = `Temp_X2`), colour = "red")+
-  scale_y_continuous(name = "Pluviométrie (mm)", sec.axis = sec_axis(~., name = "Température (°C)")) +
+  scale_y_continuous(name = "Pluviométrie (mm)", sec.axis = sec_axis(~., name = "Température X2 (°C)")) +
   geom_point(data = data_Dry_month2024, aes(x = date[1], y = max(data_Dry_month2024$Rain)))+
   geom_point(data = data_Dry_month2024, aes(x = date[4], y = min(data_Dry_month2024$Rain)))+
   annotate("text",x = data_Dry_month2024$date[1], 
@@ -641,7 +616,7 @@ ggplot(Rain2020, aes(x = date, y = Rain)) +
   geom_vline(xintercept = dates2020[pic2020],
              col = "black", linetype = "dashed")+
 
-  # Scale_x_date Pour specifier que des dates sont utilisees en abscisse 
+  # "Scale_x_date" pour specifier que des dates sont utilisees en abscisse 
   scale_x_date(breaks = as.Date(c("2020-01-01", "2020-02-01", "2020-03-01", "2020-04-01",
                                   "2020-05-01", "2020-06-01", "2020-07-01", "2020-08-01",
                                   "2020-09-01", "2020-10-01", "2020-11-01", "2020-12-01")),
