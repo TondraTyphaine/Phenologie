@@ -702,6 +702,7 @@ ggplot(Rain2024, aes(x = date, y = Rain))+
 
 
 # Pour 2020 #
+# Data journalières
 dataB2020 %>% 
   filter(!is.na(`Hr(55)`)) %>% 
   filter(!is.na(ETP)) %>% 
@@ -734,11 +735,202 @@ dataB2020 %>%
   print() ->
   humidity2020_N
 
-# Graphique Hr(55)
+#Data mensuelles
+dataB2020 %>% 
+  filter(!is.na(`Hr(55)`)) %>% 
+  filter(!is.na(ETP)) %>% 
+  filter(!is.na(VWC_10cm)) %>% 
+  filter(!is.na(vpd55)) %>% 
+  select(Year, Month,date,`J/N`,`Hr(55)`, ETP, VWC_10cm, vpd55) %>% 
+  filter(`J/N` == "J") %>% 
+  group_by(Year, Month) %>% 
+  summarise(`Hr(55)` = mean(`Hr(55)`), ETP = sum(ETP), VWC_10cm = mean(VWC_10cm), vpd55 = mean(vpd55)) %>% 
+  mutate(date = floor_date(make_date(Year, Month, day = 1), unit = "month")) %>% 
+  print() ->
+  humidity_month2020_J
+
+dataB2020 %>% 
+  filter(!is.na(`Hr(55)`)) %>% 
+  filter(!is.na(ETP)) %>% 
+  filter(!is.na(VWC_10cm)) %>% 
+  filter(!is.na(vpd55)) %>% 
+  select(Year, Month,date,`J/N`,`Hr(55)`, ETP, VWC_10cm, vpd55) %>% 
+  filter(`J/N` == "N") %>% 
+  group_by(Year, Month) %>% 
+  summarise(`Hr(55)` = mean(`Hr(55)`), ETP = sum(ETP), VWC_10cm = mean(VWC_10cm), vpd55 = mean(vpd55)) %>% 
+  mutate(date = floor_date(make_date(Year, Month, day = 1), unit = "month")) %>% 
+  print() ->
+  humidity_month2020_N
+
+# Data pour chaque mois
+dataB2020 %>% 
+  filter(!is.na(`Hr(55)`)) %>% 
+  filter(!is.na(ETP)) %>% 
+  filter(!is.na(VWC_10cm)) %>% 
+  filter(!is.na(vpd55)) %>% 
+  select(Year, Month, Day, date,`J/N`, `Hr(55)`, ETP, VWC_10cm, vpd55) %>% 
+  filter(`J/N` == "N") %>% 
+  filter(Month == 1) %>% 
+  summarise(date,`Hr(55)` = mean(`Hr(55)`), ETP = sum(ETP), VWC_10cm = mean(VWC_10cm), vpd55 = mean(vpd55)) %>% 
+  print() ->
+  humidity_01_2020_N
+
+dataB2020 %>% 
+  filter(!is.na(`Hr(55)`)) %>% 
+  filter(!is.na(ETP)) %>% 
+  filter(!is.na(VWC_10cm)) %>% 
+  filter(!is.na(vpd55)) %>% 
+  select(Year, Month, Day, date,`J/N`, `Hr(55)`, ETP, VWC_10cm, vpd55) %>% 
+  filter(`J/N` == "N") %>% 
+  filter(Month == 2) %>% 
+  summarise(date,`Hr(55)` = mean(`Hr(55)`), ETP = sum(ETP), VWC_10cm = mean(VWC_10cm), vpd55 = mean(vpd55)) %>% 
+  print() ->
+  humidity_02_2020_N
+
+dataB2020 %>% 
+  filter(!is.na(`Hr(55)`)) %>% 
+  filter(!is.na(ETP)) %>% 
+  filter(!is.na(VWC_10cm)) %>% 
+  filter(!is.na(vpd55)) %>% 
+  select(Year, Month, Day, date,`J/N`, `Hr(55)`, ETP, VWC_10cm, vpd55) %>% 
+  filter(`J/N` == "N") %>% 
+  filter(Month == 3) %>% 
+  summarise(date,`Hr(55)` = mean(`Hr(55)`), ETP = sum(ETP), VWC_10cm = mean(VWC_10cm), vpd55 = mean(vpd55)) %>% 
+  print() ->
+  humidity_03_2020_N
+
+dataB2020 %>% 
+  filter(!is.na(`Hr(55)`)) %>% 
+  filter(!is.na(ETP)) %>% 
+  filter(!is.na(VWC_10cm)) %>% 
+  filter(!is.na(vpd55)) %>% 
+  select(Year, Month, Day, date,`J/N`, `Hr(55)`, ETP, VWC_10cm, vpd55) %>% 
+  filter(`J/N` == "N") %>% 
+  filter(Month == 4) %>% 
+  summarise(date,`Hr(55)` = mean(`Hr(55)`), ETP = sum(ETP), VWC_10cm = mean(VWC_10cm), vpd55 = mean(vpd55)) %>% 
+  print() ->
+  humidity_04_2020_N
+
+dataB2020 %>% 
+  filter(!is.na(`Hr(55)`)) %>% 
+  filter(!is.na(ETP)) %>% 
+  filter(!is.na(VWC_10cm)) %>% 
+  filter(!is.na(vpd55)) %>% 
+  select(Year, Month, Day, date,`J/N`, `Hr(55)`, ETP, VWC_10cm, vpd55) %>% 
+  filter(`J/N` == "N") %>% 
+  filter(Month == 5) %>% 
+  summarise(date,`Hr(55)` = mean(`Hr(55)`), ETP = sum(ETP), VWC_10cm = mean(VWC_10cm), vpd55 = mean(vpd55)) %>% 
+  print() ->
+  humidity_05_2020_N
+
+dataB2020 %>% 
+  filter(!is.na(`Hr(55)`)) %>% 
+  filter(!is.na(ETP)) %>% 
+  filter(!is.na(VWC_10cm)) %>% 
+  filter(!is.na(vpd55)) %>% 
+  select(Year, Month, Day, date,`J/N`, `Hr(55)`, ETP, VWC_10cm, vpd55) %>% 
+  filter(`J/N` == "N") %>% 
+  filter(Month == 6) %>% 
+  summarise(date,`Hr(55)` = mean(`Hr(55)`), ETP = sum(ETP), VWC_10cm = mean(VWC_10cm), vpd55 = mean(vpd55)) %>% 
+  print() ->
+  humidity_06_2020_N
+
+dataB2020 %>% 
+  filter(!is.na(`Hr(55)`)) %>% 
+  filter(!is.na(ETP)) %>% 
+  filter(!is.na(VWC_10cm)) %>% 
+  filter(!is.na(vpd55)) %>% 
+  select(Year, Month, Day, date,`J/N`, `Hr(55)`, ETP, VWC_10cm, vpd55) %>% 
+  filter(`J/N` == "N") %>% 
+  filter(Month == 7) %>% 
+  summarise(date,`Hr(55)` = mean(`Hr(55)`), ETP = sum(ETP), VWC_10cm = mean(VWC_10cm), vpd55 = mean(vpd55)) %>% 
+  print() ->
+  humidity_07_2020_N
+
+dataB2020 %>% 
+  filter(!is.na(`Hr(55)`)) %>% 
+  filter(!is.na(ETP)) %>% 
+  filter(!is.na(VWC_10cm)) %>% 
+  filter(!is.na(vpd55)) %>% 
+  select(Year, Month, Day, date,`J/N`, `Hr(55)`, ETP, VWC_10cm, vpd55) %>% 
+  filter(`J/N` == "N") %>% 
+  filter(Month == 8) %>% 
+  summarise(date,`Hr(55)` = mean(`Hr(55)`), ETP = sum(ETP), VWC_10cm = mean(VWC_10cm), vpd55 = mean(vpd55)) %>% 
+  print() ->
+  humidity_08_2020_N
+
+dataB2020 %>% 
+  filter(!is.na(`Hr(55)`)) %>% 
+  filter(!is.na(ETP)) %>% 
+  filter(!is.na(VWC_10cm)) %>% 
+  filter(!is.na(vpd55)) %>% 
+  select(Year, Month, Day, date,`J/N`, `Hr(55)`, ETP, VWC_10cm, vpd55) %>% 
+  filter(`J/N` == "N") %>% 
+  filter(Month == 9) %>% 
+  summarise(date,`Hr(55)` = mean(`Hr(55)`), ETP = sum(ETP), VWC_10cm = mean(VWC_10cm), vpd55 = mean(vpd55)) %>% 
+  print() ->
+  humidity_09_2020_N
+
+dataB2020 %>% 
+  filter(!is.na(`Hr(55)`)) %>% 
+  filter(!is.na(ETP)) %>% 
+  filter(!is.na(VWC_10cm)) %>% 
+  filter(!is.na(vpd55)) %>% 
+  select(Year, Month, Day, date,`J/N`, `Hr(55)`, ETP, VWC_10cm, vpd55) %>% 
+  filter(`J/N` == "N") %>% 
+  filter(Month == 10) %>% 
+  summarise(date,`Hr(55)` = mean(`Hr(55)`), ETP = sum(ETP), VWC_10cm = mean(VWC_10cm), vpd55 = mean(vpd55)) %>% 
+  print() ->
+  humidity_10_2020_N
+
+dataB2020 %>% 
+  filter(!is.na(`Hr(55)`)) %>% 
+  filter(!is.na(ETP)) %>% 
+  filter(!is.na(VWC_10cm)) %>% 
+  filter(!is.na(vpd55)) %>% 
+  select(Year, Month, Day, date,`J/N`, `Hr(55)`, ETP, VWC_10cm, vpd55) %>% 
+  filter(`J/N` == "N") %>% 
+  filter(Month == 11) %>% 
+  summarise(date,`Hr(55)` = mean(`Hr(55)`), ETP = sum(ETP), VWC_10cm = mean(VWC_10cm), vpd55 = mean(vpd55)) %>% 
+  print() ->
+  humidity_11_2020_N
+
+dataB2020 %>% 
+  filter(!is.na(`Hr(55)`)) %>% 
+  filter(!is.na(ETP)) %>% 
+  filter(!is.na(VWC_10cm)) %>% 
+  filter(!is.na(vpd55)) %>% 
+  select(Year, Month, Day, date,`J/N`, `Hr(55)`, ETP, VWC_10cm, vpd55) %>% 
+  filter(`J/N` == "N") %>% 
+  filter(Month == 12) %>% 
+  summarise(date,`Hr(55)` = mean(`Hr(55)`), ETP = sum(ETP), VWC_10cm = mean(VWC_10cm), vpd55 = mean(vpd55)) %>% 
+  print() ->
+  humidity_12_2020_N
+
+# Moyennes, 1erQ et 3eQ
+hum_sum_J_2020 <- summary(humidity2020_J)
+air2020_J<- hum_sum_J_2020[,6]
+min_air_J_2020 <- air2020_J[1]
+max_air_J_2020 <- air2020_J[6]
+med_air_J_2020 <-  air2020_J[3]
+
+hum_sum_N_2020 <- summary(humidity2020_N)
+air2020_N<- hum_sum_N_2020[,6]
+min_air_N_2020 <- air2020_N[1]
+max_air_N_2020 <- air2020_N[6]
+med_air_N_2020 <-  air2020_N[3]
+
+# Graphique Hr(55) V.1 (journalier)
 ggplot() +
   #geom_line(data = humidity2020, aes(x = date, y = `Hr(55)`), colour = "black") +
   geom_line(data = humidity2020_J, aes(x = date, y = `Hr(55)`, color = "J")) +
   geom_line(data = humidity2020_N, aes(x = date, y = `Hr(55)`, color = "N")) +
+  geom_hline(yintercept = 98.92, col = "red", linetype = "dashed") +
+  geom_hline(yintercept = 68.64, col = "red", linetype = "dashed") +
+  geom_hline(yintercept = 81.66 , col = "black", linetype = "dashed") +
+  geom_hline(yintercept = 99.65, col = "blue", linetype = "dashed") +
+  geom_hline(yintercept = 77.13, col = "blue", linetype = "dashed") +
+  geom_hline(yintercept = 92.46 , col = "black", linetype = "dashed") +
   scale_color_manual(name = "Légende", values = c(J = "red", N ="blue")) +
   scale_x_date(breaks = as.Date(c("2020-01-01", "2020-02-01", "2020-03-01", "2020-04-01",
                                   "2020-05-01", "2020-06-01", "2020-07-01", "2020-08-01",
@@ -750,6 +942,75 @@ ggplot() +
     x = "Dates",
     y = "Humidité de l'air à 55m (%)"
   )
+
+# Graphique Hr(55) V.2
+ggplot() +
+  #geom_line(data = humidity2020, aes(x = date, y = `Hr(55)`), colour = "black") +
+  geom_point(data = humidity2020_J, aes(x = date, y = `Hr(55)`, color = "J")) +
+  geom_point(data = humidity2020_N, aes(x = date, y = `Hr(55)`, color = "N")) +
+  geom_smooth(data = humidity2020_J, aes(x = date, y = `Hr(55)`, color = "J")) +
+  geom_smooth(data = humidity2020_N, aes(x = date, y = `Hr(55)`, color = "N")) +
+  geom_hline(yintercept = 98.92, col = "red", linetype = "dashed") +
+  geom_hline(yintercept = 68.64, col = "red", linetype = "dashed") +
+  geom_hline(yintercept = 81.66 , col = "black", linetype = "dashed") +
+  geom_hline(yintercept = 99.65, col = "blue", linetype = "dashed") +
+  geom_hline(yintercept = 77.13, col = "blue", linetype = "dashed") +
+  geom_hline(yintercept = 92.46 , col = "black", linetype = "dashed") +
+  scale_color_manual(name = "Légende", values = c(J = "red", N ="blue")) +
+  scale_x_date(breaks = as.Date(c("2020-01-01", "2020-02-01", "2020-03-01", "2020-04-01",
+                                  "2020-05-01", "2020-06-01", "2020-07-01", "2020-08-01",
+                                  "2020-09-01", "2020-10-01", "2020-11-01", "2020-12-01")),
+               date_labels = "%Y-%m-%d") +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
+  labs(
+    title = "Humidité de l'air de jour et de nuit",
+    x = "Dates",
+    y = "Humidité de l'air à 55m (%)"
+  )
+
+# Graphique Hr(55) V.3 (au mois)
+ggplot() +
+  #geom_line(data = humidity2020, aes(x = date, y = `Hr(55)`), colour = "black") +
+  geom_line(data = humidity_month2020_J, aes(x = date, y = `Hr(55)`, color = "J")) +
+  geom_line(data = humidity_month2020_N, aes(x = date, y = `Hr(55)`, color = "N")) +
+  geom_hline(yintercept = 98.92, col = "red", linetype = "dashed") +
+  geom_hline(yintercept = 68.64, col = "red", linetype = "dashed") +
+  geom_hline(yintercept = 81.66 , col = "black", linetype = "dashed") +
+  geom_hline(yintercept = 99.65, col = "blue", linetype = "dashed") +
+  geom_hline(yintercept = 77.13, col = "blue", linetype = "dashed") +
+  geom_hline(yintercept = 92.46 , col = "black", linetype = "dashed") +
+  scale_color_manual(name = "Légende", values = c(J = "red", N ="blue")) +
+  scale_x_date(breaks = as.Date(c("2020-01-01", "2020-02-01", "2020-03-01", "2020-04-01",
+                                  "2020-05-01", "2020-06-01", "2020-07-01", "2020-08-01",
+                                  "2020-09-01", "2020-10-01", "2020-11-01", "2020-12-01")),
+               date_labels = "%Y-%m-%d") +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
+  labs(
+    title = "Humidité de l'air de jour et de nuit",
+    x = "Dates",
+    y = "Humidité de l'air à 55m (%)"
+  )
+
+# Graphique Hr(55) V.4 (graphique violon mois par mois)
+ggplot() +
+  geom_violin(data = humidity_01_2020_N, aes(x = date, y = `Hr(55)`)) +
+  geom_violin(data = humidity_02_2020_N, aes(x = date, y =`Hr(55)`)) +
+  geom_violin(data = humidity_03_2020_N, aes(x = date, y =`Hr(55)`)) +
+  geom_violin(data = humidity_04_2020_N, aes(x = date, y =`Hr(55)`)) +
+  geom_violin(data = humidity_05_2020_N, aes(x = date, y =`Hr(55)`)) +
+  geom_violin(data = humidity_06_2020_N, aes(x = date, y =`Hr(55)`)) +
+  geom_violin(data = humidity_07_2020_N, aes(x = date, y =`Hr(55)`)) +
+  geom_violin(data = humidity_08_2020_N, aes(x = date, y =`Hr(55)`)) +
+  geom_violin(data = humidity_09_2020_N, aes(x = date, y =`Hr(55)`)) +
+  geom_violin(data = humidity_10_2020_N, aes(x = date, y =`Hr(55)`)) +
+  geom_violin(data = humidity_11_2020_N, aes(x = date, y =`Hr(55)`)) +
+  geom_violin(data = humidity_12_2020_N, aes(x = date, y =`Hr(55)`)) +
+  scale_x_date(breaks = as.Date(c("2020-01-01", "2020-02-01", "2020-03-01", "2020-04-01",
+                                  "2020-05-01", "2020-06-01", "2020-07-01", "2020-08-01",
+                                  "2020-09-01", "2020-10-01", "2020-11-01", "2020-12-01")),
+               date_labels = "%Y-%m-%d") +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) 
+  
 
 # Graphique ETP
 ggplot() +
