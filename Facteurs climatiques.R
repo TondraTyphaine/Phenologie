@@ -828,7 +828,8 @@ min_air_N_2020 <- air2020_N[1]
 max_air_N_2020 <- air2020_N[6]
 med_air_N_2020 <-  air2020_N[3]
 
-# Graphique Hr(55) V.1 (journalier)
+
+# Graphique Hr(55) journalier V.1 (donnees brutes non modifiees)
 ggplot() +
   #geom_line(data = humidity2020, aes(x = date, y = `Hr(55)`), colour = "black") +
   geom_line(data = humidity2020_J, aes(x = date, y = `Hr(55)`, color = "J")) +
@@ -851,7 +852,39 @@ ggplot() +
     y = "Humidité de l'air à 55m (%)"
   )
 
-# Graphique Hr(55) V.2
+
+# Graphique Hr(55) journalier V.2(moyenne mobile)
+source("Source_custom_functions/Func_dataPrepExplo.R")
+source("Source_custom_functions/Func_analyse.R")
+source("Source_custom_functions/myTheme.R")
+
+humidity2020_J_av <- moving_average(humidity2020_J %>% 
+                                      select(`Hr(55)`) %>%
+                                      pull(),
+                                    filter = fpoids(n=2,p=2,q=2)$y)
+
+humidity2020_N_av <- moving_average(humidity2020_N %>% 
+                                      select(`Hr(55)`) %>%
+                                      pull(),
+                                    filter = fpoids(n=2,p=2,q=2)$y)
+
+ggplot() +
+  geom_line(data = humidity2020_J, aes(x =date, y = humidity2020_J_av, color = "J")) +
+  geom_line(data = humidity2020_N, aes(x =date, y = humidity2020_N_av, color = "N")) +
+  scale_color_manual(name = "Légende", values = c(J = "red", N ="blue")) +
+  scale_x_date(breaks = as.Date(c("2020-01-01", "2020-02-01", "2020-03-01", "2020-04-01",
+                                  "2020-05-01", "2020-06-01", "2020-07-01", "2020-08-01",
+                                  "2020-09-01", "2020-10-01", "2020-11-01", "2020-12-01")),
+               date_labels = "%Y-%m-%d") +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
+  labs(
+    title = "Humidité de l'air de jour et de nuit",
+    x = "Dates",
+    y = "Humidité de l'air à 55m (%)"
+  )
+
+
+# Graphique Hr(55) journalier V.3
 ggplot() +
   #geom_line(data = humidity2020, aes(x = date, y = `Hr(55)`), colour = "black") +
   geom_point(data = humidity2020_J, aes(x = date, y = `Hr(55)`, color = "J")) +
@@ -876,7 +909,7 @@ ggplot() +
     y = "Humidité de l'air à 55m (%)"
   )
 
-# Graphique Hr(55) V.3 (au mois)
+# Graphique Hr(55) mensuel V.4 
 ggplot() +
   #geom_line(data = humidity2020, aes(x = date, y = `Hr(55)`), colour = "black") +
   geom_line(data = humidity_month2020_J, aes(x = date, y = `Hr(55)`, color = "J")) +
@@ -899,7 +932,7 @@ ggplot() +
     y = "Humidité de l'air à 55m (%)"
   )
 
-# Graphique Hr(55) V.4 (graphique violon mois par mois pour la nuit)
+# Graphique Hr(55) V.5 (graphique violon mois par mois pour la nuit)
 install.packages("vioplot")
 library(vioplot)
 
