@@ -557,7 +557,10 @@ ggplot()+
 display.brewer.all(colorblindFriendly = TRUE)
 brewer.pal(n = 5, name = "Dark2")
 brewer.pal(n = 5, name = "RdBu")
-
+brewer.pal(n = 5, name = "YlGnBu")
+"#FFFFB2" "#FECC5C" "#FD8D3C" "#F03B20" "#BD0026"
+"#FFFFD4" "#FED98E" "#FE9929" "#D95F0E" "#993404"
+"#FFFFCC" "#A1DAB4" "#41B6C4" "#2C7FB8" "#253494"
 ggplot() +
   geom_line(data = Rain2020, aes(x= date, y= Rain),colour = "#1B9E77") +
   geom_line(data = Rain2021, aes(x= date, y= Rain), colour = "#D95F02") +
@@ -700,48 +703,36 @@ ggplot(Rain2024, aes(x = date, y = Rain))+
 
 ## HUMIDITE DE L'AIR (Hr55), ETP, HUMIDITE DU SOL (VWC_10cm) ET DEFICIT DE SATURATION (vpd55) ##
 
-
 # Pour 2020 #
-# Data journalières
 dataB2020 %>% 
   filter(!is.na(`Hr(55)`)) %>% 
   filter(!is.na(ETP)) %>% 
   filter(!is.na(VWC_10cm)) %>% 
   filter(!is.na(vpd55)) %>% 
-  select(Year, Month, Day, date, `Hr(55)`, ETP, VWC_10cm, vpd55) %>% 
+  select(Year, Month, Day, date,`J/N`, `Hr(55)`, ETP, VWC_10cm, vpd55) ->
+  dataB2020_hum
+
+# Data journalières
+dataB2020_hum %>% 
   group_by(Year, Month, Day, date) %>% 
   summarise(`Hr(55)` = mean(`Hr(55)`), ETP = sum(ETP), VWC_10cm = mean(VWC_10cm), vpd55 = mean(vpd55)) %>% 
   print() ->
   humidity2020
 
-dataB2020 %>% 
-  filter(!is.na(ETP)) %>% 
-  filter(!is.na(VWC_10cm)) %>% 
-  filter(!is.na(vpd55)) %>% 
-  select(Year, Month, Day, date,`J/N`, `Hr(55)`, ETP, VWC_10cm, vpd55) %>% 
+dataB2020_hum %>% 
   filter(`J/N` == "J") %>% 
   group_by(Year, Month, Day, date) %>% 
   print() ->
   humidity2020_J
 
-dataB2020 %>% 
-  filter(!is.na(`Hr(55)`)) %>% 
-  filter(!is.na(ETP)) %>% 
-  filter(!is.na(VWC_10cm)) %>% 
-  filter(!is.na(vpd55)) %>% 
-  select(Year, Month, Day, date,`J/N`, `Hr(55)`, ETP, VWC_10cm, vpd55) %>% 
+dataB2020_hum %>% 
   filter(`J/N` == "N") %>% 
   group_by(Year, Month, Day, date) %>% 
   print() ->
   humidity2020_N
 
 #Data mensuelles
-dataB2020 %>% 
-  filter(!is.na(`Hr(55)`)) %>% 
-  filter(!is.na(ETP)) %>% 
-  filter(!is.na(VWC_10cm)) %>% 
-  filter(!is.na(vpd55)) %>% 
-  select(Year, Month,date,`J/N`,`Hr(55)`, ETP, VWC_10cm, vpd55) %>% 
+dataB2020_hum %>% 
   filter(`J/N` == "J") %>% 
   group_by(Year, Month) %>% 
   summarise(`Hr(55)` = mean(`Hr(55)`), ETP = sum(ETP), VWC_10cm = mean(VWC_10cm), vpd55 = mean(vpd55)) %>% 
@@ -749,12 +740,7 @@ dataB2020 %>%
   print() ->
   humidity_month2020_J
 
-dataB2020 %>% 
-  filter(!is.na(`Hr(55)`)) %>% 
-  filter(!is.na(ETP)) %>% 
-  filter(!is.na(VWC_10cm)) %>% 
-  filter(!is.na(vpd55)) %>% 
-  select(Year, Month,date,`J/N`,`Hr(55)`, ETP, VWC_10cm, vpd55) %>% 
+dataB2020_hum %>% 
   filter(`J/N` == "N") %>% 
   group_by(Year, Month) %>% 
   summarise(`Hr(55)` = mean(`Hr(55)`), ETP = sum(ETP), VWC_10cm = mean(VWC_10cm), vpd55 = mean(vpd55)) %>% 
@@ -763,147 +749,69 @@ dataB2020 %>%
   humidity_month2020_N
 
 # Data pour chaque mois
-dataB2020 %>% 
-  filter(!is.na(`Hr(55)`)) %>% 
-  filter(!is.na(ETP)) %>% 
-  filter(!is.na(VWC_10cm)) %>% 
-  filter(!is.na(vpd55)) %>% 
-  select(Year, Month, Day, date,`J/N`, `Hr(55)`, ETP, VWC_10cm, vpd55) %>% 
+dataB2020_hum %>% 
   filter(`J/N` == "N") %>% 
-  filter(Month == 1) %>% 
   summarise(date,`Hr(55)` = mean(`Hr(55)`), ETP = sum(ETP), VWC_10cm = mean(VWC_10cm), vpd55 = mean(vpd55)) %>% 
+  print() ->
+  humidity_MONTH_2020_N
+
+humidity_MONTH_2020_N %>% 
+  filter(Month == 1) %>% 
   print() ->
   humidity_01_2020_N
 
-dataB2020 %>% 
-  filter(!is.na(`Hr(55)`)) %>% 
-  filter(!is.na(ETP)) %>% 
-  filter(!is.na(VWC_10cm)) %>% 
-  filter(!is.na(vpd55)) %>% 
-  select(Year, Month, Day, date,`J/N`, `Hr(55)`, ETP, VWC_10cm, vpd55) %>% 
-  filter(`J/N` == "N") %>% 
+humidity_MONTH_2020_N %>% 
   filter(Month == 2) %>% 
-  summarise(date,`Hr(55)` = mean(`Hr(55)`), ETP = sum(ETP), VWC_10cm = mean(VWC_10cm), vpd55 = mean(vpd55)) %>% 
   print() ->
   humidity_02_2020_N
 
-dataB2020 %>% 
-  filter(!is.na(`Hr(55)`)) %>% 
-  filter(!is.na(ETP)) %>% 
-  filter(!is.na(VWC_10cm)) %>% 
-  filter(!is.na(vpd55)) %>% 
-  select(Year, Month, Day, date,`J/N`, `Hr(55)`, ETP, VWC_10cm, vpd55) %>% 
-  filter(`J/N` == "N") %>% 
+humidity_MONTH_2020_N %>%  
   filter(Month == 3) %>% 
-  summarise(date,`Hr(55)` = mean(`Hr(55)`), ETP = sum(ETP), VWC_10cm = mean(VWC_10cm), vpd55 = mean(vpd55)) %>% 
   print() ->
   humidity_03_2020_N
 
-dataB2020 %>% 
-  filter(!is.na(`Hr(55)`)) %>% 
-  filter(!is.na(ETP)) %>% 
-  filter(!is.na(VWC_10cm)) %>% 
-  filter(!is.na(vpd55)) %>% 
-  select(Year, Month, Day, date,`J/N`, `Hr(55)`, ETP, VWC_10cm, vpd55) %>% 
-  filter(`J/N` == "N") %>% 
+humidity_MONTH_2020_N %>% 
   filter(Month == 4) %>% 
-  summarise(date,`Hr(55)` = mean(`Hr(55)`), ETP = sum(ETP), VWC_10cm = mean(VWC_10cm), vpd55 = mean(vpd55)) %>% 
   print() ->
   humidity_04_2020_N
 
-dataB2020 %>% 
-  filter(!is.na(`Hr(55)`)) %>% 
-  filter(!is.na(ETP)) %>% 
-  filter(!is.na(VWC_10cm)) %>% 
-  filter(!is.na(vpd55)) %>% 
-  select(Year, Month, Day, date,`J/N`, `Hr(55)`, ETP, VWC_10cm, vpd55) %>% 
-  filter(`J/N` == "N") %>% 
+humidity_MONTH_2020_N %>% 
   filter(Month == 5) %>% 
-  summarise(date,`Hr(55)` = mean(`Hr(55)`), ETP = sum(ETP), VWC_10cm = mean(VWC_10cm), vpd55 = mean(vpd55)) %>% 
   print() ->
   humidity_05_2020_N
 
-dataB2020 %>% 
-  filter(!is.na(`Hr(55)`)) %>% 
-  filter(!is.na(ETP)) %>% 
-  filter(!is.na(VWC_10cm)) %>% 
-  filter(!is.na(vpd55)) %>% 
-  select(Year, Month, Day, date,`J/N`, `Hr(55)`, ETP, VWC_10cm, vpd55) %>% 
-  filter(`J/N` == "N") %>% 
+dataB2020_hum %>%  
   filter(Month == 6) %>% 
-  summarise(date,`Hr(55)` = mean(`Hr(55)`), ETP = sum(ETP), VWC_10cm = mean(VWC_10cm), vpd55 = mean(vpd55)) %>% 
   print() ->
   humidity_06_2020_N
 
-dataB2020 %>% 
-  filter(!is.na(`Hr(55)`)) %>% 
-  filter(!is.na(ETP)) %>% 
-  filter(!is.na(VWC_10cm)) %>% 
-  filter(!is.na(vpd55)) %>% 
-  select(Year, Month, Day, date,`J/N`, `Hr(55)`, ETP, VWC_10cm, vpd55) %>% 
-  filter(`J/N` == "N") %>% 
+dataB2020_hum %>%  
   filter(Month == 7) %>% 
-  summarise(date,`Hr(55)` = mean(`Hr(55)`), ETP = sum(ETP), VWC_10cm = mean(VWC_10cm), vpd55 = mean(vpd55)) %>% 
   print() ->
   humidity_07_2020_N
 
-dataB2020 %>% 
-  filter(!is.na(`Hr(55)`)) %>% 
-  filter(!is.na(ETP)) %>% 
-  filter(!is.na(VWC_10cm)) %>% 
-  filter(!is.na(vpd55)) %>% 
-  select(Year, Month, Day, date,`J/N`, `Hr(55)`, ETP, VWC_10cm, vpd55) %>% 
-  filter(`J/N` == "N") %>% 
+dataB2020_hum %>% 
   filter(Month == 8) %>% 
-  summarise(date,`Hr(55)` = mean(`Hr(55)`), ETP = sum(ETP), VWC_10cm = mean(VWC_10cm), vpd55 = mean(vpd55)) %>% 
   print() ->
   humidity_08_2020_N
 
-dataB2020 %>% 
-  filter(!is.na(`Hr(55)`)) %>% 
-  filter(!is.na(ETP)) %>% 
-  filter(!is.na(VWC_10cm)) %>% 
-  filter(!is.na(vpd55)) %>% 
-  select(Year, Month, Day, date,`J/N`, `Hr(55)`, ETP, VWC_10cm, vpd55) %>% 
-  filter(`J/N` == "N") %>% 
+dataB2020_hum %>% 
   filter(Month == 9) %>% 
-  summarise(date,`Hr(55)` = mean(`Hr(55)`), ETP = sum(ETP), VWC_10cm = mean(VWC_10cm), vpd55 = mean(vpd55)) %>% 
   print() ->
   humidity_09_2020_N
 
-dataB2020 %>% 
-  filter(!is.na(`Hr(55)`)) %>% 
-  filter(!is.na(ETP)) %>% 
-  filter(!is.na(VWC_10cm)) %>% 
-  filter(!is.na(vpd55)) %>% 
-  select(Year, Month, Day, date,`J/N`, `Hr(55)`, ETP, VWC_10cm, vpd55) %>% 
-  filter(`J/N` == "N") %>% 
+dataB2020_hum %>% 
   filter(Month == 10) %>% 
-  summarise(date,`Hr(55)` = mean(`Hr(55)`), ETP = sum(ETP), VWC_10cm = mean(VWC_10cm), vpd55 = mean(vpd55)) %>% 
   print() ->
   humidity_10_2020_N
 
-dataB2020 %>% 
-  filter(!is.na(`Hr(55)`)) %>% 
-  filter(!is.na(ETP)) %>% 
-  filter(!is.na(VWC_10cm)) %>% 
-  filter(!is.na(vpd55)) %>% 
-  select(Year, Month, Day, date,`J/N`, `Hr(55)`, ETP, VWC_10cm, vpd55) %>% 
-  filter(`J/N` == "N") %>% 
+dataB2020_hum %>% 
   filter(Month == 11) %>% 
-  summarise(date,`Hr(55)` = mean(`Hr(55)`), ETP = sum(ETP), VWC_10cm = mean(VWC_10cm), vpd55 = mean(vpd55)) %>% 
   print() ->
   humidity_11_2020_N
 
-dataB2020 %>% 
-  filter(!is.na(`Hr(55)`)) %>% 
-  filter(!is.na(ETP)) %>% 
-  filter(!is.na(VWC_10cm)) %>% 
-  filter(!is.na(vpd55)) %>% 
-  select(Year, Month, Day, date,`J/N`, `Hr(55)`, ETP, VWC_10cm, vpd55) %>% 
-  filter(`J/N` == "N") %>% 
+dataB2020_hum %>% 
   filter(Month == 12) %>% 
-  summarise(date,`Hr(55)` = mean(`Hr(55)`), ETP = sum(ETP), VWC_10cm = mean(VWC_10cm), vpd55 = mean(vpd55)) %>% 
   print() ->
   humidity_12_2020_N
 
@@ -991,26 +899,74 @@ ggplot() +
     y = "Humidité de l'air à 55m (%)"
   )
 
-# Graphique Hr(55) V.4 (graphique violon mois par mois)
-ggplot() +
-  geom_violin(data = humidity_01_2020_N, aes(x = date, y = `Hr(55)`)) +
-  geom_violin(data = humidity_02_2020_N, aes(x = date, y =`Hr(55)`)) +
-  geom_violin(data = humidity_03_2020_N, aes(x = date, y =`Hr(55)`)) +
-  geom_violin(data = humidity_04_2020_N, aes(x = date, y =`Hr(55)`)) +
-  geom_violin(data = humidity_05_2020_N, aes(x = date, y =`Hr(55)`)) +
-  geom_violin(data = humidity_06_2020_N, aes(x = date, y =`Hr(55)`)) +
-  geom_violin(data = humidity_07_2020_N, aes(x = date, y =`Hr(55)`)) +
-  geom_violin(data = humidity_08_2020_N, aes(x = date, y =`Hr(55)`)) +
-  geom_violin(data = humidity_09_2020_N, aes(x = date, y =`Hr(55)`)) +
-  geom_violin(data = humidity_10_2020_N, aes(x = date, y =`Hr(55)`)) +
-  geom_violin(data = humidity_11_2020_N, aes(x = date, y =`Hr(55)`)) +
-  geom_violin(data = humidity_12_2020_N, aes(x = date, y =`Hr(55)`)) +
-  scale_x_date(breaks = as.Date(c("2020-01-01", "2020-02-01", "2020-03-01", "2020-04-01",
-                                  "2020-05-01", "2020-06-01", "2020-07-01", "2020-08-01",
-                                  "2020-09-01", "2020-10-01", "2020-11-01", "2020-12-01")),
-               date_labels = "%Y-%m-%d") +
-  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) 
-  
+# Graphique Hr(55) V.4 (graphique violon mois par mois pour la nuit)
+install.packages("vioplot")
+library(vioplot)
+
+with(humidity2020 , {
+  vioplot( 
+    `Hr(55)`[Month== 1] ,`Hr(55)`[Month== 2] , `Hr(55)`[Month== 3] , `Hr(55)`[Month== 4] ,`Hr(55)`[Month== 5] ,
+    `Hr(55)`[Month== 6] ,`Hr(55)`[Month== 7] ,`Hr(55)`[Month== 8] ,`Hr(55)`[Month== 9] ,`Hr(55)`[Month== 10] ,
+    `Hr(55)`[Month== 11] ,`Hr(55)`[Month== 12] ,
+    col= "#41B6C4" , names=c("Janvier","Février","Mars",
+                                       "Avril","Mai","Juin",
+                                       "Juillet","Août","Septembre",
+                                       "Octobre","Novembre","Décembre"),
+    xlab = "Mois",
+    ylab = "Humidité de l'air (%)",
+    main = "Humidité de l'air à 55m en 2022"
+  )
+ })
+
+
+#ggplot() +
+# geom_violin(data = humidity_01_2020_N, aes(x=date, y = `Hr(55)`), draw_quantiles = c(0.25, 0.5, 0.75)) +
+# geom_violin(data = humidity_02_2020_N, aes(x = date, y = `Hr(55)`), draw_quantiles = c(0.25, 0.5, 0.75)) +
+# geom_violin(data = humidity_03_2020_N, aes(x = date, y = `Hr(55)`), draw_quantiles = c(0.25, 0.5, 0.75)) +
+# geom_violin(data = humidity_04_2020_N, aes(x = date, y = `Hr(55)`), draw_quantiles = c(0.25, 0.5, 0.75)) +
+# geom_violin(data = humidity_05_2020_N, aes(x = date, y = `Hr(55)`), draw_quantiles = c(0.25, 0.5, 0.75)) +
+# geom_violin(data = humidity_06_2020_N, aes(x = date, y = `Hr(55)`), draw_quantiles = c(0.25, 0.5, 0.75)) +
+# geom_violin(data = humidity_07_2020_N, aes(x = date, y = `Hr(55)`), draw_quantiles = c(0.25, 0.5, 0.75)) +
+# geom_violin(data = humidity_08_2020_N, aes(x = date, y = `Hr(55)`), draw_quantiles = c(0.25, 0.5, 0.75)) +
+# geom_violin(data = humidity_09_2020_N, aes(x = date, y = `Hr(55)`), draw_quantiles = c(0.25, 0.5, 0.75)) +
+# geom_violin(data = humidity_10_2020_N, aes(x = date, y = `Hr(55)`), draw_quantiles = c(0.25, 0.5, 0.75)) +
+# geom_violin(data = humidity_11_2020_N, aes(x = date, y = `Hr(55)`), draw_quantiles = c(0.25, 0.5, 0.75)) +
+# geom_violin(data = humidity_12_2020_N, aes(x = date, y = `Hr(55)`), draw_quantiles = c(0.25, 0.5, 0.75)) +
+# annotate("text", x = humidity_01_2020_N$date[1] +15, y = median(humidity_01_2020_N$`Hr(55)`), 
+#          label = round(median(humidity_01_2020_N$`Hr(55)`), digits = 2), size = 3) +
+# annotate("text", x = humidity_02_2020_N$date[1] +15, y = median(humidity_02_2020_N$`Hr(55)`)+0.5, 
+#          label = round(median(humidity_02_2020_N$`Hr(55)`), digits = 2), size = 3) +
+# annotate("text", x = humidity_03_2020_N$date[1] +15, y = median(humidity_03_2020_N$`Hr(55)`)+0.7, 
+#          label = round(median(humidity_03_2020_N$`Hr(55)`), digits = 2), size = 3) +
+# annotate("text", x = humidity_04_2020_N$date[1] +15, y = median(humidity_04_2020_N$`Hr(55)`), 
+#          label = round(median(humidity_04_2020_N$`Hr(55)`), digits = 2), size = 3) +
+# annotate("text", x = humidity_05_2020_N$date[1] +15, y = median(humidity_05_2020_N$`Hr(55)`), 
+#          label = round(median(humidity_05_2020_N$`Hr(55)`), digits = 2), size = 3) +
+# annotate("text", x = humidity_06_2020_N$date[1] +15, y = median(humidity_06_2020_N$`Hr(55)`), 
+#          label = round(median(humidity_06_2020_N$`Hr(55)`), digits = 2), size = 3) +
+# annotate("text", x = humidity_07_2020_N$date[1] +15, y = median(humidity_07_2020_N$`Hr(55)`), 
+#          label = round(median(humidity_07_2020_N$`Hr(55)`), digits = 2), size = 3) +
+# annotate("text", x = humidity_08_2020_N$date[1] +15, y = median(humidity_08_2020_N$`Hr(55)`), 
+#          label = round(median(humidity_08_2020_N$`Hr(55)`), digits = 2), size = 3) +
+# annotate("text", x = humidity_09_2020_N$date[1] +15, y = median(humidity_09_2020_N$`Hr(55)`), 
+#          label = round(median(humidity_09_2020_N$`Hr(55)`), digits = 2), size = 3) +
+# annotate("text", x = humidity_10_2020_N$date[1] +15, y = median(humidity_10_2020_N$`Hr(55)`), 
+#          label = round(median(humidity_10_2020_N$`Hr(55)`), digits = 2), size = 3) +
+# annotate("text", x = humidity_11_2020_N$date[1] +15, y = median(humidity_11_2020_N$`Hr(55)`), 
+#          label = round(median(humidity_11_2020_N$`Hr(55)`), digits = 2), size = 3) +
+# annotate("text", x = humidity_12_2020_N$date[1] +15, y = median(humidity_12_2020_N$`Hr(55)`), 
+#          label = round(median(humidity_12_2020_N$`Hr(55)`), digits = 2), size = 3) +
+# scale_x_date(breaks = as.Date(c("2020-01-01", "2020-02-01", "2020-03-01", "2020-04-01",
+                                 "2020-05-01", "2020-06-01", "2020-07-01", "2020-08-01",
+                                 "2020-09-01", "2020-10-01", "2020-11-01", "2020-12-01")),
+#              date_labels = "%Y-%m-%d") +
+# theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
+# labs(
+#   title = "Humidité de l'air à 55m en 2020",
+#   x = "Mois",
+#   y = "Hr (%)"
+#  )
+
 
 # Graphique ETP
 ggplot() +
