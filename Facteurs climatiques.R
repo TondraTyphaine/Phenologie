@@ -416,7 +416,7 @@ ggplot()+
                date_labels = "%Y-%m-%d") +
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
   labs(
-    title = "Pluviométrie et températures journalières au cours de l'année 2021",
+    title = "Pluviométrie et températures journalières au cours de l'année 2022",
     x = "Dates"
   )
 
@@ -439,7 +439,7 @@ ggplot()+
                date_labels = "%Y-%m-%d") +
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
   labs(
-    title = "Pluviométrie et températures mensuelles au cours de l'année 2021"
+    title = "Pluviométrie et températures mensuelles au cours de l'année 2022"
   )
 
 
@@ -469,7 +469,7 @@ ggplot()+
                date_labels = "%Y-%m-%d") +
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
   labs(
-    title = "Pluviométrie et températures journalières au cours de l'année 2021",
+    title = "Pluviométrie et températures journalières au cours de l'année 2023",
     x = "Dates"
   )
 
@@ -522,7 +522,7 @@ ggplot()+
                date_labels = "%Y-%m-%d") +
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
   labs(
-    title = "Pluviométrie et températures journalières au cours de l'année 2021",
+    title = "Pluviométrie et températures journalières au cours de l'année 2024",
     x = "Dates"
   )
 
@@ -545,7 +545,7 @@ ggplot()+
                date_labels = "%Y-%m-%d") +
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
   labs(
-    title = "Pluviométrie et températures mensuelles au cours de l'année 2023"
+    title = "Pluviométrie et températures mensuelles au cours de l'année 2024"
   )
 
 
@@ -558,9 +558,8 @@ display.brewer.all(colorblindFriendly = TRUE)
 brewer.pal(n = 5, name = "Dark2")
 brewer.pal(n = 5, name = "RdBu")
 brewer.pal(n = 5, name = "YlGnBu")
-"#FFFFB2" "#FECC5C" "#FD8D3C" "#F03B20" "#BD0026"
-"#FFFFD4" "#FED98E" "#FE9929" "#D95F0E" "#993404"
-"#FFFFCC" "#A1DAB4" "#41B6C4" "#2C7FB8" "#253494"
+
+
 ggplot() +
   geom_line(data = Rain2020, aes(x= date, y= Rain),colour = "#1B9E77") +
   geom_line(data = Rain2021, aes(x= date, y= Rain), colour = "#D95F02") +
@@ -878,7 +877,7 @@ ggplot() +
                date_labels = "%Y-%m-%d") +
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
   labs(
-    title = "Humidité de l'air de jour et de nuit",
+    title = "Variation de l'humidité de l'air de jour et de nuit en 2020 ",
     x = "Dates",
     y = "Humidité de l'air à 55m (%)"
   )
