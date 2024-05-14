@@ -754,62 +754,62 @@ dataB2020_hum %>%
   print() ->
   humidity_MONTH_2020_N
 
-humidity_MONTH_2020_N %>% 
+humidity2020_N %>% 
   filter(Month == 1) %>% 
   print() ->
   humidity_01_2020_N
 
-humidity_MONTH_2020_N %>% 
+humidity2020_N %>% 
   filter(Month == 2) %>% 
   print() ->
   humidity_02_2020_N
 
-humidity_MONTH_2020_N %>%  
+humidity2020_N %>%  
   filter(Month == 3) %>% 
   print() ->
   humidity_03_2020_N
 
-humidity_MONTH_2020_N %>% 
+humidity2020_N %>% 
   filter(Month == 4) %>% 
   print() ->
   humidity_04_2020_N
 
-humidity_MONTH_2020_N %>% 
+humidity2020_N %>% 
   filter(Month == 5) %>% 
   print() ->
   humidity_05_2020_N
 
-dataB2020_hum %>%  
+humidity2020_N %>%  
   filter(Month == 6) %>% 
   print() ->
   humidity_06_2020_N
 
-dataB2020_hum %>%  
+humidity2020_N %>%  
   filter(Month == 7) %>% 
   print() ->
   humidity_07_2020_N
 
-dataB2020_hum %>% 
+humidity2020_N %>% 
   filter(Month == 8) %>% 
   print() ->
   humidity_08_2020_N
 
-dataB2020_hum %>% 
+humidity2020_N %>% 
   filter(Month == 9) %>% 
   print() ->
   humidity_09_2020_N
 
-dataB2020_hum %>% 
+humidity2020_N %>% 
   filter(Month == 10) %>% 
   print() ->
   humidity_10_2020_N
 
-dataB2020_hum %>% 
+humidity2020_N %>% 
   filter(Month == 11) %>% 
   print() ->
   humidity_11_2020_N
 
-dataB2020_hum %>% 
+humidity2020_N %>% 
   filter(Month == 12) %>% 
   print() ->
   humidity_12_2020_N
@@ -989,8 +989,8 @@ with(humidity2020 , {
 # annotate("text", x = humidity_12_2020_N$date[1] +15, y = median(humidity_12_2020_N$`Hr(55)`), 
 #          label = round(median(humidity_12_2020_N$`Hr(55)`), digits = 2), size = 3) +
 # scale_x_date(breaks = as.Date(c("2020-01-01", "2020-02-01", "2020-03-01", "2020-04-01",
-                                 "2020-05-01", "2020-06-01", "2020-07-01", "2020-08-01",
-                                 "2020-09-01", "2020-10-01", "2020-11-01", "2020-12-01")),
+#                                 "2020-05-01", "2020-06-01", "2020-07-01", "2020-08-01",
+#                                 "2020-09-01", "2020-10-01", "2020-11-01", "2020-12-01")),
 #              date_labels = "%Y-%m-%d") +
 # theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
 # labs(
@@ -1012,10 +1012,29 @@ ggplot() +
                date_labels = "%Y-%m-%d") +
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
   labs(
-    title = "Evapotranspiration potentielle de jour et de nuit",
+    title = "Evapotranspiration potentielle journalière de jour et de nuit",
     x = "Dates",
     y = "ETP (mm)"
   )
+
+# Graphique ETP
+ggplot() +
+  #geom_line(data = humidity2020, aes(x = date, y = `Hr(55)`), colour = "black") +
+  geom_line(data = humidity_month2020_J, aes(x = date, y = ETP, color = "J")) +
+  geom_line(data = humidity_month2020_N, aes(x = date, y = ETP, color = "N")) +
+  scale_color_manual(name = "Légende", values = c(J = "red", N ="blue")) +
+  scale_x_date(breaks = as.Date(c("2020-01-01", "2020-02-01", "2020-03-01", "2020-04-01",
+                                  "2020-05-01", "2020-06-01", "2020-07-01", "2020-08-01",
+                                  "2020-09-01", "2020-10-01", "2020-11-01", "2020-12-01")),
+               date_labels = "%Y-%m-%d") +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
+  labs(
+    title = "Evapotranspiration potentielle mensuelle de jour et de nuit",
+    x = "Dates",
+    y = "ETP (mm)"
+  )
+
+
 
 
 # Graphique VWC_10cm
@@ -1030,7 +1049,23 @@ ggplot() +
                date_labels = "%Y-%m-%d") +
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
   labs(
-    title = "Humidité du sol de jour et de nuit",
+    title = "Humidité du sol journalière de jour et de nuit",
+    x = "Dates",
+    y = "Humidité du sol (m³/m³)"
+  )
+
+ggplot() +
+  #geom_line(data = humidity2020, aes(x = date, y = `Hr(55)`), colour = "black") +
+  geom_line(data = humidity_month2020_J, aes(x = date, y = VWC_10cm, color = "J")) +
+  geom_line(data = humidity_month2020_N, aes(x = date, y = VWC_10cm, color = "N")) +
+  scale_color_manual(name = "Légende", values = c(J = "red", N ="blue")) +
+  scale_x_date(breaks = as.Date(c("2020-01-01", "2020-02-01", "2020-03-01", "2020-04-01",
+                                  "2020-05-01", "2020-06-01", "2020-07-01", "2020-08-01",
+                                  "2020-09-01", "2020-10-01", "2020-11-01", "2020-12-01")),
+               date_labels = "%Y-%m-%d") +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
+  labs(
+    title = "Humidité du sol mensuelle de jour et de nuit",
     x = "Dates",
     y = "Humidité du sol (m³/m³)"
   )
@@ -1047,11 +1082,26 @@ ggplot() +
                date_labels = "%Y-%m-%d") +
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
   labs(
-    title = "Déficit de pression de vapeur de jour et de nuit",
+    title = "Déficit de pression de vapeur journalier de jour et de nuit",
     x = "Dates",
     y = "VPD (kPa)"
   )
 
+ggplot() +
+  #geom_line(data = humidity2020, aes(x = date, y = `Hr(55)`), colour = "black") +
+  geom_line(data = humidity_month2020_J, aes(x = date, y = vpd55, color = "J")) +
+  geom_line(data = humidity_month2020_N, aes(x = date, y = vpd55, color = "N")) +
+  scale_color_manual(name = "Légende", values = c(J = "red", N ="blue")) +
+  scale_x_date(breaks = as.Date(c("2020-01-01", "2020-02-01", "2020-03-01", "2020-04-01",
+                                  "2020-05-01", "2020-06-01", "2020-07-01", "2020-08-01",
+                                  "2020-09-01", "2020-10-01", "2020-11-01", "2020-12-01")),
+               date_labels = "%Y-%m-%d") +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
+  labs(
+    title = "Déficit de pression de vapeur mensuel de jour et de nuit",
+    x = "Dates",
+    y = "VPD (kPa)"
+  )
 
 # Pour 2021 #
 dataB2021 %>% 
