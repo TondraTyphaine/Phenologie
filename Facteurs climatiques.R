@@ -5,15 +5,8 @@
 
 
 ## Packages necessaires
+install.packages("pacman")
 pacman::p_load("tidyverse","lubridate","RColorBrewer","pracma", "vioplot")
-install.packages("tidyverse")
-install.packages("lubridate")
-install.packages("RColorBrewer")
-install.packages("pracma")
-library(tidyverse)
-library(lubridate)
-library(RColorBrewer)
-library(pracma)
 
 #### Avec les donnees de M.Badouard ####
 
@@ -302,7 +295,7 @@ data_Dry2020 %>%
 
 # Graphique comparant la pluviometrie journaliere et les temperatures au cours de l'annee
 ggplot()+
-  geom_line(data = Rain2020, aes(x = date, y = Rain),colour = "#1B9E77")+
+  geom_line(data = Rain2020, aes(x = date, y = Rain),colour = "#E6AB02")+
   geom_line(data = Rain2020, aes(x = date, y = `Temp(55)`), colour = "red") +
   scale_y_continuous(name = "Pluviométrie (mm)", sec.axis = sec_axis(~., name = "Température (°C)")) +
   scale_x_date(breaks = as.Date(c("2020-01-01", "2020-02-01", "2020-03-01", "2020-04-01",
@@ -317,7 +310,7 @@ ggplot()+
 
 # Graphique comparant la pluviometrie moyenne par mois et les temperatures au cours de l'annee
 ggplot()+
-  geom_line(data = data_Dry_month2020, aes(x = date , y = Rain),,colour = "#1B9E77")+
+  geom_line(data = data_Dry_month2020, aes(x = date , y = Rain),,colour = "#E6AB02")+
   geom_line(data = data_Dry_month2020, aes(x = date , y = `Temp_X2`), colour = "red")+
   scale_y_continuous(name = "Pluviométrie (mm)", sec.axis = sec_axis(~., name = "Température X2 (°C)")) +
   geom_point(data = data_Dry_month2020, aes(x = date[5], y = max(data_Dry_month2020$Rain)))+
@@ -408,7 +401,7 @@ data_Dry2022 %>%
 
 # Graphique comparant la pluviometrie journaliere et les temperatures au cours de l'annee
 ggplot()+
-  geom_line(data = Rain2022, aes(x = date, y = Rain),colour = "#7570B3")+
+  geom_line(data = Rain2022, aes(x = date, y = Rain),colour = "#E7298A")+
   geom_line(data = Rain2022, aes(x = date, y = `Temp(55)`), colour = "red") +
   scale_y_continuous(name = "Pluviométrie (mm)", sec.axis = sec_axis(~., name = "Température (°C)")) +
   scale_x_date(breaks = as.Date(c("2022-01-01", "2022-02-01", "2022-03-01", "2022-04-01",
@@ -423,7 +416,7 @@ ggplot()+
 
 # Graphique comparant la pluviometrie moyenne par mois et les temperatures au cours de l'annee
 ggplot()+
-  geom_line(data = data_Dry_month2022, aes(x = date , y = Rain),colour = "#7570B3")+
+  geom_line(data = data_Dry_month2022, aes(x = date , y = Rain),colour = "#E7298A")+
   geom_line(data = data_Dry_month2022, aes(x = date , y = `Temp_X2`), colour = "red")+
   scale_y_continuous(name = "Pluviométrie (mm)", sec.axis = sec_axis(~., name = "Température X2 (°C)")) +
   geom_point(data = data_Dry_month2022, aes(x = date[2], y = max(data_Dry_month2022$Rain)))+
@@ -461,7 +454,7 @@ Rain2023 %>%
 
 # Graphique comparant la pluviometrie journaliere et les temperatures au cours de l'annee
 ggplot()+
-  geom_line(data = Rain2023, aes(x = date, y = Rain),colour = "#E7298A")+
+  geom_line(data = Rain2023, aes(x = date, y = Rain),colour = "#7570B3")+
   geom_line(data = Rain2023, aes(x = date, y = `Temp(55)`), colour = "red") +
   scale_y_continuous(name = "Pluviométrie (mm)", sec.axis = sec_axis(~., name = "Température (°C)")) +
   scale_x_date(breaks = as.Date(c("2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01",
@@ -476,7 +469,7 @@ ggplot()+
 
 # Graphique comparant la pluviometrie moyenne par mois et les temperatures au cours de l'annee
 ggplot()+
-  geom_line(data = data_Dry_month2023, aes(x = date , y = Rain),colour = "#E7298A")+
+  geom_line(data = data_Dry_month2023, aes(x = date , y = Rain),colour = "#7570B3")+
   geom_line(data = data_Dry_month2023, aes(x = date , y = `Temp_X2`), colour = "red")+
   scale_y_continuous(name = "Pluviométrie (mm)", sec.axis = sec_axis(~., name = "Température X2 (°C)")) +
   geom_point(data = data_Dry_month2023, aes(x = date[2], y = max(data_Dry_month2023$Rain)))+
@@ -556,7 +549,7 @@ ggplot()+
 # Vue d'ensemble sur les 4 ans
 
 display.brewer.all(colorblindFriendly = TRUE)
-brewer.pal(n = 5, name = "Dark2")
+brewer.pal(n = 6, name = "Dark2")
 brewer.pal(n = 5, name = "RdBu")
 brewer.pal(n = 5, name = "YlGnBu")
 
@@ -593,10 +586,10 @@ x_date_4ans <- scale_x_date(breaks = as.Date(c("2020-01-01", "2020-02-01", "2020
                        date_labels = "%Y-%m-%d") 
 
 ggplot() +
-  geom_line(data = Rain2020, aes(x= date, y= Rain),colour = "#1B9E77") +
+  geom_line(data = Rain2020, aes(x= date, y= Rain),colour = "#E6AB02") +
   geom_line(data = Rain2021, aes(x= date, y= Rain), colour = "#D95F02") +
-  geom_line(data = Rain2022, aes(x= date, y= Rain), colour = "#7570B3") +
-  geom_line(data = Rain2023, aes(x= date, y= Rain), colour = "#E7298A") +
+  geom_line(data = Rain2022, aes(x= date, y= Rain), colour = "#E7298A") +
+  geom_line(data = Rain2023, aes(x= date, y= Rain), colour = "#7570B3") +
   geom_line(data = Rain2024, aes(x= date, y= Rain), colour = "#66A61E") +
   geom_line(data = `Temp(55)_full`, aes(x = date, y = `Temp(55)`), colour = "red") +
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
@@ -641,16 +634,26 @@ ggplot() +
              col = "black", linetype = "dashed") +
   geom_vline(xintercept = dates2024[1],
              col = "black", linetype = "dashed") +
-  geom_point(data = data_Dry_month2020, aes(x = date[5], y = max(data_Dry_month2020$Rain)), size = 1)+
-  geom_point(data = data_Dry_month2020, aes(x = date[10], y = min(data_Dry_month2020$Rain)), size = 1)+
-  geom_point(data = data_Dry_month2021, aes(x = date[4], y = max(data_Dry_month2021$Rain)), size = 1)+
-  geom_point(data = data_Dry_month2021, aes(x = date[10], y = min(data_Dry_month2021$Rain)), size = 1)+
-  geom_point(data = data_Dry_month2022, aes(x = date[2], y = max(data_Dry_month2022$Rain)), size = 1)+
-  geom_point(data = data_Dry_month2022, aes(x = date[9], y = min(data_Dry_month2022$Rain)), size = 1)+
-  geom_point(data = data_Dry_month2023, aes(x = date[2], y = max(data_Dry_month2023$Rain)), size = 1)+
-  geom_point(data = data_Dry_month2023, aes(x = date[10], y = min(data_Dry_month2023$Rain)), size = 1)+
-  geom_point(data = data_Dry_month2024, aes(x = date[1], y = max(data_Dry_month2024$Rain)), size = 1)+
-  geom_point(data = data_Dry_month2024, aes(x = date[4], y = min(data_Dry_month2024$Rain)), size = 1)+
+  geom_point(aes(x = data_Dry_month2020$date[5], y = max(data_Dry_month2020$Rain)), size = 1)+
+  geom_point(aes(x = data_Dry_month2020$date[10], y = min(data_Dry_month2020$Rain)), size = 1)+
+  geom_point(aes(x = data_Dry_month2021$date[4], y = max(data_Dry_month2021$Rain)), size = 1)+
+  geom_point(aes(x = data_Dry_month2021$date[10], y = min(data_Dry_month2021$Rain)), size = 1)+
+  geom_point(aes(x = data_Dry_month2022$date[2], y = max(data_Dry_month2022$Rain)), size = 1)+
+  geom_point(aes(x = data_Dry_month2022$date[9], y = min(data_Dry_month2022$Rain)), size = 1)+
+  geom_point(aes(x = data_Dry_month2023$date[2], y = max(data_Dry_month2023$Rain)), size = 1)+
+  geom_point(aes(x = data_Dry_month2023$date[10], y = min(data_Dry_month2023$Rain)), size = 1)+
+  geom_point(aes(x = data_Dry_month2024$date[1], y = max(data_Dry_month2024$Rain)), size = 1)+
+  geom_point(aes(x = data_Dry_month2024$date[4], y = min(data_Dry_month2024$Rain)), size = 1)+
+  geom_rect(xmin = dates2020[1], xmax = dates2020[366], ymin = -Inf, ymax = Inf, 
+            fill = "#E6AB02", alpha = 0.5) +
+  geom_rect(xmin = dates2021[1], xmax = dates2021[361], ymin = -Inf, ymax = Inf, 
+            fill = "#D95F02", alpha = 0.5) +
+  geom_rect(xmin = dates2022[1], xmax = dates2022[365], ymin = -Inf, ymax = Inf, 
+            fill = "#E7298A", alpha = 0.5) +
+  geom_rect(xmin = dates2023[1], xmax = dates2023[365], ymin = -Inf, ymax = Inf, 
+            fill = "#7570B3", alpha = 0.5) +
+  geom_rect(xmin = dates2024[1], xmax = dates2024[69], ymin = -Inf, ymax = Inf, 
+            fill = "#66A61E", alpha = 0.5) +
   annotate("text",x = data_Dry_month2020$date[5], 
            y =  max(data_Dry_month2020$Rain)+20,label =  max(data_Dry_month2020$Rain),
            col = "grey40", size = 3)+
@@ -693,7 +696,7 @@ ggplot() +
 
 # Pour 2020
 ggplot(Rain2020, aes(x = date, y = Rain)) +
-  geom_line(colour = "#1B9E77") +
+  geom_line(colour = "#E6AB02") +
   geom_vline(xintercept = dates2020[pic2020],
              col = "black", linetype = "dashed")+
 
@@ -731,7 +734,7 @@ ggplot(Rain2021, aes(x = date, y = Rain))+
 
 # Pour 2022
 ggplot(Rain2022, aes(x = date, y = Rain))+
-  geom_line( colour = "#7570B3")+
+  geom_line( colour = "#E7298A")+
   geom_vline(xintercept = dates2022[pic2022],
              col = "black", linetype = "dashed")+
   scale_x_date(breaks = as.Date(c("2022-01-01", "2022-02-01", "2022-03-01", "2022-04-01",
@@ -747,7 +750,7 @@ ggplot(Rain2022, aes(x = date, y = Rain))+
 
 # Pour 2023
 ggplot(Rain2023, aes(x = date, y = Rain))+
-  geom_line(colour = "#E7298A")+
+  geom_line(colour = "#7570B3")+
   geom_vline(xintercept = dates2023[pic2023],
              col = "black", linetype = "dashed")+
   scale_x_date(breaks = as.Date(c("2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01",
@@ -799,6 +802,14 @@ dataB_hum %>%
   summarise(`Hr(55)` = mean(`Hr(55)`), ETP = sum(ETP), VWC_10cm = mean(VWC_10cm), vpd55 = mean(vpd55)) %>% 
   print() ->
   humidity
+
+#Application de la méthode de la moyenne mobile sur les data 24h
+
+humidity_av <- moving_average(humidity %>% 
+                                      select(`Hr(55)`) %>%
+                                      pull(),
+                                    filter = fpoids(n=2,p=2,q=2)$y)
+
 
 # Data de jour 
 dataB_hum %>% 
@@ -900,6 +911,7 @@ humidity %>%
   humidity_12
 
 
+
 # Graph variations journalieres de Hr(55) 
 ggplot(data = humidity) +
   geom_line(aes(x = date, y = `Hr(55)`)) +
@@ -911,6 +923,16 @@ ggplot(data = humidity) +
              col = "black", linetype = "dashed") +
   geom_vline(xintercept = dates2024[1],
              col = "black", linetype = "dashed") +
+  geom_rect(xmin = dates2020[1], xmax = dates2020[366], ymin = -Inf, ymax = Inf, 
+            fill = "#E6AB02", alpha = 0.008) +
+  geom_rect(xmin = dates2021[1], xmax = dates2021[361], ymin = -Inf, ymax = Inf, 
+            fill = "#D95F02", alpha = 0.008) +
+  geom_rect(xmin = dates2022[1], xmax = dates2022[365], ymin = -Inf, ymax = Inf, 
+            fill = "#E7298A", alpha = 0.008) +
+  geom_rect(xmin = dates2023[1], xmax = dates2023[365], ymin = -Inf, ymax = Inf, 
+            fill = "#7570B3", alpha = 0.008) +
+  geom_rect(xmin = dates2024[1], xmax = dates2024[69], ymin = -Inf, ymax = Inf, 
+            fill = "#66A61E", alpha = 0.008) +
   x_date +
   theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust = 1, size = 8)) +
     labs(
@@ -918,6 +940,36 @@ ggplot(data = humidity) +
     x = "Mois",
     y = "Hr(55) (%)"
   )
+
+# Graph variations journalieres de Hr(55) avec moyenne mobile
+ggplot(data = humidity) +
+  geom_line(aes(x = date, y = humidity_av)) +
+  geom_vline(xintercept = dates2021[1],
+             col = "black", linetype = "dashed") +
+  geom_vline(xintercept = dates2022[1],
+             col = "black", linetype = "dashed") +
+  geom_vline(xintercept = dates2023[1],
+             col = "black", linetype = "dashed") +
+  geom_vline(xintercept = dates2024[1],
+             col = "black", linetype = "dashed") +
+  geom_rect(xmin = dates2020[1], xmax = dates2020[366], ymin = -Inf, ymax = Inf, 
+            fill = "#E6AB02", alpha = 0.008) +
+  geom_rect(xmin = dates2021[1], xmax = dates2021[361], ymin = -Inf, ymax = Inf, 
+            fill = "#D95F02", alpha = 0.008) +
+  geom_rect(xmin = dates2022[1], xmax = dates2022[365], ymin = -Inf, ymax = Inf, 
+            fill = "#E7298A", alpha = 0.008) +
+  geom_rect(xmin = dates2023[1], xmax = dates2023[365], ymin = -Inf, ymax = Inf, 
+            fill = "#7570B3", alpha = 0.008) +
+  geom_rect(xmin = dates2024[1], xmax = dates2024[69], ymin = -Inf, ymax = Inf, 
+            fill = "#66A61E", alpha = 0.008) +
+  x_date +
+  theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust = 1, size = 8)) +
+  labs(
+    title = "Humidité de l'air journaliere au cours des 4 années de suivie phénologique",
+    x = "Mois",
+    y = "Hr(55) (%)"
+  )
+
 
 # Graph variations mensuelles de Hr(55) 
 ggplot(data = humidity_month) +
@@ -930,14 +982,23 @@ ggplot(data = humidity_month) +
              col = "black", linetype = "dashed") +
   geom_vline(xintercept = dates2024[1],
              col = "black", linetype = "dashed") +
-  x_date_4ans +
+  geom_rect(xmin = dates2020[1], xmax = dates2020[366], ymin = -Inf, ymax = Inf, 
+            fill = "#E6AB02", alpha = 0.008) +
+  geom_rect(xmin = dates2021[1], xmax = dates2021[361], ymin = -Inf, ymax = Inf, 
+            fill = "#D95F02", alpha = 0.008) +
+  geom_rect(xmin = dates2022[1], xmax = dates2022[365], ymin = -Inf, ymax = Inf, 
+            fill = "#E7298A", alpha = 0.008) +
+  geom_rect(xmin = dates2023[1], xmax = dates2023[365], ymin = -Inf, ymax = Inf, 
+            fill = "#7570B3", alpha = 0.008) +
+  geom_rect(xmin = dates2024[1], xmax = dates2024[69], ymin = -Inf, ymax = Inf, 
+            fill = "#66A61E", alpha = 0.008) +
+   x_date_4ans +
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
   labs(
     title = "Humidité de l'air mensuelle au cours des 4 années de suivie phénologique",
     x = "Mois",
     y = "Hr(55) (%)"
   )
-
 
 
 
@@ -1162,7 +1223,7 @@ with(humidity2020 , {
     `Hr(55)`[Month== 1] ,`Hr(55)`[Month== 2] , `Hr(55)`[Month== 3] , `Hr(55)`[Month== 4] ,`Hr(55)`[Month== 5] ,
     `Hr(55)`[Month== 6] ,`Hr(55)`[Month== 7] ,`Hr(55)`[Month== 8] ,`Hr(55)`[Month== 9] ,`Hr(55)`[Month== 10] ,
     `Hr(55)`[Month== 11] ,`Hr(55)`[Month== 12] ,
-    col= "#41B6C4" , names=c("Janvier","Février","Mars",
+    col= "#E6AB02" , names=c("Janvier","Février","Mars",
                                        "Avril","Mai","Juin",
                                        "Juillet","Août","Septembre",
                                        "Octobre","Novembre","Décembre"),
@@ -1699,10 +1760,10 @@ ggplot() +
 # Hr(55) sur les 4 annees de suivies #
 
 ggplot() +
-  geom_line(data = humidity2020, aes(x= date, y= `Hr(55)`),colour = "#1B9E77") +
+  geom_line(data = humidity2020, aes(x= date, y= `Hr(55)`),colour = "#E6AB02") +
   geom_line(data = humidity2021, aes(x= date, y= `Hr(55)`), colour = "#D95F02") +
-  geom_line(data = humidity2022, aes(x= date, y= `Hr(55)`), colour = "#7570B3") +
-  geom_line(data = humidity2023, aes(x= date, y= `Hr(55)`), colour = "#E7298A") +
+  geom_line(data = humidity2022, aes(x= date, y= `Hr(55)`), colour = "#E7298A") +
+  geom_line(data = humidity2023, aes(x= date, y= `Hr(55)`), colour = "#7570B3") +
   geom_line(data = humidity2024, aes(x= date, y= `Hr(55)`), colour = "#66A61E") +
   x_date_4ans +
   theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust = 1, size = 8)) +
@@ -1717,10 +1778,10 @@ ggplot() +
 # ETP sur les 4 annees de suivies #
 
 ggplot() +
-  geom_line(data = humidity2020, aes(x= date, y= ETP),colour = "#1B9E77") +
+  geom_line(data = humidity2020, aes(x= date, y= ETP),colour = "#E6AB02") +
   geom_line(data = humidity2021, aes(x= date, y= ETP), colour = "#D95F02") +
-  geom_line(data = humidity2022, aes(x= date, y= ETP), colour = "#7570B3") +
-  geom_line(data = humidity2023, aes(x= date, y= ETP), colour = "#E7298A") +
+  geom_line(data = humidity2022, aes(x= date, y= ETP), colour = "#E7298A") +
+  geom_line(data = humidity2023, aes(x= date, y= ETP), colour = "#7570B3") +
   geom_line(data = humidity2024, aes(x= date, y= ETP), colour = "#66A61E") +
   x_date_4ans +
   theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust = 1, size = 8)) +
@@ -1735,10 +1796,10 @@ ggplot() +
 # VWC_10cm sur les 4 annees de suivies #
 
 ggplot() +
-  geom_line(data = humidity2020, aes(x= date, y= VWC_10cm),colour = "#1B9E77") +
+  geom_line(data = humidity2020, aes(x= date, y= VWC_10cm),colour = "#E6AB02") +
   geom_line(data = humidity2021, aes(x= date, y= VWC_10cm), colour = "#D95F02") +
-  geom_line(data = humidity2022, aes(x= date, y= VWC_10cm), colour = "#7570B3") +
-  geom_line(data = humidity2023, aes(x= date, y= VWC_10cm), colour = "#E7298A") +
+  geom_line(data = humidity2022, aes(x= date, y= VWC_10cm), colour = "#E7298A") +
+  geom_line(data = humidity2023, aes(x= date, y= VWC_10cm), colour = "#7570B3") +
   geom_line(data = humidity2024, aes(x= date, y= VWC_10cm), colour = "#66A61E") +
   x_date_4ans +
   theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust = 1, size = 8)) +
@@ -1752,10 +1813,10 @@ ggplot() +
 # vpd55 sur les 4 annees de suivies #
 
 ggplot() +
-  geom_line(data = humidity2020, aes(x= date, y= vpd55),colour = "#1B9E77") +
+  geom_line(data = humidity2020, aes(x= date, y= vpd55),colour = "#E6AB02") +
   geom_line(data = humidity2021, aes(x= date, y= vpd55), colour = "#D95F02") +
-  geom_line(data = humidity2022, aes(x= date, y= vpd55), colour = "#7570B3") +
-  geom_line(data = humidity2023, aes(x= date, y= vpd55), colour = "#E7298A") +
+  geom_line(data = humidity2022, aes(x= date, y= vpd55), colour = "#E7298A") +
+  geom_line(data = humidity2023, aes(x= date, y= vpd55), colour = "#7570B3") +
   geom_line(data = humidity2024, aes(x= date, y= VWC_10cm), colour = "#66A61E") +
   x_date_4ans +
   theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust = 1, size = 8)) +
