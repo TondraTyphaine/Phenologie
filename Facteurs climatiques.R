@@ -5,6 +5,7 @@
 
 
 ## Packages necessaires
+pacman::p_load("tidyverse","lubridate","RColorBrewer","pracma")
 install.packages("tidyverse")
 install.packages("lubridate")
 install.packages("RColorBrewer")
@@ -158,7 +159,7 @@ dataB %>%
   dataB
 
 
-## Data pour chaque annee
+## Data brutes pour chaque annee
 
 # Pour 2020
 dataB %>% 
@@ -534,10 +535,10 @@ ggplot()+
   geom_point(data = data_Dry_month2024, aes(x = date[1], y = max(data_Dry_month2024$Rain)))+
   geom_point(data = data_Dry_month2024, aes(x = date[4], y = min(data_Dry_month2024$Rain)))+
   annotate("text",x = data_Dry_month2024$date[1], 
-           y = max(data_Dry_month2024$Rain)+20,label = max(data_Dry_month2024$Rain),
+           y = max(data_Dry_month2024$Rain)+5,label = max(data_Dry_month2024$Rain),
            col = "grey40", size = 3)+
   annotate("text",x = data_Dry_month2024$date[4], 
-           y = min(data_Dry_month2024$Rain)-20,label =  min(data_Dry_month2024$Rain),
+           y = min(data_Dry_month2024$Rain)+5,label =  min(data_Dry_month2024$Rain),
            col = "grey40", size = 3)+
   scale_x_date(breaks = as.Date(c("2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01",
                                   "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01",
@@ -559,6 +560,20 @@ brewer.pal(n = 5, name = "Dark2")
 brewer.pal(n = 5, name = "RdBu")
 brewer.pal(n = 5, name = "YlGnBu")
 
+dataB_resume %>% 
+  select(Year, Month, Day, `Temp(55)`, date) %>% 
+  group_by(Year, Month, Day, date) %>% 
+  summarise(`Temp(55)` = mean(`Temp(55)`)) %>% 
+  print() ->
+  `Temp(55)_full`
+
+bind_rows(data_Dry_month2020) %>% 
+  bind_rows(data_Dry_month2021) %>% 
+  bind_rows(data_Dry_month2022) %>% 
+  bind_rows(data_Dry_month2023) %>% 
+  bind_rows(data_Dry_month2024) %>% 
+  print() ->
+  data_Dry_month_resum
 
 ggplot() +
   geom_line(data = Rain2020, aes(x= date, y= Rain),colour = "#1B9E77") +
@@ -566,6 +581,7 @@ ggplot() +
   geom_line(data = Rain2022, aes(x= date, y= Rain), colour = "#7570B3") +
   geom_line(data = Rain2023, aes(x= date, y= Rain), colour = "#E7298A") +
   geom_line(data = Rain2024, aes(x= date, y= Rain), colour = "#66A61E") +
+  geom_line(data = `Temp(55)_full`, aes(x = date, y = `Temp(55)`), colour = "red") +
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
   geom_point(aes(x = dates2020[pic2020], y =  pic2020_Y)) +
   geom_point(aes(x = dates2021[pic2021], y =  pic2021_Y)) +
@@ -587,6 +603,7 @@ ggplot() +
   annotate("text", x = dates2022[pic2022]+30, y = pic2022_Y, label = pic2022_Y,col = "black", size = 3) +
   annotate("text", x = dates2023[pic2023]+30, y = pic2023_Y, label = pic2023_Y,col = "black", size = 3) +
   annotate("text", x = dates2024[pic2024]+30, y = pic2024_Y, label = pic2024_Y,col = "black", size = 3) +
+  scale_y_continuous(name = "Pluviométrie (mm)", sec.axis = sec_axis(~., name = "Température (°C)")) +
   scale_x_date(breaks = as.Date(c("2020-01-01", "2020-02-01", "2020-03-01", "2020-04-01",
                                   "2020-05-01", "2020-06-01", "2020-07-01", "2020-08-01",
                                   "2020-09-01", "2020-10-01", "2020-11-01", "2020-12-01",
@@ -606,10 +623,105 @@ ggplot() +
   theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust = 1, size = 8)) +
   
   labs(
-    title = "Pluviométrie au cours des 4 années de suivies phénologique",
+    title = "Pluviométrie journalière au cours des 4 années de suivies phénologique",
     x = "Dates",
     y = "Pluviométrie (mm)"
   )
+
+ggplot() + 
+  geom_line(data = data_Dry_month_resum, aes(x = date, y = Rain)) +
+  geom_line(data = data_Dry_month_resum, aes(x = date, y = Temp_X2), colour = "red") +
+  geom_vline(xintercept = dates2021[1],
+             col = "black", linetype = "dashed") +
+  geom_vline(xintercept = dates2022[1],
+             col = "black", linetype = "dashed") +
+  geom_vline(xintercept = dates2023[1],
+             col = "black", linetype = "dashed") +
+  geom_vline(xintercept = dates2024[1],
+             col = "black", linetype = "dashed") +
+  geom_point(data = data_Dry_month2020, aes(x = date[5], y = max(data_Dry_month2020$Rain)), size = 1)+
+  geom_point(data = data_Dry_month2020, aes(x = date[10], y = min(data_Dry_month2020$Rain)), size = 1)+
+  geom_point(data = data_Dry_month2021, aes(x = date[4], y = max(data_Dry_month2021$Rain)), size = 1)+
+  geom_point(data = data_Dry_month2021, aes(x = date[10], y = min(data_Dry_month2021$Rain)), size = 1)+
+  geom_point(data = data_Dry_month2022, aes(x = date[2], y = max(data_Dry_month2022$Rain)), size = 1)+
+  geom_point(data = data_Dry_month2022, aes(x = date[9], y = min(data_Dry_month2022$Rain)), size = 1)+
+  geom_point(data = data_Dry_month2023, aes(x = date[2], y = max(data_Dry_month2023$Rain)), size = 1)+
+  geom_point(data = data_Dry_month2023, aes(x = date[10], y = min(data_Dry_month2023$Rain)), size = 1)+
+  geom_point(data = data_Dry_month2024, aes(x = date[1], y = max(data_Dry_month2024$Rain)), size = 1)+
+  geom_point(data = data_Dry_month2024, aes(x = date[4], y = min(data_Dry_month2024$Rain)), size = 1)+
+  annotate("text",x = data_Dry_month2020$date[5], 
+           y =  max(data_Dry_month2020$Rain)+20,label =  max(data_Dry_month2020$Rain),
+           col = "grey40", size = 3)+
+  annotate("text",x = data_Dry_month2020$date[10], 
+           y = min(data_Dry_month2020$Rain)-20,label =  min(data_Dry_month2020$Rain),
+           col = "grey40", size = 3)+
+  annotate("text",x = data_Dry_month2021$date[4], 
+           y = max(data_Dry_month2021$Rain)+20,label = max(data_Dry_month2021$Rain),
+           col = "grey40", size = 3)+
+  annotate("text",x = data_Dry_month2021$date[10], 
+           y =  min(data_Dry_month2021$Rain)-20,label =  min(data_Dry_month2021$Rain),
+           col = "grey40", size = 3)+
+  annotate("text",x = data_Dry_month2022$date[2], 
+           y = max(data_Dry_month2022$Rain)+20,label = max(data_Dry_month2022$Rain),
+           col = "grey40", size = 3)+
+  annotate("text",x = data_Dry_month2022$date[9], 
+           y = min(data_Dry_month2022$Rain)-20,label =  min(data_Dry_month2022$Rain),
+           col = "grey40", size = 3)+
+  annotate("text",x = data_Dry_month2023$date[2], 
+           y =  max(data_Dry_month2023$Rain)+20,label = max(data_Dry_month2023$Rain),
+           col = "grey40", size = 3)+
+  annotate("text",x = data_Dry_month2023$date[10], 
+           y =  min(data_Dry_month2023$Rain)-20,label =  min(data_Dry_month2023$Rain),
+           col = "grey40", size = 3)+
+  annotate("text",x = data_Dry_month2024$date[1]+30, 
+           y = max(data_Dry_month2024$Rain),label = max(data_Dry_month2024$Rain),
+           col = "grey40", size = 3)+
+  annotate("text",x = data_Dry_month2024$date[4], 
+           y = min(data_Dry_month2024$Rain)-20,label =  min(data_Dry_month2024$Rain),
+           col = "grey40", size = 3)+
+  scale_y_continuous(name = "Pluviométrie (mm)", sec.axis = sec_axis(~., name = "Température X2 (°C)")) +
+  scale_x_date(breaks = as.Date(c("2020-01-01", "2020-02-01", "2020-03-01", "2020-04-01",
+                                  "2020-05-01", "2020-06-01", "2020-07-01", "2020-08-01",
+                                  "2020-09-01", "2020-10-01", "2020-11-01", "2020-12-01",
+                                  "2021-01-01", "2021-02-01", "2021-03-01", "2021-04-01",
+                                  "2021-05-01", "2021-06-01", "2021-07-01", "2021-08-01",
+                                  "2021-09-01", "2021-10-01", "2021-11-01", "2021-12-01",
+                                  "2022-01-01", "2022-02-01", "2022-03-01", "2022-04-01",
+                                  "2022-05-01", "2022-06-01", "2022-07-01", "2022-08-01",
+                                  "2022-09-01", "2022-10-01", "2022-11-01", "2022-12-01",
+                                  "2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01",
+                                  "2023-05-01", "2023-06-01", "2023-07-01", "2023-08-01",
+                                  "2023-09-01", "2023-10-01", "2023-11-01", "2023-12-01",
+                                  "2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01",
+                                  "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01",
+                                  "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01")),
+               date_labels = "%Y-%m-%d") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust = 1, size = 8)) +
+  
+  labs(
+    title = "Pluviométrie mensuelle au cours des 4 années de suivie phénologique",
+    x = "Mois",
+    y = "Pluviométrie (mm)"
+  )
+
+
+# Exemple de données
+set.seed(123)
+data <- data.frame(
+  x = 1:10,
+  y1 = rnorm(10),
+  y2 = rnorm(10, mean = 2)
+)
+
+# Création du graphique ggplot avec deux courbes
+graph <- ggplot(data, aes(x = x)) +
+  geom_line(aes(y = y1), color = "blue") +
+  geom_line(aes(y = y2), color = "red") +
+  labs(title = "Deux courbes sans lien entre elles")
+
+# Ajout d'une ligne reliant les deux courbes
+graph + geom_path(aes(y = y1), color = "blue") +
+  geom_path(aes(y = y2), color = "red")
 
 
 # Pour 2020
