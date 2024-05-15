@@ -705,25 +705,6 @@ ggplot() +
   )
 
 
-# Exemple de données
-set.seed(123)
-data <- data.frame(
-  x = 1:10,
-  y1 = rnorm(10),
-  y2 = rnorm(10, mean = 2)
-)
-
-# Création du graphique ggplot avec deux courbes
-graph <- ggplot(data, aes(x = x)) +
-  geom_line(aes(y = y1), color = "blue") +
-  geom_line(aes(y = y2), color = "red") +
-  labs(title = "Deux courbes sans lien entre elles")
-
-# Ajout d'une ligne reliant les deux courbes
-graph + geom_path(aes(y = y1), color = "blue") +
-  geom_path(aes(y = y2), color = "red")
-
-
 # Pour 2020
 ggplot(Rain2020, aes(x = date, y = Rain)) +
   geom_line(colour = "#1B9E77") +
