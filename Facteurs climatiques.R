@@ -307,8 +307,8 @@ ggplot()+
   geom_line(data = Dry_2020, aes(x = date , y = Rain),,colour = "#E6AB02")+
   geom_line(data = Dry_2020, aes(x = date , y = `Temp_X2`), colour = "red")+
   scale_y_continuous(name = "Pluviométrie (mm)", sec.axis = sec_axis(~., name = "Température X2 (°C)")) +
-  geom_point(data = Dry_2020, aes(x = date[max2020], y = Rain[max2020]))+
-  geom_point(data = Dry_2020, aes(x = date[min2020], y = Rain[min2020]))+
+  geom_point(data = Dry_2020, aes(x = date[max2020], y = Rain[max2020]),colour = "grey40", size = 0.8)+
+  geom_point(data = Dry_2020, aes(x = date[min2020], y = Rain[min2020]),colour = "grey40", size = 0.8)+
   annotate("text",x = Dry_2020$date[max2020], 
            y =  Dry_2020$Rain[max2020]+20,label = Dry_2020$Rain[max2020],
            col = "grey40", size = 3)+
@@ -375,8 +375,8 @@ ggplot()+
   geom_line(data = Dry_2021, aes(x = date , y = Rain),,colour = "#D95F02")+
   geom_line(data = Dry_2021, aes(x = date , y = `Temp_X2`), colour = "red")+
   scale_y_continuous(name = "Pluviométrie (mm)", sec.axis = sec_axis(~., name = "Température X2 (°C)")) +
-  geom_point(data = Dry_2021, aes(x = date[max2021], y = Rain[max2021]))+
-  geom_point(data = Dry_2021, aes(x = date[min2021], y = Rain[min2021]))+
+  geom_point(data = Dry_2021, aes(x = date[max2021], y = Rain[max2021]),colour = "grey40", size = 0.8)+
+  geom_point(data = Dry_2021, aes(x = date[min2021], y = Rain[min2021]),colour = "grey40", size = 0.8)+
   annotate("text",x = Dry_2021$date[max2021], 
            y = Dry_2021$Rain[max2021]+20,label = Dry_2021$Rain[max2021],
            col = "grey40", size = 3)+
@@ -595,10 +595,7 @@ ggplot()+
   )
 
 
-
-## Graphiques de la pluviometrie 
-
-# Vue d'ensemble sur les 4 ans
+# Vue d'ensemble sur les 4 ans #
 
 display.brewer.all(colorblindFriendly = TRUE)
 brewer.pal(n = 6, name = "Dark2")
@@ -636,7 +633,7 @@ x_date_4ans <- scale_x_date(breaks = as.Date(c("2020-01-01", "2020-02-01", "2020
                                           "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01",
                                           "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01")),
                        date_labels = "%Y-%m-%d") 
-
+# Journalier
 ggplot() +
   geom_line(data = Rain2020, aes(x= date, y= Rain),colour = "#E6AB02") +
   geom_line(data = Rain2021, aes(x= date, y= Rain), colour = "#D95F02") +
@@ -644,12 +641,11 @@ ggplot() +
   geom_line(data = Rain2023, aes(x= date, y= Rain), colour = "#7570B3") +
   geom_line(data = Rain2024, aes(x= date, y= Rain), colour = "#66A61E") +
   geom_line(data = `Temp(55)_full`, aes(x = date, y = `Temp(55)`), colour = "red") +
-  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
-  geom_point(aes(x = dates2020[pic2020_X], y =  pic2020_Y)) +
-  geom_point(aes(x = dates2021[pic2021_X], y =  pic2021_Y)) +
-  geom_point(aes(x = dates2022[pic2022_X], y =  pic2022_Y)) +
-  geom_point(aes(x = dates2023[pic2023_X], y =  pic2023_Y)) +
-  geom_point(aes(x = dates2024[pic2024_X], y =  pic2024_Y)) +
+  geom_point(aes(x = dates2020[pic2020_X], y =  pic2020_Y), ,colour = "black", size = 0.8) +
+  geom_point(aes(x = dates2021[pic2021_X], y =  pic2021_Y), ,colour = "black", size = 0.8) +
+  geom_point(aes(x = dates2022[pic2022_X], y =  pic2022_Y), size = 0.9) +
+  geom_point(aes(x = dates2023[pic2023_X], y =  pic2023_Y), ,colour = "black", size = 0.8) +
+  geom_point(aes(x = dates2024[pic2024_X], y =  pic2024_Y), ,colour = "black", size = 0.8) +
   geom_vline(xintercept = dates2020[pic2020_X],
              col = "black", linetype = "dashed") +
   geom_vline(xintercept = dates2021[pic2021_X],
@@ -668,176 +664,105 @@ ggplot() +
   scale_y_continuous(name = "Pluviométrie (mm)", sec.axis = sec_axis(~., name = "Température (°C)")) +
   x_date_4ans +
   theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust = 1, size = 8)) +
-  
   labs(
-    title = "Pluviométrie journalière au cours des 4 années de suivie phénologique",
+    title = "Pluviométrie et températures journalières au cours des 4 années de suivie phénologique",
     x = "Dates",
-    y = "Pluviométrie (mm)"
   )
 
+
+# Mensuel
+bind_rows(Dry_2020) %>% 
+  bind_rows(Dry_2021[1,]) %>% 
+  print() ->
+  Dry_2020_bis
+
+bind_rows(Dry_2021) %>% 
+  bind_rows(Dry_2022[1,]) %>% 
+  print() ->
+  Dry_2021_bis
+
+bind_rows(Dry_2022) %>% 
+  bind_rows(Dry_2023[1,]) %>% 
+  print() ->
+  Dry_2022_bis
+
+bind_rows(Dry_2023) %>% 
+  bind_rows(Dry_2024[1,]) %>% 
+  print() ->
+  Dry_2023_bis
+
+
 ggplot() + 
-  geom_line(data = Dry_resum, aes(x = date, y = Rain)) +
+  geom_line(data = Dry_2020_bis, aes(x = date, y = Rain),colour = "#E6AB02") +
+  geom_line(data = Dry_2021_bis, aes(x= date, y= Rain), colour = "#D95F02") +
+  geom_line(data = Dry_2022_bis, aes(x= date, y= Rain), colour = "#E7298A") +
+  geom_line(data = Dry_2023_bis, aes(x= date, y= Rain), colour = "#7570B3") +
+  geom_line(data = Dry_2024, aes(x= date, y= Rain), colour = "#66A61E") +
   geom_line(data = Dry_resum, aes(x = date, y = Temp_X2), colour = "red") +
   geom_vline(xintercept = dates2021[1],
-             col = "black", linetype = "dashed") +
+             col = "grey40", linetype = "dashed") +
   geom_vline(xintercept = dates2022[1],
-             col = "black", linetype = "dashed") +
+             col = "grey40", linetype = "dashed") +
   geom_vline(xintercept = dates2023[1],
-             col = "black", linetype = "dashed") +
+             col = "grey40", linetype = "dashed") +
   geom_vline(xintercept = dates2024[1],
-             col = "black", linetype = "dashed") +
-  geom_point(aes(x = Dry_2020$date[max2020], y = Dry_2020$Rain[max2020]), size = 1)+
-  geom_point(aes(x = Dry_2020$date[min2020], y = Dry_2020$Rain[min2020]), size = 1)+
-  geom_point(aes(x = Dry_2021$date[max2021], y = Dry_2021$Rain[max2021]), size = 1)+
-  geom_point(aes(x = Dry_2021$date[min2021], y = Dry_2021$Rain[min2021]), size = 1)+
-  geom_point(aes(x = Dry_2022$date[max2022], y = Dry_2022$Rain[max2022]), size = 1)+
-  geom_point(aes(x = Dry_2022$date[min2022], y = Dry_2022$Rain[min2022]), size = 1)+
-  geom_point(aes(x = Dry_2023$date[max2023], y = Dry_2023$Rain[max2023]), size = 1)+
-  geom_point(aes(x = Dry_2023$date[min2023], y = Dry_2023$Rain[min2023]), size = 1)+
-  geom_point(aes(x = Dry_2024$date[max2024], y = Dry_2024$Rain[max2024]), size = 1)+
-  geom_point(aes(x = Dry_2024$date[min2024], y = Dry_2024$Rain[min2024]), size = 1)+
-  geom_rect(xmin = dates2020[1], xmax = dates2020[366], ymin = -Inf, ymax = Inf, 
-            fill = "#E6AB02", alpha = 0.5) +
-  geom_rect(xmin = dates2021[1], xmax = dates2021[361], ymin = -Inf, ymax = Inf, 
-            fill = "#D95F02", alpha = 0.5) +
-  geom_rect(xmin = dates2022[1], xmax = dates2022[365], ymin = -Inf, ymax = Inf, 
-            fill = "#E7298A", alpha = 0.5) +
-  geom_rect(xmin = dates2023[1], xmax = dates2023[365], ymin = -Inf, ymax = Inf, 
-            fill = "#7570B3", alpha = 0.5) +
-  geom_rect(xmin = dates2024[1], xmax = dates2024[69], ymin = -Inf, ymax = Inf, 
-            fill = "#66A61E", alpha = 0.5) +
+             col = "grey40", linetype = "dashed") +
+  geom_point(aes(x = Dry_2020$date[max2020], y = Dry_2020$Rain[max2020]), size = 0.8)+
+  geom_point(aes(x = Dry_2020$date[min2020], y = Dry_2020$Rain[min2020]), size = 0.8)+
+  geom_point(aes(x = Dry_2021$date[max2021], y = Dry_2021$Rain[max2021]), size = 0.8)+
+  geom_point(aes(x = Dry_2021$date[min2021], y = Dry_2021$Rain[min2021]), size = 0.8)+
+  geom_point(aes(x = Dry_2022$date[max2022], y = Dry_2022$Rain[max2022]), size = 0.8)+
+  geom_point(aes(x = Dry_2022$date[min2022], y = Dry_2022$Rain[min2022]), size = 0.8)+
+  geom_point(aes(x = Dry_2023$date[max2023], y = Dry_2023$Rain[max2023]), size = 0.8)+
+  geom_point(aes(x = Dry_2023$date[min2023], y = Dry_2023$Rain[min2023]), size = 0.8)+
+  geom_point(aes(x = Dry_2024$date[max2024], y = Dry_2024$Rain[max2024]), size = 0.8)+
+  geom_point(aes(x = Dry_2024$date[min2024], y = Dry_2024$Rain[min2024]), size = 0.8)+
   annotate("text",x = Dry_2020$date[max2020], 
            y =  Dry_2020$Rain[max2020]+20,label =  Dry_2020$Rain[max2020],
-           col = "grey40", size = 3)+
+           col = "black", size = 3)+
   annotate("text",x = Dry_2020$date[min2020], 
            y = Dry_2020$Rain[min2020]-20,label =  Dry_2020$Rain[min2020],
-           col = "grey40", size = 3)+
+           col = "black", size = 3)+
   annotate("text",x = Dry_2021$date[max2021], 
            y = Dry_2021$Rain[max2021]+20,label = Dry_2021$Rain[max2021],
-           col = "grey40", size = 3)+
+           col = "black", size = 3)+
   annotate("text",x =  Dry_2021$date[min2021], 
            y =  Dry_2021$Rain[min2021]-20,label =  Dry_2021$Rain[min2021],
-           col = "grey40", size = 3)+
-    annotate("text",x = Dry_2022$date[max2022], 
+           col = "black", size = 3)+
+  annotate("text",x = Dry_2022$date[max2022], 
            y = Dry_2022$Rain[max2022]+20,label = Dry_2022$Rain[max2022],
-           col = "grey40", size = 3)+
-    annotate("text",x =  Dry_2022$date[min2022], 
+           col = "black", size = 3)+
+  annotate("text",x =  Dry_2022$date[min2022], 
            y = Dry_2022$Rain[min2022]-20,label =  Dry_2022$Rain[min2022],
-           col = "grey40", size = 3)+
-    annotate("text",x = Dry_2023$date[max2023], 
+           col = "black", size = 3)+
+  annotate("text",x = Dry_2023$date[max2023], 
            y =  Dry_2023$Rain[max2023]+20,label =Dry_2023$Rain[max2023],
-           col = "grey40", size = 3)+
+           col = "black", size = 3)+
   annotate("text",x = Dry_2023$date[min2023], 
            y =   Dry_2023$Rain[min2023]-20,label =   Dry_2023$Rain[min2023],
-           col = "grey40", size = 3)+
-  
+           col = "black", size = 3)+
   annotate("text",x = Dry_2024$date[max2024]+30, 
            y = Dry_2024$Rain[max2024],label = Dry_2024$Rain[max2024],
-           col = "grey40", size = 3)+
+           col = "black", size = 3)+
   annotate("text",x = Dry_2024$date[min2024], 
            y = Dry_2024$Rain[min2024]-20,label =  Dry_2024$Rain[min2024],
-           col = "grey40", size = 3)+
+           col = "black", size = 3)+
   scale_y_continuous(name = "Pluviométrie (mm)", sec.axis = sec_axis(~., name = "Température X2 (°C)")) +
   x_date_4ans +
   theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust = 1, size = 8)) +
   labs(
-    title = "Pluviométrie mensuelle au cours des 4 années de suivie phénologique",
-    x = "Mois",
-    y = "Pluviométrie (mm)"
-  )
+    title = "Pluviométrie et températures mensuelles au cours des 4 années de suivie phénologique",
+    x = "Mois"
+    )
 
 
-# Pour 2020
-ggplot(Rain2020, aes(x = date, y = Rain)) +
-  geom_line(colour = "#E6AB02") +
-  geom_vline(xintercept = dates2020[pic2020],
-             col = "black", linetype = "dashed")+
 
-  # "Scale_x_date" pour specifier que des dates sont utilisees en abscisse 
-  scale_x_date(breaks = as.Date(c("2020-01-01", "2020-02-01", "2020-03-01", "2020-04-01",
-                                  "2020-05-01", "2020-06-01", "2020-07-01", "2020-08-01",
-                                  "2020-09-01", "2020-10-01", "2020-11-01", "2020-12-01")),
-               date_labels = "%Y-%m-%d") +
-  
-  # Mise en forme des labels de l'axe des abscisses
-  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
-  
-  labs(
-    title = "Pluviométrie au cours de l'année 2020",
-    x = "Dates",
-    y = "Pluviométrie (mm)"
-  )
-
-
-# Pour 2021
-ggplot(Rain2021, aes(x = date, y = Rain))+
-  geom_line(colour = "#D95F02")+
-  geom_vline(xintercept = dates2021[pic2021],
-             col = "black", linetype = "dashed")+
-  scale_x_date(breaks = as.Date(c("2021-01-01", "2021-02-01", "2021-03-01", "2021-04-01",
-                                  "2021-05-01", "2021-06-01", "2021-07-01", "2021-08-01",
-                                  "2021-09-01", "2021-10-01", "2021-11-01", "2021-12-01")),
-               date_labels = "%Y-%m-%d") +
-  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
-  labs(
-    title = "Pluviométrie au cours de l'année 2021",
-    x = "Dates",
-    y = "Pluviométrie (mm)"
-  )
-
-# Pour 2022
-ggplot(Rain2022, aes(x = date, y = Rain))+
-  geom_line( colour = "#E7298A")+
-  geom_vline(xintercept = dates2022[pic2022],
-             col = "black", linetype = "dashed")+
-  scale_x_date(breaks = as.Date(c("2022-01-01", "2022-02-01", "2022-03-01", "2022-04-01",
-                                  "2022-05-01", "2022-06-01", "2022-07-01", "2022-08-01",
-                                  "2022-09-01", "2022-10-01", "2022-11-01", "2022-12-01")),
-               date_labels = "%Y-%m-%d") +
-  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
-  labs(
-    title = "Pluviométrie au cours de l'année 2022",
-    x = "Dates",
-    y = "Pluviométrie (mm)"
-  )
-
-# Pour 2023
-ggplot(Rain2023, aes(x = date, y = Rain))+
-  geom_line(colour = "#7570B3")+
-  geom_vline(xintercept = dates2023[pic2023],
-             col = "black", linetype = "dashed")+
-  scale_x_date(breaks = as.Date(c("2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01",
-                                  "2023-05-01", "2023-06-01", "2023-07-01", "2023-08-01",
-                                  "2023-09-01", "2023-10-01", "2023-11-01", "2023-12-01")),
-               date_labels = "%Y-%m-%d") +
-  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
-  labs(
-    title = "Pluviométrie au cours de l'année 2023",
-    x = "Dates",
-    y = "Pluviométrie (mm)"
-  )
-
-# Pour 2024
-ggplot(Rain2024, aes(x = date, y = Rain))+
-  geom_line(colour = "#66A61E")+
-  geom_vline(xintercept = dates2024[pic2024],
-             col = "black", linetype = "dashed")+
-  scale_x_date(breaks = as.Date(c("2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01",
-                                  "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01",
-                                  "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01")),
-               date_labels = "%Y-%m-%d") +
-  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
-  labs(
-    title = "Pluviométrie au cours de l'année 2024",
-    x = "Dates",
-    y = "Pluviométrie (mm)"
-  )
 
 
 
 ## HUMIDITE DE L'AIR (Hr55), ETP, HUMIDITE DU SOL (VWC_10cm) ET DEFICIT DE SATURATION (vpd55) ##
 
-# Pour l'ensemble des 4 ans de suivi #
+# Data des 4 ans #
 
 # Data de depart
 dataB_resume %>% 
@@ -845,7 +770,7 @@ dataB_resume %>%
   print() ->
   dataB_hum
 
-is.na(dataB_resume)
+sum(is.na(dataB_hum))
 
 # Data 24h
 dataB_hum %>% 
@@ -962,100 +887,10 @@ humidity %>%
   humidity_12
 
 
-
-# Graph variations journalieres de Hr(55) 
-ggplot(data = humidity) +
-  geom_line(aes(x = date, y = `Hr(55)`)) +
-  geom_vline(xintercept = dates2021[1],
-             col = "black", linetype = "dashed") +
-  geom_vline(xintercept = dates2022[1],
-             col = "black", linetype = "dashed") +
-  geom_vline(xintercept = dates2023[1],
-             col = "black", linetype = "dashed") +
-  geom_vline(xintercept = dates2024[1],
-             col = "black", linetype = "dashed") +
-  geom_rect(xmin = dates2020[1], xmax = dates2020[366], ymin = -Inf, ymax = Inf, 
-            fill = "#E6AB02", alpha = 0.008) +
-  geom_rect(xmin = dates2021[1], xmax = dates2021[361], ymin = -Inf, ymax = Inf, 
-            fill = "#D95F02", alpha = 0.008) +
-  geom_rect(xmin = dates2022[1], xmax = dates2022[365], ymin = -Inf, ymax = Inf, 
-            fill = "#E7298A", alpha = 0.008) +
-  geom_rect(xmin = dates2023[1], xmax = dates2023[365], ymin = -Inf, ymax = Inf, 
-            fill = "#7570B3", alpha = 0.008) +
-  geom_rect(xmin = dates2024[1], xmax = dates2024[69], ymin = -Inf, ymax = Inf, 
-            fill = "#66A61E", alpha = 0.008) +
-  x_date +
-  theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust = 1, size = 8)) +
-    labs(
-    title = "Humidité de l'air journaliere au cours des 4 années de suivie phénologique",
-    x = "Mois",
-    y = "Hr(55) (%)"
-  )
-
-# Graph variations journalieres de Hr(55) avec moyenne mobile
-ggplot(data = humidity) +
-  geom_line(aes(x = date, y = humidity_av)) +
-  geom_vline(xintercept = dates2021[1],
-             col = "black", linetype = "dashed") +
-  geom_vline(xintercept = dates2022[1],
-             col = "black", linetype = "dashed") +
-  geom_vline(xintercept = dates2023[1],
-             col = "black", linetype = "dashed") +
-  geom_vline(xintercept = dates2024[1],
-             col = "black", linetype = "dashed") +
-  geom_rect(xmin = dates2020[1], xmax = dates2020[366], ymin = -Inf, ymax = Inf, 
-            fill = "#E6AB02", alpha = 0.008) +
-  geom_rect(xmin = dates2021[1], xmax = dates2021[361], ymin = -Inf, ymax = Inf, 
-            fill = "#D95F02", alpha = 0.008) +
-  geom_rect(xmin = dates2022[1], xmax = dates2022[365], ymin = -Inf, ymax = Inf, 
-            fill = "#E7298A", alpha = 0.008) +
-  geom_rect(xmin = dates2023[1], xmax = dates2023[365], ymin = -Inf, ymax = Inf, 
-            fill = "#7570B3", alpha = 0.008) +
-  geom_rect(xmin = dates2024[1], xmax = dates2024[69], ymin = -Inf, ymax = Inf, 
-            fill = "#66A61E", alpha = 0.008) +
-  x_date +
-  theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust = 1, size = 8)) +
-  labs(
-    title = "Humidité de l'air journaliere au cours des 4 années de suivie phénologique",
-    x = "Mois",
-    y = "Hr(55) (%)"
-  )
-
-
-# Graph variations mensuelles de Hr(55) 
-ggplot(data = humidity_month) +
-  geom_line(aes(x = date, y = `Hr(55)`)) +
-  geom_vline(xintercept = dates2021[1],
-             col = "black", linetype = "dashed") +
-  geom_vline(xintercept = dates2022[1],
-             col = "black", linetype = "dashed") +
-  geom_vline(xintercept = dates2023[1],
-             col = "black", linetype = "dashed") +
-  geom_vline(xintercept = dates2024[1],
-             col = "black", linetype = "dashed") +
-  geom_rect(xmin = dates2020[1], xmax = dates2020[366], ymin = -Inf, ymax = Inf, 
-            fill = "#E6AB02", alpha = 0.008) +
-  geom_rect(xmin = dates2021[1], xmax = dates2021[361], ymin = -Inf, ymax = Inf, 
-            fill = "#D95F02", alpha = 0.008) +
-  geom_rect(xmin = dates2022[1], xmax = dates2022[365], ymin = -Inf, ymax = Inf, 
-            fill = "#E7298A", alpha = 0.008) +
-  geom_rect(xmin = dates2023[1], xmax = dates2023[365], ymin = -Inf, ymax = Inf, 
-            fill = "#7570B3", alpha = 0.008) +
-  geom_rect(xmin = dates2024[1], xmax = dates2024[69], ymin = -Inf, ymax = Inf, 
-            fill = "#66A61E", alpha = 0.008) +
-   x_date_4ans +
-  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
-  labs(
-    title = "Humidité de l'air mensuelle au cours des 4 années de suivie phénologique",
-    x = "Mois",
-    y = "Hr(55) (%)"
-  )
-
-
-
 # Pour 2020 #
 dataB_hum %>% 
-  filter(Year == 2020) ->
+  filter(Year == 2020) %>% 
+  print() ->
   dataB2020_hum
 
 # Data journalières
@@ -1157,6 +992,7 @@ humidity2020_J %>%
   print() ->
   humidity_01_2020_J
 
+
 # Moyennes, 1erQ et 3eQ
 hum_sum_J_2020 <- summary(humidity2020_J)
 air2020_J<- hum_sum_J_2020[,6]
@@ -1169,6 +1005,23 @@ air2020_N<- hum_sum_N_2020[,6]
 min_air_N_2020 <- air2020_N[1]
 max_air_N_2020 <- air2020_N[6]
 med_air_N_2020 <-  air2020_N[3]
+
+
+# HR #
+
+# Pic maximal journalier  sur l'annee
+picHR2020_X <- which.max(humidity2020$`Hr(55)`) #position
+picHR2020_Y <- round(max(humidity2020$`Hr(55)`), digits = 2) #valeur
+dates2020 <- humidity2020$date
+
+# Pic maximal mensuel de pluie sur l'annee
+maxHR2020_X <- which.max(humidity_month2020$`Hr(55)`)
+maxHR2020_Y <- round(max(humidity_month2020$`Hr(55)`), digits = 2)
+dates2020_bis <-  humidity_month2020$date
+
+#Pic minimum mensuel sur l'annee
+minHR2020_X <- which.min(humidity_month2020$`Hr(55)`)
+minHR2020_Y <- round(min(humidity_month2020$`Hr(55)`), digits = 2)
 
 
 # Graphique Hr(55) journalier J/N V.1
@@ -1289,7 +1142,23 @@ ggplot(data = humidity2020) +
 
 
 
-# Graphique ETP
+# ETP #
+
+# Pic maximal journalier  sur l'annee
+picETP2020_X <- which.max(humidity2020$ETP) #position
+picETP2020_Y <- round(max(humidity2020$ETP), digits = 2) #valeur
+dates2020 <- humidity2020$date
+
+# Pic maximal mensuel de pluie sur l'annee
+maxETP2020_X <- which.max(humidity_month2020$ETP)
+maxETP2020_Y <- round(max(humidity_month2020$ETP), digits = 2)
+dates2020_bis <-  humidity_month2020$date
+
+#Pic minimum mensuel sur l'annee
+minETP2020_X <- which.min(humidity_month2020$ETP)
+minETP2020_Y <- round(min(humidity_month2020$ETP), digits = 2)
+
+# Graphique variations journalieres
 ggplot() +
   #geom_line(data = humidity2020, aes(x = date, y = `Hr(55)`), colour = "black") +
   geom_line(data = humidity2020_J, aes(x = date, y = ETP, color = "J")) +
@@ -1306,7 +1175,7 @@ ggplot() +
     y = "ETP (mm)"
   )
 
-# Graphique ETP
+# Graphique variations mensuelles
 ggplot() +
   #geom_line(data = humidity2020, aes(x = date, y = `Hr(55)`), colour = "black") +
   geom_line(data = humidity_month2020_J, aes(x = date, y = ETP, color = "J")) +
@@ -1324,9 +1193,23 @@ ggplot() +
   )
 
 
+# VWC_10cm #
 
+# Pic maximal journalier  sur l'annee
+picVWC2020_X <- which.max(humidity2020$VWC_10cm) #position
+picVWC2020_Y <- round(max(humidity2020$VWC_10cm), digits = 2) #valeur
+dates2020 <- humidity2020$date
 
-# Graphique VWC_10cm
+# Pic maximal mensuel de pluie sur l'annee
+maxVWC2020_X <- which.max(humidity_month2020$VWC_10cm)
+maxVWC2020_Y <- round(max(humidity_month2020$VWC_10cm), digits = 2)
+dates2020_bis <-  humidity_month2020$date
+
+#Pic minimum mensuel sur l'annee
+minVWC2020_X <- which.min(humidity_month2020$VWC_10cm)
+minVWC2020_Y <- round(min(humidity_month2020$VWC_10cm), digits = 2)
+
+# Graphique variations journalières
 ggplot() +
   #geom_line(data = humidity2020, aes(x = date, y = `Hr(55)`), colour = "black") +
   geom_line(data = humidity2020_J, aes(x = date, y = VWC_10cm, color = "J")) +
@@ -1343,6 +1226,7 @@ ggplot() +
     y = "Humidité du sol (m³/m³)"
   )
 
+# Graphique variations mensuelles
 ggplot() +
   #geom_line(data = humidity2020, aes(x = date, y = `Hr(55)`), colour = "black") +
   geom_line(data = humidity_month2020_J, aes(x = date, y = VWC_10cm, color = "J")) +
@@ -1359,7 +1243,24 @@ ggplot() +
     y = "Humidité du sol (m³/m³)"
   )
 
-# Graphique vpd55
+
+# VPD #
+
+# Pic maximal journalier  sur l'annee
+picVPD2020_X <- which.max(humidity2020$vpd55) #position
+picVPD2020_Y <- round(max(humidity2020$vpd55), digits = 2) #valeur
+dates2020 <- humidity2020$date
+
+# Pic maximal mensuel de pluie sur l'annee
+maxVPD2020_X <- which.max(humidity_month2020$vpd55)
+maxVPD2020_Y <- round(max(humidity_month2020$vpd55), digits = 2)
+dates2020_bis <-  humidity_month2020$date
+
+#Pic minimum mensuel sur l'annee
+minVPD2020_X <- which.min(humidity_month2020$vpd55)
+minVPD2020_Y <- round(min(humidity_month2020$vpd55), digits = 2)
+
+# Graphique variations journalieres
 ggplot() +
   #geom_line(data = humidity2020, aes(x = date, y = `Hr(55)`), colour = "black") +
   geom_line(data = humidity2020_J, aes(x = date, y = vpd55, color = "J")) +
@@ -1376,6 +1277,7 @@ ggplot() +
     y = "VPD (kPa)"
   )
 
+# Graphique variations mensuelles
 ggplot() +
   #geom_line(data = humidity2020, aes(x = date, y = `Hr(55)`), colour = "black") +
   geom_line(data = humidity_month2020_J, aes(x = date, y = vpd55, color = "J")) +
@@ -1393,40 +1295,128 @@ ggplot() +
   )
 
 # Pour 2021 #
-dataB2021 %>% 
-  filter(!is.na(`Hr(55)`)) %>% 
-  filter(!is.na(ETP)) %>% 
-  filter(!is.na(VWC_10cm)) %>% 
-  filter(!is.na(vpd55)) %>% 
-  select(Year, Month, Day, date, `Hr(55)`, ETP, VWC_10cm, vpd55) %>% 
-  group_by(Year, Month, Day, date) %>% 
-  summarise(`Hr(55)` = mean(`Hr(55)`), ETP = sum(ETP), VWC_10cm = mean(VWC_10cm), vpd55 = mean(vpd55)) %>% 
+
+dataB_hum %>% 
+  filter(Year == 2021) %>% 
+  print() ->
+  dataB2021_hum
+
+# Data journalières
+humidity %>% 
+  filter(Year == 2021) %>% 
   print() ->
   humidity2021
 
-dataB2021 %>% 
-  filter(!is.na(ETP)) %>% 
-  filter(!is.na(VWC_10cm)) %>% 
-  filter(!is.na(vpd55)) %>% 
-  select(Year, Month, Day, date,`J/N`, `Hr(55)`, ETP, VWC_10cm, vpd55) %>% 
-  filter(`J/N` == "J") %>% 
-  group_by(Year, Month, Day, date) %>% 
+humidity_J %>% 
+  filter(Year == 2021) %>% 
   print() ->
-  humidity2021_J
+  humidity2021_J 
 
-dataB2021 %>% 
-  filter(!is.na(`Hr(55)`)) %>% 
-  filter(!is.na(ETP)) %>% 
-  filter(!is.na(VWC_10cm)) %>% 
-  filter(!is.na(vpd55)) %>% 
-  select(Year, Month, Day, date,`J/N`, `Hr(55)`, ETP, VWC_10cm, vpd55) %>% 
-  filter(`J/N` == "N") %>% 
-  group_by(Year, Month, Day, date) %>% 
+humidity_N %>% 
+  filter(Year == 2021) %>% 
   print() ->
   humidity2021_N
 
+#Data mensuelles générales, de jour et de nuit
+humidity_month %>% 
+  filter(Year == 2021) %>% 
+  print()->
+  humidity_month2021
 
-# Graphique Hr(55)
+humidity_month_J %>% 
+  filter(Year ==2021) %>% 
+  print()->
+  humidity_month2021_J
+
+humidity_month_N %>% 
+  filter(Year == 2021) %>% 
+  print()->
+  humidity_month2021_N
+
+# Data pour chaque jour de chaque mois (pas de distinction J/N)
+humidity_01 %>% 
+  filter(Year == 2021) %>% 
+  print()->
+  humidity_01_2021
+
+humidity_02 %>% 
+  filter(Year == 2021) %>% 
+  print()->
+  humidity_02_2021
+
+humidity_03 %>% 
+  filter(Year == 2021) %>% 
+  print()->
+  humidity_03_2021
+
+humidity_04 %>% 
+  filter(Year == 2021) %>% 
+  print()->
+  humidity_04_2021
+
+humidity_05 %>% 
+  filter(Year == 2021) %>% 
+  print()->
+  humidity_05_2021
+
+humidity_06 %>% 
+  filter(Year == 2021) %>% 
+  print()->
+  humidity_06_2021
+
+humidity_07 %>% 
+  filter(Year == 2021) %>% 
+  print()->
+  humidity_07_2021
+
+humidity_08 %>% 
+  filter(Year == 2021) %>% 
+  print()->
+  humidity_08_2021
+
+humidity_09 %>% 
+  filter(Year == 2021) %>% 
+  print()->
+  humidity_09_2021
+
+humidity_10 %>% 
+  filter(Year == 2021) %>% 
+  print()->
+  humidity_10_2020
+
+humidity_11 %>% 
+  filter(Year == 2021) %>% 
+  print()->
+  humidity_11_2021
+
+humidity_12 %>% 
+  filter(Year == 2021) %>% 
+  print()->
+  humidity_12_2021
+
+# Data pour chaque jour de chaque mois de jour
+humidity2021_J %>% 
+  filter(Month == 1) %>% 
+  print() ->
+  humidity_01_2021_J
+
+# HR #
+
+# Pic maximal journalier  sur l'annee
+picHR2021_X <- which.max(humidity2021$`Hr(55)`) #position
+picHR2021_Y <- round(max(humidity2021$`Hr(55)`), digits = 2) #valeur
+dates2021 <- humidity2021$date
+
+# Pic maximal mensuel de pluie sur l'annee
+maxHR2021_X <- which.max(humidity_month2021$`Hr(55)`)
+maxHR2021_Y <- round(max(humidity_month2021$`Hr(55)`), digits = 2)
+dates2021_bis <-  humidity_month2021$date
+
+#Pic minimum mensuel sur l'annee
+minHR2021_X <- which.min(humidity_month2021$`Hr(55)`)
+minHR2021_Y <- round(min(humidity_month2021$`Hr(55)`), digits = 2)
+
+# Graphique variations journalieres Hr(55)
 ggplot() +
   #geom_line(data = humidity2021, aes(x = date, y = `Hr(55)`), colour = "black") +
   geom_line(data = humidity2021_J, aes(x = date, y = `Hr(55)`, color = "J")) +
@@ -1443,7 +1433,21 @@ ggplot() +
     y = "Humidité de l'air à 55m (%)"
   )
 
-# Graphique ETP
+# ETP #
+
+# Pic maximal journalier  sur l'annee
+picETP2021_X <- which.max(humidity2021$ETP) #position
+picETP2021_Y <- round(max(humidity2021$ETP), digits = 2) #valeur
+
+# Pic maximal mensuel de pluie sur l'annee
+maxETP2020_X <- which.max(humidity_month2021$ETP)
+maxETP2020_Y <- round(max(humidity_month2021$ETP), digits = 2)
+
+#Pic minimum mensuel sur l'annee
+minETP2021_X <- which.min(humidity_month2021$ETP)
+minETP2021_Y <- round(min(humidity_month2021$ETP), digits = 2)
+
+# Graphique variations journalieres ETP
 ggplot() +
   #geom_line(data = humidity2021, aes(x = date, y = `Hr(55)`), colour = "black") +
   geom_line(data = humidity2021_J, aes(x = date, y = ETP, color = "J")) +
@@ -1461,7 +1465,21 @@ ggplot() +
   )
 
 
-# Graphique VWC_10cm
+# VWC_10cm #
+
+# Pic maximal journalier  sur l'annee
+picVWC2021_X <- which.max(humidity2021$VWC_10cm) #position
+picVWC2021_Y <- round(max(humidity2021$VWC_10cm), digits = 2) #valeur
+
+# Pic maximal mensuel de pluie sur l'annee
+maxVWC2021_X <- which.max(humidity_month2021$VWC_10cm)
+maxVWC2021_Y <- round(max(humidity_month2021$VWC_10cm), digits = 2)
+
+#Pic minimum mensuel sur l'annee
+minVWC2021_X <- which.min(humidity_month2021$VWC_10cm)
+minVWC2021_Y <- round(min(humidity_month2021$VWC_10cm), digits = 2)
+
+# Graphique variations journalieres VWC_10cm
 ggplot() +
   #geom_line(data = humidity2021, aes(x = date, y = `Hr(55)`), colour = "black") +
   geom_line(data = humidity2021_J, aes(x = date, y = VWC_10cm, color = "J")) +
@@ -1478,7 +1496,21 @@ ggplot() +
     y = "Humidité du sol (m³/m³)"
   )
 
-# Graphique vpd55
+# VPD #
+
+# Pic maximal journalier sur l'annee
+picVPD2021_X <- which.max(humidity2021$vpd55) #position
+picVPD2021_Y <- round(max(humidity2021$vpd55), digits = 2) #valeur
+
+# Pic maximal mensuel de pluie sur l'annee
+maxVPD2021_X <- which.max(humidity_month2021$vpd55)
+maxVPD2021_Y <- round(max(humidity_month2021$vpd55), digits = 2)
+
+#Pic minimum mensuel sur l'annee
+minVPD2021_X <- which.min(humidity_month2021$vpd55)
+minVPD2021_Y <- round(min(humidity_month2021$vpd55), digits = 2)
+
+# Graphique variations journalieres vpd55
 ggplot() +
   #geom_line(data = humidity2021, aes(x = date, y = `Hr(55)`), colour = "black") +
   geom_line(data = humidity2021_J, aes(x = date, y = vpd55, color = "J")) +
@@ -1498,39 +1530,127 @@ ggplot() +
 
 
 # Pour 2022 #
-dataB2022 %>% 
-  filter(!is.na(`Hr(55)`)) %>% 
-  filter(!is.na(ETP)) %>% 
-  filter(!is.na(VWC_10cm)) %>% 
-  filter(!is.na(vpd55)) %>% 
-  select(Year, Month, Day, date, `Hr(55)`, ETP, VWC_10cm, vpd55) %>% 
-  group_by(Year, Month, Day, date) %>% 
-  summarise(`Hr(55)` = mean(`Hr(55)`), ETP = sum(ETP), VWC_10cm = mean(VWC_10cm), vpd55 = mean(vpd55)) %>% 
+dataB_hum %>% 
+  filter(Year == 2022) %>% 
+  print() ->
+  dataB2022_hum
+
+# Data journalières
+humidity %>% 
+  filter(Year == 2022) %>% 
   print() ->
   humidity2022
 
-dataB2022 %>% 
-  filter(!is.na(ETP)) %>% 
-  filter(!is.na(VWC_10cm)) %>% 
-  filter(!is.na(vpd55)) %>% 
-  select(Year, Month, Day, date,`J/N`, `Hr(55)`, ETP, VWC_10cm, vpd55) %>% 
-  filter(`J/N` == "J") %>% 
-  group_by(Year, Month, Day, date) %>% 
+humidity_J %>% 
+  filter(Year == 2022) %>% 
   print() ->
-  humidity2022_J
+  humidity2022_J 
 
-dataB2022 %>% 
-  filter(!is.na(`Hr(55)`)) %>% 
-  filter(!is.na(ETP)) %>% 
-  filter(!is.na(VWC_10cm)) %>% 
-  filter(!is.na(vpd55)) %>% 
-  select(Year, Month, Day, date,`J/N`, `Hr(55)`, ETP, VWC_10cm, vpd55) %>% 
-  filter(`J/N` == "N") %>% 
-  group_by(Year, Month, Day, date) %>% 
+humidity_N %>% 
+  filter(Year == 2022) %>% 
   print() ->
   humidity2022_N
 
-# Graphique Hr(55)
+#Data mensuelles générales, de jour et de nuit
+humidity_month %>% 
+  filter(Year == 2022) %>% 
+  print()->
+  humidity_month2022
+
+humidity_month_J %>% 
+  filter(Year == 2022) %>% 
+  print()->
+  humidity_month2022_J
+
+humidity_month_N %>% 
+  filter(Year == 2022) %>% 
+  print()->
+  humidity_month2022_N
+
+# Data pour chaque jour de chaque mois (pas de distinction J/N)
+humidity_01 %>% 
+  filter(Year == 2022) %>% 
+  print()->
+  humidity_01_2022
+
+humidity_02 %>% 
+  filter(Year == 2022) %>% 
+  print()->
+  humidity_02_2022
+
+humidity_03 %>% 
+  filter(Year == 2022) %>% 
+  print()->
+  humidity_03_2022
+
+humidity_04 %>% 
+  filter(Year == 2022) %>% 
+  print()->
+  humidity_04_2022
+
+humidity_05 %>% 
+  filter(Year == 2022) %>% 
+  print()->
+  humidity_05_2022
+
+humidity_06 %>% 
+  filter(Year == 2022) %>% 
+  print()->
+  humidity_06_2022
+
+humidity_07 %>% 
+  filter(Year == 2022) %>% 
+  print()->
+  humidity_07_2022
+
+humidity_08 %>% 
+  filter(Year == 2022) %>% 
+  print()->
+  humidity_08_2022
+
+humidity_09 %>% 
+  filter(Year == 2022) %>% 
+  print()->
+  humidity_09_2022
+
+humidity_10 %>% 
+  filter(Year == 2022) %>% 
+  print()->
+  humidity_10_2022
+
+humidity_11 %>% 
+  filter(Year == 2022) %>% 
+  print()->
+  humidity_11_2022
+
+humidity_12 %>% 
+  filter(Year == 2022) %>% 
+  print()->
+  humidity_12_2022
+
+# Data pour chaque jour de chaque mois de jour
+humidity2022_J %>% 
+  filter(Month == 1) %>% 
+  print() ->
+  humidity_01_2022_J
+
+# HR #
+
+# Pic maximal journalier  sur l'annee
+picHR2022_X <- which.max(humidity2022$`Hr(55)`) #position
+picHR2022_Y <- round(max(humidity2022$`Hr(55)`), digits = 2) #valeur
+dates2022 <- humidity2022$date
+
+# Pic maximal mensuel de pluie sur l'annee
+maxHR2022_X <- which.max(humidity_month2022$`Hr(55)`)
+maxHR2022_Y <- round(max(humidity_month2022$`Hr(55)`), digits = 2)
+dates2022_bis <-  humidity_month2022$date
+
+#Pic minimum mensuel sur l'annee
+minHR2022_X <- which.min(humidity_month2022$`Hr(55)`)
+minHR2022_Y <- round(min(humidity_month2022$`Hr(55)`), digits = 2)
+
+# Graphique variations journalieres Hr(55)
 ggplot() +
   #geom_line(data = humidity2022, aes(x = date, y = `Hr(55)`), colour = "black") +
   geom_line(data = humidity2022_J, aes(x = date, y = `Hr(55)`, color = "J")) +
@@ -1547,7 +1667,21 @@ ggplot() +
     y = "Humidité de l'air à 55m (%)"
   )
 
-# Graphique ETP
+# ETP #
+
+# Pic maximal journalier  sur l'annee
+picETP2022_X <- which.max(humidity2022$ETP) #position
+picETP2022_Y <- round(max(humidity2022$ETP), digits = 2) #valeur
+
+# Pic maximal mensuel de pluie sur l'annee
+maxETP2022_X <- which.max(humidity_month2022$ETP)
+maxETP2022_Y <- round(max(humidity_month2022$ETP), digits = 2)
+
+#Pic minimum mensuel sur l'annee
+minETP2022_X <- which.min(humidity_month2022$ETP)
+minETP2022_Y <- round(min(humidity_month2022$ETP), digits = 2)
+
+# Graphique variations journalieres ETP
 ggplot() +
   #geom_line(data = humidity2022, aes(x = date, y = `Hr(55)`), colour = "black") +
   geom_line(data = humidity2022_J, aes(x = date, y = ETP, color = "J")) +
@@ -1564,8 +1698,21 @@ ggplot() +
     y = "ETP (mm)"
   )
 
+# VWC_10cm #
 
-# Graphique VWC_10cm
+# Pic maximal journalier  sur l'annee
+picVWC2022_X <- which.max(humidity2022$VWC_10cm) #position
+picVWC2022_Y <- round(max(humidity2022$VWC_10cm), digits = 2) #valeur
+
+# Pic maximal mensuel de pluie sur l'annee
+maxVWC2022_X <- which.max(humidity_month2022$VWC_10cm)
+maxVWC2022_Y <- round(max(humidity_month2022$VWC_10cm), digits = 2)
+
+#Pic minimum mensuel sur l'annee
+minVWC2022_X <- which.min(humidity_month2022$VWC_10cm)
+minVWC2022_Y <- round(min(humidity_month2022$VWC_10cm), digits = 2)
+
+# Graphique variations journalieres VWC_10cm
 ggplot() +
   #geom_line(data = humidity2022, aes(x = date, y = `Hr(55)`), colour = "black") +
   geom_line(data = humidity2022_J, aes(x = date, y = VWC_10cm, color = "J")) +
@@ -1582,7 +1729,21 @@ ggplot() +
     y = "Humidité du sol (m³/m³)"
   )
 
-# Graphique vpd55
+# VPD #
+
+# Pic maximal journalier sur l'annee
+picVPD2022_X <- which.max(humidity2022$vpd55) #position
+picVPD2022_Y <- round(max(humidity2022$vpd55), digits = 2) #valeur
+
+# Pic maximal mensuel de pluie sur l'annee
+maxVPD2022_X <- which.max(humidity_month2022$vpd55)
+maxVPD2022_Y <- round(max(humidity_month2022$vpd55), digits = 2)
+
+#Pic minimum mensuel sur l'annee
+minVPD2022_X <- which.min(humidity_month2022$vpd55)
+minVPD2022_Y <- round(min(humidity_month2022$vpd55), digits = 2)
+
+# Graphique variations journalieres vpd55
 ggplot() +
   #geom_line(data = humidity2022, aes(x = date, y = `Hr(55)`), colour = "black") +
   geom_line(data = humidity2022_J, aes(x = date, y = vpd55, color = "J")) +
@@ -1602,39 +1763,128 @@ ggplot() +
 
 
 # Pour 2023 #
-dataB2023 %>% 
-  filter(!is.na(`Hr(55)`)) %>% 
-  filter(!is.na(ETP)) %>% 
-  filter(!is.na(VWC_10cm)) %>% 
-  filter(!is.na(vpd55)) %>% 
-  select(Year, Month, Day, date, `Hr(55)`, ETP, VWC_10cm, vpd55) %>% 
-  group_by(Year, Month, Day, date) %>% 
-  summarise(`Hr(55)` = mean(`Hr(55)`), ETP = sum(ETP), VWC_10cm = mean(VWC_10cm), vpd55 = mean(vpd55)) %>% 
+dataB_hum %>% 
+  filter(Year == 2023) %>% 
+  print() ->
+  dataB2023_hum
+
+# Data journalières
+humidity %>% 
+  filter(Year == 2023) %>% 
   print() ->
   humidity2023
 
-dataB2023 %>% 
-  filter(!is.na(ETP)) %>% 
-  filter(!is.na(VWC_10cm)) %>% 
-  filter(!is.na(vpd55)) %>% 
-  select(Year, Month, Day, date,`J/N`, `Hr(55)`, ETP, VWC_10cm, vpd55) %>% 
-  filter(`J/N` == "J") %>% 
-  group_by(Year, Month, Day, date) %>% 
+humidity_J %>% 
+  filter(Year == 2023) %>% 
   print() ->
-  humidity2023_J
+  humidity2023_J 
 
-dataB2023 %>% 
-  filter(!is.na(`Hr(55)`)) %>% 
-  filter(!is.na(ETP)) %>% 
-  filter(!is.na(VWC_10cm)) %>% 
-  filter(!is.na(vpd55)) %>% 
-  select(Year, Month, Day, date,`J/N`, `Hr(55)`, ETP, VWC_10cm, vpd55) %>% 
-  filter(`J/N` == "N") %>% 
-  group_by(Year, Month, Day, date) %>% 
+humidity_N %>% 
+  filter(Year == 2023) %>% 
   print() ->
   humidity2023_N
 
-# Graphique Hr(55)
+#Data mensuelles générales, de jour et de nuit
+humidity_month %>% 
+  filter(Year == 2023) %>% 
+  print()->
+  humidity_month2023
+
+humidity_month_J %>% 
+  filter(Year == 2023) %>% 
+  print()->
+  humidity_month2023_J
+
+humidity_month_N %>% 
+  filter(Year == 2023) %>% 
+  print()->
+  humidity_month2023_N
+
+# Data pour chaque jour de chaque mois (pas de distinction J/N)
+humidity_01 %>% 
+  filter(Year == 2023) %>% 
+  print()->
+  humidity_01_2023
+
+humidity_02 %>% 
+  filter(Year == 2023) %>% 
+  print()->
+  humidity_02_2023
+
+humidity_03 %>% 
+  filter(Year == 2023) %>% 
+  print()->
+  humidity_03_2023
+
+humidity_04 %>% 
+  filter(Year == 2023) %>% 
+  print()->
+  humidity_04_2023
+
+humidity_05 %>% 
+  filter(Year == 2023) %>% 
+  print()->
+  humidity_05_2023
+
+humidity_06 %>% 
+  filter(Year == 2023) %>% 
+  print()->
+  humidity_06_2023
+
+humidity_07 %>% 
+  filter(Year == 2023) %>% 
+  print()->
+  humidity_07_2023
+
+humidity_08 %>% 
+  filter(Year == 2023) %>% 
+  print()->
+  humidity_08_2023
+
+humidity_09 %>% 
+  filter(Year == 2023) %>% 
+  print()->
+  humidity_09_2023
+
+humidity_10 %>% 
+  filter(Year == 2023) %>% 
+  print()->
+  humidity_10_2023
+
+humidity_11 %>% 
+  filter(Year == 2023) %>% 
+  print()->
+  humidity_11_2023
+
+humidity_12 %>% 
+  filter(Year == 2023) %>% 
+  print()->
+  humidity_12_2023
+
+# Data pour chaque jour de chaque mois de jour
+humidity2023_J %>% 
+  filter(Month == 1) %>% 
+  print() ->
+  humidity_01_2023_J
+
+
+# HR #
+
+# Pic maximal journalier  sur l'annee
+picHR2023_X <- which.max(humidity2023$`Hr(55)`) #position
+picHR2023_Y <- round(max(humidity2023$`Hr(55)`), digits = 2) #valeur
+dates2023 <- humidity2023$date
+
+# Pic maximal mensuel de pluie sur l'annee
+maxHR2023_X <- which.max(humidity_month2023$`Hr(55)`)
+maxHR2023_Y <- round(max(humidity_month2023$`Hr(55)`), digits = 2)
+dates2023_bis <-  humidity_month2023$date
+
+#Pic minimum mensuel sur l'annee
+minHR2023_X <- which.min(humidity_month2023$`Hr(55)`)
+minHR2023_Y <- round(min(humidity_month2023$`Hr(55)`), digits = 2)
+
+# Graphique variations journalieres Hr(55)
 ggplot() +
   #geom_line(data = humidity2023, aes(x = date, y = `Hr(55)`), colour = "black") +
   geom_line(data = humidity2023_J, aes(x = date, y = `Hr(55)`, color = "J")) +
@@ -1651,7 +1901,21 @@ ggplot() +
     y = "Humidité de l'air à 55m (%)"
   )
 
-# Graphique ETP
+# ETP #
+
+# Pic maximal journalier  sur l'annee
+picETP2023_X <- which.max(humidity2023$ETP) #position
+picETP2023_Y <- round(max(humidity2023$ETP), digits = 2) #valeur
+
+# Pic maximal mensuel de pluie sur l'annee
+maxETP2023_X <- which.max(humidity_month2023$ETP)
+maxETP2023_Y <- round(max(humidity_month2023$ETP), digits = 2)
+
+#Pic minimum mensuel sur l'annee
+minETP2023_X <- which.min(humidity_month2023$ETP)
+minETP2023_Y <- round(min(humidity_month2023$ETP), digits = 2)
+
+# Graphique variations journalieres ETP
 ggplot() +
   #geom_line(data = humidity2023, aes(x = date, y = `Hr(55)`), colour = "black") +
   geom_line(data = humidity2023_J, aes(x = date, y = ETP, color = "J")) +
@@ -1669,7 +1933,21 @@ ggplot() +
   )
 
 
-# Graphique VWC_10cm
+# VWC_10cm #
+
+# Pic maximal journalier  sur l'annee
+picVWC2023_X <- which.max(humidity2023$VWC_10cm) #position
+picVWC2023_Y <- round(max(humidity2023$VWC_10cm), digits = 2) #valeur
+
+# Pic maximal mensuel de pluie sur l'annee
+maxVWC2023_X <- which.max(humidity_month2023$VWC_10cm)
+maxVWC2023_Y <- round(max(humidity_month2023$VWC_10cm), digits = 2)
+
+#Pic minimum mensuel sur l'annee
+minVWC2023_X <- which.min(humidity_month2023$VWC_10cm)
+minVWC2023_Y <- round(min(humidity_month2023$VWC_10cm), digits = 2)
+
+# Graphique variations journalieres VWC_10cm
 ggplot() +
   #geom_line(data = humidity2023, aes(x = date, y = `Hr(55)`), colour = "black") +
   geom_line(data = humidity2023_J, aes(x = date, y = VWC_10cm, color = "J")) +
@@ -1686,7 +1964,21 @@ ggplot() +
     y = "Humidité du sol (m³/m³)"
   )
 
-# Graphique vpd55
+# VPD #
+
+# Pic maximal journalier sur l'annee
+picVPD2023_X <- which.max(humidity2023$vpd55) #position
+picVPD2023_Y <- round(max(humidity2023$vpd55), digits = 2) #valeur
+
+# Pic maximal mensuel de pluie sur l'annee
+maxVPD2023_X <- which.max(humidity_month2023$vpd55)
+maxVPD2023_Y <- round(max(humidity_month2023$vpd55), digits = 2)
+
+#Pic minimum mensuel sur l'annee
+minVPD2023_X <- which.min(humidity_month2023$vpd55)
+minVPD2023_Y <- round(min(humidity_month2023$vpd55), digits = 2)
+
+# Graphique variations journalieres vpd55
 ggplot() +
   #geom_line(data = humidity2023, aes(x = date, y = `Hr(55)`), colour = "black") +
   geom_line(data = humidity2023_J, aes(x = date, y = vpd55, color = "J")) +
@@ -1706,39 +1998,127 @@ ggplot() +
 
 
 # Pour 2024 #
-dataB2024 %>% 
-  filter(!is.na(`Hr(55)`)) %>% 
-  filter(!is.na(ETP)) %>% 
-  filter(!is.na(VWC_10cm)) %>% 
-  filter(!is.na(vpd55)) %>% 
-  select(Year, Month, Day, date, `Hr(55)`, ETP, VWC_10cm, vpd55) %>% 
-  group_by(Year, Month, Day, date) %>% 
-  summarise(`Hr(55)` = mean(`Hr(55)`), ETP = sum(ETP), VWC_10cm = mean(VWC_10cm), vpd55 = mean(vpd55)) %>% 
+dataB_hum %>% 
+  filter(Year == 2024) %>% 
+  print() ->
+  dataB2024_hum
+
+# Data journalières
+humidity %>% 
+  filter(Year == 2024) %>% 
   print() ->
   humidity2024
 
-dataB2024 %>% 
-  filter(!is.na(ETP)) %>% 
-  filter(!is.na(VWC_10cm)) %>% 
-  filter(!is.na(vpd55)) %>% 
-  select(Year, Month, Day, date,`J/N`, `Hr(55)`, ETP, VWC_10cm, vpd55) %>% 
-  filter(`J/N` == "J") %>% 
-  group_by(Year, Month, Day, date) %>% 
+humidity_J %>% 
+  filter(Year == 2024) %>% 
   print() ->
-  humidity2024_J
+  humidity2024_J 
 
-dataB2024 %>% 
-  filter(!is.na(`Hr(55)`)) %>% 
-  filter(!is.na(ETP)) %>% 
-  filter(!is.na(VWC_10cm)) %>% 
-  filter(!is.na(vpd55)) %>% 
-  select(Year, Month, Day, date,`J/N`, `Hr(55)`, ETP, VWC_10cm, vpd55) %>% 
-  filter(`J/N` == "N") %>% 
-  group_by(Year, Month, Day, date) %>% 
+humidity_N %>% 
+  filter(Year == 2024) %>% 
   print() ->
   humidity2024_N
 
-# Graphique Hr(55)
+#Data mensuelles générales, de jour et de nuit
+humidity_month %>% 
+  filter(Year == 2024) %>% 
+  print()->
+  humidity_month2024
+
+humidity_month_J %>% 
+  filter(Year == 2024) %>% 
+  print()->
+  humidity_month2024_J
+
+humidity_month_N %>% 
+  filter(Year == 2024) %>% 
+  print()->
+  humidity_month2024_N
+
+# Data pour chaque jour de chaque mois (pas de distinction J/N)
+humidity_01 %>% 
+  filter(Year == 2024) %>% 
+  print()->
+  humidity_01_2024
+
+humidity_02 %>% 
+  filter(Year == 2024) %>% 
+  print()->
+  humidity_02_2024
+
+humidity_03 %>% 
+  filter(Year == 2024) %>% 
+  print()->
+  humidity_03_2024
+
+humidity_04 %>% 
+  filter(Year == 2024) %>% 
+  print()->
+  humidity_04_2024
+
+humidity_05 %>% 
+  filter(Year == 2024) %>% 
+  print()->
+  humidity_05_2024
+
+humidity_06 %>% 
+  filter(Year == 2024) %>% 
+  print()->
+  humidity_06_2024
+
+humidity_07 %>% 
+  filter(Year == 2024) %>% 
+  print()->
+  humidity_07_2024
+
+humidity_08 %>% 
+  filter(Year == 2024) %>% 
+  print()->
+  humidity_08_2024
+
+humidity_09 %>% 
+  filter(Year == 2024) %>% 
+  print()->
+  humidity_09_2024
+
+humidity_10 %>% 
+  filter(Year == 2024) %>% 
+  print()->
+  humidity_10_2024
+
+humidity_11 %>% 
+  filter(Year == 2024) %>% 
+  print()->
+  humidity_11_2024
+
+humidity_12 %>% 
+  filter(Year == 2024) %>% 
+  print()->
+  humidity_12_2024
+
+# Data pour chaque jour de chaque mois de jour
+humidity2023_J %>% 
+  filter(Month == 1) %>% 
+  print() ->
+  humidity_01_2024_J
+
+# HR #
+
+# Pic maximal journalier  sur l'annee
+picHR2024_X <- which.max(humidity2024$`Hr(55)`) #position
+picHR2024_Y <- round(max(humidity2024$`Hr(55)`), digits = 2) #valeur
+dates2024 <- humidity2024$date
+
+# Pic maximal mensuel de pluie sur l'annee
+maxHR2024_X <- which.max(humidity_month2024$`Hr(55)`)
+maxHR2024_Y <- round(max(humidity_month2024$`Hr(55)`), digits = 2)
+dates2024_bis <-  humidity_month2024$date
+
+#Pic minimum mensuel sur l'annee
+minHR2024_X <- which.min(humidity_month2024$`Hr(55)`)
+minHR2024_Y <- round(min(humidity_month2024$`Hr(55)`), digits = 2)
+
+# Graphique variations journalieres Hr(55)
 ggplot() +
   #geom_line(data = humidity2024, aes(x = date, y = `Hr(55)`), colour = "black") +
   geom_line(data = humidity2024_J, aes(x = date, y = `Hr(55)`, color = "J")) +
@@ -1755,7 +2135,21 @@ ggplot() +
     y = "Humidité de l'air à 55m (%)"
   )
 
-# Graphique ETP
+# ETP #
+
+# Pic maximal journalier  sur l'annee
+picETP2024_X <- which.max(humidity2024$ETP) #position
+picETP2024_Y <- round(max(humidity2024$ETP), digits = 2) #valeur
+
+# Pic maximal mensuel de pluie sur l'annee
+maxETP2024_X <- which.max(humidity_month2024$ETP)
+maxETP2024_Y <- round(max(humidity_month2024$ETP), digits = 2)
+
+#Pic minimum mensuel sur l'annee
+minETP2024_X <- which.min(humidity_month2024$ETP)
+minETP2024_Y <- round(min(humidity_month2024$ETP), digits = 2)
+
+# Graphique variations journalieres ETP
 ggplot() +
   #geom_line(data = humidity2024, aes(x = date, y = `Hr(55)`), colour = "black") +
   geom_line(data = humidity2024_J, aes(x = date, y = ETP, color = "J")) +
@@ -1773,7 +2167,21 @@ ggplot() +
   )
 
 
-# Graphique VWC_10cm
+# VWC_10cm #
+
+# Pic maximal journalier  sur l'annee
+picVWC2024_X <- which.max(humidity2024$VWC_10cm) #position
+picVWC2024_Y <- round(max(humidity2024$VWC_10cm), digits = 2) #valeur
+
+# Pic maximal mensuel de pluie sur l'annee
+maxVWC2024_X <- which.max(humidity_month2024$VWC_10cm)
+maxVWC2024_Y <- round(max(humidity_month2024$VWC_10cm), digits = 2)
+
+#Pic minimum mensuel sur l'annee
+minVWC2024_X <- which.min(humidity_month2024$VWC_10cm)
+minVWC2024_Y <- round(min(humidity_month2024$VWC_10cm), digits = 2)
+
+# Graphique variations journalieres VWC_10cm
 ggplot() +
   #geom_line(data = humidity2024, aes(x = date, y = `Hr(55)`), colour = "black") +
   geom_line(data = humidity2024_J, aes(x = date, y = VWC_10cm, color = "J")) +
@@ -1790,7 +2198,21 @@ ggplot() +
     y = "Humidité du sol (m³/m³)"
   )
 
-# Graphique vpd55
+# VPD #
+
+# Pic maximal journalier sur l'annee
+picVPD2024_X <- which.max(humidity2024$vpd55) #position
+picVPD2024_Y <- round(max(humidity2024$vpd55), digits = 2) #valeur
+
+# Pic maximal mensuel de pluie sur l'annee
+maxVPD2024_X <- which.max(humidity_month2024$vpd55)
+maxVPD2024_Y <- round(max(humidity_month2024$vpd55), digits = 2)
+
+#Pic minimum mensuel sur l'annee
+minVPD2024_X <- which.min(humidity_month2024$vpd55)
+minVPD2024_Y <- round(min(humidity_month2024$vpd55), digits = 2)
+
+# Graphique variations journalieres vpd55
 ggplot() +
   #geom_line(data = humidity2024, aes(x = date, y = `Hr(55)`), colour = "black") +
   geom_line(data = humidity2024_J, aes(x = date, y = vpd55, color = "J")) +
@@ -1810,30 +2232,141 @@ ggplot() +
 
 # Hr(55) sur les 4 annees de suivies #
 
-ggplot() +
-  geom_line(data = humidity2020, aes(x= date, y= `Hr(55)`),colour = "#E6AB02") +
-  geom_line(data = humidity2021, aes(x= date, y= `Hr(55)`), colour = "#D95F02") +
-  geom_line(data = humidity2022, aes(x= date, y= `Hr(55)`), colour = "#E7298A") +
-  geom_line(data = humidity2023, aes(x= date, y= `Hr(55)`), colour = "#7570B3") +
-  geom_line(data = humidity2024, aes(x= date, y= `Hr(55)`), colour = "#66A61E") +
+# Graph variations journalieres de Hr(55) 
+ggplot(data = humidity) +
+  geom_line(data = humidity2020, aes(x = date, y = `Hr(55)`), colour = "#E6AB02") +
+  geom_line(data = humidity2021, aes(x = date, y = `Hr(55)`), colour = "#D95F02") +
+  geom_line(data = humidity2022, aes(x = date, y = `Hr(55)`), colour = "#E7298A") +
+  geom_line(data = humidity2023, aes(x = date, y = `Hr(55)`), colour = "#7570B3") +
+  geom_line(data = humidity2024, aes(x = date, y = `Hr(55)`), colour = "#66A61E") +
+  #geom_line(aes(x = date, y = `Hr(55)`)) +
+  geom_vline(xintercept = dates2021[1],
+             col = "black", linetype = "dashed") +
+  geom_vline(xintercept = dates2022[1],
+             col = "black", linetype = "dashed") +
+  geom_vline(xintercept = dates2023[1],
+             col = "black", linetype = "dashed") +
+  geom_vline(xintercept = dates2024[1],
+             col = "black", linetype = "dashed") +
   x_date_4ans +
   theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust = 1, size = 8)) +
-  
   labs(
-    title = "Humidité de l'air journalière au cours des 4 années de suivies phénologique",
-    x = "Dates",
-    y = "Humidité de l'air (%)"
+    title = "Humidité de l'air journaliere au cours des 4 années de suivie phénologique",
+    x = "Mois",
+    y = "Hr(55) (%)"
+  )
+
+# Graph variations journalieres de Hr(55) avec moyenne mobile
+humidity2020_av <- moving_average(humidity2020 %>% 
+                                    select(`Hr(55)`) %>%
+                                    pull(),
+                                  filter = fpoids(n=2,p=2,q=2)$y)
+
+humidity2021_av <- moving_average(humidity2021 %>% 
+                                    select(`Hr(55)`) %>%
+                                    pull(),
+                                  filter = fpoids(n=2,p=2,q=2)$y)
+
+humidity2022_av <- moving_average(humidity2022 %>% 
+                                    select(`Hr(55)`) %>%
+                                    pull(),
+                                  filter = fpoids(n=2,p=2,q=2)$y)
+
+humidity2023_av <- moving_average(humidity2023 %>% 
+                                    select(`Hr(55)`) %>%
+                                    pull(),
+                                  filter = fpoids(n=2,p=2,q=2)$y)
+
+humidity2024_av <- moving_average(humidity2024 %>% 
+                                    select(`Hr(55)`) %>%
+                                    pull(),
+                                  filter = fpoids(n=2,p=2,q=2)$y)
+
+
+ggplot() +
+  geom_line(data = humidity2020, aes(x = date, y = humidity2020_av),colour = "#E6AB02") +
+  geom_line(data = humidity2021, aes(x = date, y = humidity2021_av), colour = "#D95F02") +
+  geom_line(data = humidity2022, aes(x = date, y = humidity2022_av), colour = "#E7298A") +
+  geom_line(data = humidity2023, aes(x = date, y = humidity2023_av), colour = "#7570B3") +
+  geom_line(data = humidity2024, aes(x = date, y = humidity2024_av), colour = "#66A61E") +
+  geom_vline(xintercept = dates2021[1],
+             col = "black", linetype = "dashed") +
+  geom_vline(xintercept = dates2022[1],
+             col = "black", linetype = "dashed") +
+  geom_vline(xintercept = dates2023[1],
+             col = "black", linetype = "dashed") +
+  geom_vline(xintercept = dates2024[1],
+             col = "black", linetype = "dashed") +
+  x_date_4ans +
+  theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust = 1, size = 8)) +
+  labs(
+    title = "Humidité de l'air journaliere moyenne au cours des 4 années de suivie phénologique",
+    x = "Mois",
+    y = "Hr(55) (%)"
+  )
+
+
+# Graph variations mensuelles de Hr(55) 
+bind_rows(humidity_month2020) %>% 
+  bind_rows(humidity_month2021[1,]) %>% 
+  print() ->
+  humidity_month2020_bis
+
+bind_rows(humidity_month2021) %>% 
+  bind_rows(humidity_month2022[1,]) %>% 
+  print() ->
+  humidity_month2021_bis
+
+bind_rows(humidity_month2022) %>% 
+  bind_rows(humidity_month2023[1,]) %>% 
+  print() ->
+  humidity_month2022_bis
+
+bind_rows(humidity_month2023) %>% 
+  bind_rows(humidity_month2024[1,]) %>% 
+  print() ->
+  humidity_month2023_bis
+
+ggplot() +
+  geom_line(data = humidity_month2020_bis, aes(x = date, y = `Hr(55)`),colour = "#E6AB02") +
+  geom_line(data = humidity_month2021_bis, aes(x = date, y = `Hr(55)`), colour = "#D95F02") +
+  geom_line(data = humidity_month2022_bis, aes(x = date, y = `Hr(55)`), colour = "#E7298A") +
+  geom_line(data = humidity_month2023_bis, aes(x = date, y = `Hr(55)`), colour = "#7570B3") +
+  geom_line(data = humidity_month2024, aes(x = date, y = `Hr(55)`), colour = "#66A61E") +
+  geom_vline(xintercept = dates2021[1],
+             col = "black", linetype = "dashed") +
+  geom_vline(xintercept = dates2022[1],
+             col = "black", linetype = "dashed") +
+  geom_vline(xintercept = dates2023[1],
+             col = "black", linetype = "dashed") +
+  geom_vline(xintercept = dates2024[1],
+             col = "black", linetype = "dashed") +
+  x_date_4ans +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
+  labs(
+    title = "Humidité de l'air mensuelle au cours des 4 années de suivie phénologique",
+    x = "Mois",
+    y = "Hr(55) (%)"
   )
 
 
 # ETP sur les 4 annees de suivies #
 
+# Journalier
 ggplot() +
   geom_line(data = humidity2020, aes(x= date, y= ETP),colour = "#E6AB02") +
   geom_line(data = humidity2021, aes(x= date, y= ETP), colour = "#D95F02") +
   geom_line(data = humidity2022, aes(x= date, y= ETP), colour = "#E7298A") +
   geom_line(data = humidity2023, aes(x= date, y= ETP), colour = "#7570B3") +
   geom_line(data = humidity2024, aes(x= date, y= ETP), colour = "#66A61E") +
+  geom_vline(xintercept = dates2021[1],
+             col = "black", linetype = "dashed") +
+  geom_vline(xintercept = dates2022[1],
+             col = "black", linetype = "dashed") +
+  geom_vline(xintercept = dates2023[1],
+             col = "black", linetype = "dashed") +
+  geom_vline(xintercept = dates2024[1],
+             col = "black", linetype = "dashed") +
   x_date_4ans +
   theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust = 1, size = 8)) +
   
@@ -1843,15 +2376,94 @@ ggplot() +
     y = "ETP (mm)"
   )
 
+# Journalier moyenne mobile
+humidity2020_av_ETP <- moving_average(humidity2020 %>% 
+                                    select(ETP) %>%
+                                    pull(),
+                                  filter = fpoids(n=2,p=2,q=2)$y)
+
+humidity2021_av_ETP <- moving_average(humidity2021 %>% 
+                                    select(ETP) %>%
+                                    pull(),
+                                  filter = fpoids(n=2,p=2,q=2)$y)
+
+humidity2022_av_ETP <- moving_average(humidity2022 %>% 
+                                    select(ETP) %>%
+                                    pull(),
+                                  filter = fpoids(n=2,p=2,q=2)$y)
+
+humidity2023_av_ETP <- moving_average(humidity2023 %>% 
+                                    select(ETP) %>%
+                                    pull(),
+                                  filter = fpoids(n=2,p=2,q=2)$y)
+
+humidity2024_av_ETP <- moving_average(humidity2024 %>% 
+                                    select(ETP) %>%
+                                    pull(),
+                                  filter = fpoids(n=2,p=2,q=2)$y)
+ggplot() +
+  geom_line(data = humidity2020, aes(x = date, y = humidity2020_av_ETP),colour = "#E6AB02") +
+  geom_line(data = humidity2021, aes(x = date, y = humidity2021_av_ETP), colour = "#D95F02") +
+  geom_line(data = humidity2022, aes(x = date, y = humidity2022_av_ETP), colour = "#E7298A") +
+  geom_line(data = humidity2023, aes(x = date, y = humidity2023_av_ETP), colour = "#7570B3") +
+  geom_line(data = humidity2024, aes(x = date, y = humidity2024_av_ETP), colour = "#66A61E") +
+  geom_vline(xintercept = dates2021[1],
+             col = "black", linetype = "dashed") +
+  geom_vline(xintercept = dates2022[1],
+             col = "black", linetype = "dashed") +
+  geom_vline(xintercept = dates2023[1],
+             col = "black", linetype = "dashed") +
+  geom_vline(xintercept = dates2024[1],
+             col = "black", linetype = "dashed") +
+  x_date_4ans +
+  theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust = 1, size = 8)) +
+  labs(
+    title = "Evapotranspiration potentielle journaliere moyenne au cours des 4 années de suivie phénologique",
+    x = "Mois",
+    y = "ETP (mm)"
+  )
+
+# Mensuel
+ggplot() +
+  geom_line(data = humidity_month2020_bis, aes(x = date, y = ETP),colour = "#E6AB02") +
+  geom_line(data = humidity_month2021_bis, aes(x = date, y = ETP), colour = "#D95F02") +
+  geom_line(data = humidity_month2022_bis, aes(x = date, y = ETP), colour = "#E7298A") +
+  geom_line(data = humidity_month2023_bis, aes(x = date, y = ETP), colour = "#7570B3") +
+  geom_line(data = humidity_month2024, aes(x = date, y = ETP), colour = "#66A61E") +
+  geom_vline(xintercept = dates2021[1],
+             col = "black", linetype = "dashed") +
+  geom_vline(xintercept = dates2022[1],
+             col = "black", linetype = "dashed") +
+  geom_vline(xintercept = dates2023[1],
+             col = "black", linetype = "dashed") +
+  geom_vline(xintercept = dates2024[1],
+             col = "black", linetype = "dashed") +
+  x_date_4ans +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
+  labs(
+    title = "Evapotranspiration potentielle mensuelle au cours des 4 années de suivie phénologique",
+    x = "Mois",
+    y = "ETP (mm)"
+  )
 
 # VWC_10cm sur les 4 annees de suivies #
 
+
+#Journalier
 ggplot() +
   geom_line(data = humidity2020, aes(x= date, y= VWC_10cm),colour = "#E6AB02") +
   geom_line(data = humidity2021, aes(x= date, y= VWC_10cm), colour = "#D95F02") +
   geom_line(data = humidity2022, aes(x= date, y= VWC_10cm), colour = "#E7298A") +
   geom_line(data = humidity2023, aes(x= date, y= VWC_10cm), colour = "#7570B3") +
   geom_line(data = humidity2024, aes(x= date, y= VWC_10cm), colour = "#66A61E") +
+  geom_vline(xintercept = dates2021[1],
+             col = "black", linetype = "dashed") +
+  geom_vline(xintercept = dates2022[1],
+             col = "black", linetype = "dashed") +
+  geom_vline(xintercept = dates2023[1],
+             col = "black", linetype = "dashed") +
+  geom_vline(xintercept = dates2024[1],
+             col = "black", linetype = "dashed") +
   x_date_4ans +
   theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust = 1, size = 8)) +
     labs(
@@ -1860,20 +2472,218 @@ ggplot() +
     y = "VWC_10cm (m³/m³)"
   )
 
+# Journalier moyenne mobile
+humidity2020_av_VWC_10cm <- moving_average(humidity2020 %>% 
+                                        select(VWC_10cm) %>%
+                                        pull(),
+                                      filter = fpoids(n=2,p=2,q=2)$y)
 
-# vpd55 sur les 4 annees de suivies #
+humidity2021_av_VWC_10cm <- moving_average(humidity2021 %>% 
+                                        select(VWC_10cm) %>%
+                                        pull(),
+                                      filter = fpoids(n=2,p=2,q=2)$y)
 
+humidity2022_av_VWC_10cm <- moving_average(humidity2022 %>% 
+                                        select(VWC_10cm) %>%
+                                        pull(),
+                                      filter = fpoids(n=2,p=2,q=2)$y)
+
+humidity2023_av_VWC_10cm <- moving_average(humidity2023 %>% 
+                                        select(VWC_10cm) %>%
+                                        pull(),
+                                      filter = fpoids(n=2,p=2,q=2)$y)
+
+humidity2024_av_VWC_10cm <- moving_average(humidity2024 %>% 
+                                        select(VWC_10cm) %>%
+                                        pull(),
+                                      filter = fpoids(n=2,p=2,q=2)$y)
+ggplot() +
+  geom_line(data = humidity2020, aes(x = date, y = humidity2020_av_VWC_10cm),colour = "#E6AB02") +
+  geom_line(data = humidity2021, aes(x = date, y = humidity2021_av_VWC_10cm), colour = "#D95F02") +
+  geom_line(data = humidity2022, aes(x = date, y = humidity2022_av_VWC_10cm), colour = "#E7298A") +
+  geom_line(data = humidity2023, aes(x = date, y = humidity2023_av_VWC_10cm), colour = "#7570B3") +
+  geom_line(data = humidity2024, aes(x = date, y = humidity2024_av_VWC_10cm), colour = "#66A61E") +
+  geom_vline(xintercept = dates2021[1],
+             col = "black", linetype = "dashed") +
+  geom_vline(xintercept = dates2022[1],
+             col = "black", linetype = "dashed") +
+  geom_vline(xintercept = dates2023[1],
+             col = "black", linetype = "dashed") +
+  geom_vline(xintercept = dates2024[1],
+             col = "black", linetype = "dashed") +
+  x_date_4ans +
+  theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust = 1, size = 8)) +
+  labs(
+    title = "Humidité du sol journaliere moyenne au cours des 4 années de suivie phénologique",
+    x = "Mois",
+    y = "VWC_10cm (m³/m³)"
+  )
+
+# Mensuel
+ggplot() +
+  geom_line(data = humidity_month2020_bis, aes(x = date, y = VWC_10cm),colour = "#E6AB02") +
+  geom_line(data = humidity_month2021_bis, aes(x = date, y = VWC_10cm), colour = "#D95F02") +
+  geom_line(data = humidity_month2022_bis, aes(x = date, y = VWC_10cm), colour = "#E7298A") +
+  geom_line(data = humidity_month2023_bis, aes(x = date, y = VWC_10cm), colour = "#7570B3") +
+  geom_line(data = humidity_month2024, aes(x = date, y = VWC_10cm), colour = "#66A61E") +
+  geom_vline(xintercept = dates2021[1],
+             col = "black", linetype = "dashed") +
+  geom_vline(xintercept = dates2022[1],
+             col = "black", linetype = "dashed") +
+  geom_vline(xintercept = dates2023[1],
+             col = "black", linetype = "dashed") +
+  geom_vline(xintercept = dates2024[1],
+             col = "black", linetype = "dashed") +
+  x_date_4ans +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
+  labs(
+    title = "Humidité du sol mensuelle au cours des 4 années de suivie phénologique",
+    x = "Mois",
+    y = "VWC_10cm (m³/m³)"
+  )
+
+# VPD sur les 4 annees de suivies #
+
+# Journalier
 ggplot() +
   geom_line(data = humidity2020, aes(x= date, y= vpd55),colour = "#E6AB02") +
   geom_line(data = humidity2021, aes(x= date, y= vpd55), colour = "#D95F02") +
   geom_line(data = humidity2022, aes(x= date, y= vpd55), colour = "#E7298A") +
   geom_line(data = humidity2023, aes(x= date, y= vpd55), colour = "#7570B3") +
-  geom_line(data = humidity2024, aes(x= date, y= VWC_10cm), colour = "#66A61E") +
+  geom_line(data = humidity2024, aes(x= date, y= vpd55), colour = "#66A61E") +
+  geom_point(aes(x = dates2020[picVPD2020_X], y = picVPD2020_Y), colour = "grey40", size = 0.8) +
+  geom_point(aes(x = dates2021[picVPD2021_X], y = picVPD2021_Y), colour = "grey40", size = 0.8) +
+  geom_point(aes(x = dates2022[picVPD2022_X], y = picVPD2022_Y), colour = "grey40", size = 0.8) +
+  geom_point(aes(x = dates2023[picVPD2023_X], y = picVPD2023_Y), colour = "grey40", size = 0.8) +
+  geom_point(aes(x = dates2024[picVPD2024_X], y = picVPD2024_Y), colour = "grey40", size = 0.8) +
+  geom_vline(xintercept = dates2020[picVPD2020_X],
+             col = "black", linetype = "dashed") +
+  geom_vline(xintercept = dates2021[picVPD2021_X],
+             col = "black", linetype = "dashed") +
+  geom_vline(xintercept = dates2022[picVPD2022_X],
+             col = "black", linetype = "dashed") +
+  geom_vline(xintercept = dates2023[picVPD2023_X],
+             col = "black", linetype = "dashed") +
+  geom_vline(xintercept = dates2024[picVPD2024_X],
+             col = "black", linetype = "dashed") +
+
+  annotate("text",x = dates2020[picVPD2020_X]+30, y = picVPD2020_Y, 
+           label = picVPD2020_Y, colour = "grey40", size = 3.5 ) +
+  annotate("text",x = dates2021[picVPD2021_X]+30, y = picVPD2021_Y, 
+           label = picVPD2021_Y, colour = "grey40", size = 3.5 ) +
+  annotate("text",x = dates2022[picVPD2022_X]+30, y = picVPD2022_Y, 
+           label = picVPD2022_Y, colour = "grey40", size = 3.5 ) +
+  annotate("text",x = dates2023[picVPD2023_X]+30, y = picVPD2023_Y, 
+           label = picVPD2023_Y, colour = "grey40", size = 3.5 ) +
+  annotate("text",x = dates2024[picVPD2024_X]+30, y = picVPD2024_Y, 
+           label = picVPD2024_Y, colour = "grey40", size = 3.5 ) +
+  
   x_date_4ans +
   theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust = 1, size = 8)) +
-  
   labs(
     title = "Déficit de pression de vapeur journalier au cours des 4 années de suivies phénologique",
     x = "Dates",
-    y = "VPD (m³/m³)"
+    y = "VPD (kPa)"
   )
+
+# Journalier moyenne mobile
+humidity2020_av_vpd55 <- moving_average(humidity2020 %>% 
+                                             select(vpd55) %>%
+                                             pull(),
+                                           filter = fpoids(n=2,p=2,q=2)$y)
+
+humidity2021_av_vpd55 <- moving_average(humidity2021 %>% 
+                                             select(vpd55) %>%
+                                             pull(),
+                                           filter = fpoids(n=2,p=2,q=2)$y)
+
+humidity2022_av_vpd55 <- moving_average(humidity2022 %>% 
+                                             select(vpd55) %>%
+                                             pull(),
+                                           filter = fpoids(n=2,p=2,q=2)$y)
+
+humidity2023_av_vpd55 <- moving_average(humidity2023 %>% 
+                                             select(vpd55) %>%
+                                             pull(),
+                                           filter = fpoids(n=2,p=2,q=2)$y)
+
+humidity2024_av_vpd55 <- moving_average(humidity2024 %>% 
+                                             select(vpd55) %>%
+                                             pull(),
+                                           filter = fpoids(n=2,p=2,q=2)$y)
+ggplot() +
+  geom_line(data = humidity2020, aes(x = date, y = humidity2020_av_vpd55),colour = "#E6AB02") +
+  geom_line(data = humidity2021, aes(x = date, y = humidity2021_av_vpd55), colour = "#D95F02") +
+  geom_line(data = humidity2022, aes(x = date, y = humidity2022_av_vpd55), colour = "#E7298A") +
+  geom_line(data = humidity2023, aes(x = date, y = humidity2023_av_vpd55), colour = "#7570B3") +
+  geom_line(data = humidity2024, aes(x = date, y = humidity2024_av_vpd55), colour = "#66A61E") +
+  geom_vline(xintercept = dates2021[1],
+             col = "black", linetype = "dashed") +
+  geom_vline(xintercept = dates2022[1],
+             col = "black", linetype = "dashed") +
+  geom_vline(xintercept = dates2023[1],
+             col = "black", linetype = "dashed") +
+  geom_vline(xintercept = dates2024[1],
+             col = "black", linetype = "dashed") +
+  x_date_4ans +
+  theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust = 1, size = 8)) +
+  labs(
+    title = "Humidité du sol journaliere moyenne au cours des 4 années de suivie phénologique",
+    x = "Mois",
+    y = "VWC_10cm (m³/m³)"
+  )
+
+# Mensuel
+ggplot() +
+  geom_line(data = humidity_month2020_bis, aes(x = date, y = vpd55),colour = "#E6AB02") +
+  geom_line(data = humidity_month2021_bis, aes(x = date, y = vpd55), colour = "#D95F02") +
+  geom_line(data = humidity_month2022_bis, aes(x = date, y = vpd55), colour = "#E7298A") +
+  geom_line(data = humidity_month2023_bis, aes(x = date, y = vpd55), colour = "#7570B3") +
+  geom_line(data = humidity_month2024, aes(x = date, y = vpd55), colour = "#66A61E") +
+  geom_point(aes(x = dates2020_bis[maxVPD2020_X], y = maxVPD2020_Y), colour = "grey40", size = 0.8) +
+  geom_point(aes(x = dates2020_bis[minVPD2020_X], y = minVPD2020_Y), colour = "grey40", size = 0.8) +
+  geom_point(aes(x = dates2021_bis[maxVPD2021_X], y = maxVPD2021_Y), colour = "grey40", size = 0.8) +
+  geom_point(aes(x = dates2021_bis[minVPD2021_X], y = minVPD2021_Y), colour = "grey40", size = 0.8) +
+  geom_point(aes(x = dates2022_bis[maxVPD2022_X], y = maxVPD2022_Y), colour = "grey40", size = 0.8) +
+  geom_point(aes(x = dates2022_bis[minVPD2022_X], y = minVPD2022_Y), colour = "grey40", size = 0.8) +
+  geom_point(aes(x = dates2023_bis[maxVPD2023_X], y = maxVPD2023_Y), colour = "grey40", size = 0.8) +
+  geom_point(aes(x = dates2023_bis[minVPD2023_X], y = minVPD2023_Y), colour = "grey40", size = 0.8) +
+  geom_point(aes(x = dates2024_bis[maxVPD2024_X], y = maxVPD2024_Y), colour = "grey40", size = 0.8) +
+  geom_point(aes(x = dates2024_bis[minVPD2024_X], y = minVPD2024_Y), colour = "grey40", size = 0.8) +
+  geom_vline(xintercept = dates2021[1],
+             col = "black", linetype = "dashed") +
+  geom_vline(xintercept = dates2022[1],
+             col = "black", linetype = "dashed") +
+  geom_vline(xintercept = dates2023[1],
+             col = "black", linetype = "dashed") +
+  geom_vline(xintercept = dates2024[1],
+             col = "black", linetype = "dashed") +
+  annotate("text", x = dates2020_bis[maxVPD2020_X], y = maxVPD2020_Y+0.02, 
+           label = maxVPD2020_Y, , colour = "grey40", size = 3.5 ) +
+  annotate("text", x = dates2020_bis[minVPD2020_X], y = minVPD2020_Y-0.02, 
+           label = minVPD2020_Y, , colour = "grey40", size = 3.5 ) +
+    annotate("text", x = dates2021_bis[maxVPD2021_X], y = maxVPD2021_Y+0.02, 
+           label = maxVPD2021_Y, , colour = "grey40", size = 3.5 ) +
+  annotate("text", x = dates2021_bis[minVPD2021_X], y = minVPD2021_Y-0.02, 
+           label = minVPD2021_Y, , colour = "grey40", size = 3.5 ) +
+  annotate("text", x = dates2022_bis[maxVPD2022_X], y = maxVPD2022_Y+0.02, 
+           label = maxVPD2022_Y, , colour = "grey40", size = 3.5 ) +
+  annotate("text", x = dates2022_bis[minVPD2022_X], y = minVPD2022_Y-0.02, 
+           label = minVPD2022_Y, , colour = "grey40", size = 3.5 ) +
+  annotate("text", x = dates2023_bis[maxVPD2023_X], y = maxVPD2023_Y+0.02, 
+           label = maxVPD2023_Y, , colour = "grey40", size = 3.5 ) +
+  annotate("text", x = dates2023_bis[minVPD2023_X], y = minVPD2023_Y-0.02, 
+           label = minVPD2023_Y, , colour = "grey40", size = 3.5 ) +
+  annotate("text", x = dates2024_bis[maxVPD2024_X], y = maxVPD2024_Y+0.02, 
+           label = maxVPD2024_Y, , colour = "grey40", size = 3.5 ) +
+  annotate("text", x = dates2024_bis[minVPD2024_X], y = minVPD2024_Y-0.02, 
+           label = minVPD2024_Y, , colour = "grey40", size = 3.5 ) +
+  x_date_4ans +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
+  labs(
+    title = "Déficit de pression de vapeur mensuelle au cours des 4 années de suivie phénologique",
+    x = "Mois",
+    y = "VPD (kPa)"
+  )
+
+
