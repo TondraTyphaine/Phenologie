@@ -2,7 +2,7 @@
 # Auteur : Tondra Typhaine
 # Date de creation : 22/05/2024
 
-
+# Packages
 pacman::p_load ("tidyverse","plotly","strucchange","timeSeries","lubridate","bfast", "data.table",
                 "ggfortify", "zoo", "readxl", "cluster", "stringr", "bookdown",
                 "ggpubr", "kableExtra", "tibbletime", "pracma", "imputeTS",
@@ -17,40 +17,45 @@ source("Source_custom_functions/Func_analyse.R")
 source("Source_custom_functions/myTheme.R")
 
 
-## Lecture du jeu de données
+### FLORAISON ###
+
+## Data brutes
 read_csv2("data/Synthese_Pheno_20230724.csv") ->
   pheno
-
 
 # On ajuste en supprimant les colonnes qu'on veut garder (dans ton jeux de données adapté tu as deux colonnes factices encore)
 pheno[,-c(1,4)] -> 
   pheno
 
-
 # Formatage des donnees
 PrepPhase(pheno) -> pheno2 #Preparation des données brutes
 
+# Data pour Symphonia globulifera
 pheno2 %>% 
   filter(Genus_Spec == "Symphonia_globulifera") %>% 
-  filter(!is.na(PPraw)) %>% 
   select(date, PPFlo, CrownID) %>% 
+  mutate(PPFlo = if_else(is.na(PPFlo), "not_Fl", PPFlo)) %>% 
   print() ->
   Sympho_glb
 
-Sympho_glb[is.na(Sympho_glb$PPFlo)] <- "not_Fl"
-
 Sympho_glb %>% 
   mutate(Nb_Flo = ifelse(PPFlo == "Fl", 1, 0)) %>% 
-  group_by(date, PPFlo) %>% 
+  group_by(date) %>% 
   summarise(Nb_Flo = sum(Nb_Flo)) %>% 
   select(date, Nb_Flo) %>% 
-  filter(!is.na(date)) %>% 
   print() ->
   Floraison_glb
 
 sum(is.na(Floraison_glb))
 
-#### Avec les donnees de M.Bonal ####
+# Nombre de floraison par date pour chaque annee
+Flo_2020 <- Floraison_glb[year(Floraison_glb$date) == 2020,]
+Flo_2021 <- Floraison_glb[year(Floraison_glb$date) == 2021,]
+Flo_2022 <- Floraison_glb[year(Floraison_glb$date) == 2022,]
+Flo_2023 <- Floraison_glb[year(Floraison_glb$date) == 2023,]
+Flo_2024 <- Floraison_glb[year(Floraison_glb$date) == 2024,]
+
+#### CLIMAT (donnees de M.Bonal) ####
 
 ## Data 
 dataB<- read_csv2("data/GX-METEO-2020 - 2024E - AK.csv")
@@ -137,17 +142,6 @@ dataB_resume %>%
   climat
 
 
-# Convertir la colonne date en classe Date
-Floraison_glb$date <- as.Date(Floraison_glb$date)
-climat$date <- as.Date(climat$date)
-
-# Variables utilisees
-Flo_2020 <- Floraison_glb[year(Floraison_glb$date) == 2020,]
-Flo_2021 <- Floraison_glb[year(Floraison_glb$date) == 2021,]
-Flo_2022 <- Floraison_glb[year(Floraison_glb$date) == 2022,]
-Flo_2023 <- Floraison_glb[year(Floraison_glb$date) == 2023,]
-Flo_2024 <- Floraison_glb[year(Floraison_glb$date) == 2024,]
-
 climat %>% 
   filter(Year == 2020) %>% 
   print() ->
@@ -173,7 +167,12 @@ climat %>%
   print() ->
   climat_2024
 
-# Calculer la corrélation croisée entre Nb_Flo et Rain
+
+## Calculer la corrélation croisée entre Nb_Flo et Rain pour S.globulifera ##
+
+# Convertir la colonne date en classe Date
+Floraison_glb$date <- as.Date(Floraison_glb$date)
+climat$date <- as.Date(climat$date)
 
 # Sur les 4 ans
 par(mar = c(3, 2, 2, 1) + 0.1)
@@ -185,8 +184,8 @@ dev.off()
 # Pour 2020
 par(mar = c(3, 2, 2, 1) + 0.1)
 correlation_2020 <- ccf(Flo_2020$Nb_Flo, climat_2020$Rain)
-png("correlation_2021.png", width = 800, height = 600)
-plot(correlation_2021)
+png("correlation_2020.png", width = 800, height = 600)
+plot(correlation_2020)
 dev.off()
 
 # Pour 2021
