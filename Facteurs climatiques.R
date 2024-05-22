@@ -664,7 +664,7 @@ ggplot() +
   x_date_4ans +
   theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust = 1, size = 8)) +
   labs(
-    title = "Pluviométrie et températures journalières au cours des 4 années de suivie phénologique",
+    title = "Pluviométrie et températures journalières au cours des 4 années de suivi phénologique",
     x = "Dates",
   )
 
