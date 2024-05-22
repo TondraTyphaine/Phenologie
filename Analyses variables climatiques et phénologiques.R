@@ -49,11 +49,61 @@ Sympho_glb %>%
 sum(is.na(Floraison_glb))
 
 # Nombre de floraison par date pour chaque annee
-Flo_2020 <- Floraison_glb[year(Floraison_glb$date) == 2020,]
-Flo_2021 <- Floraison_glb[year(Floraison_glb$date) == 2021,]
-Flo_2022 <- Floraison_glb[year(Floraison_glb$date) == 2022,]
-Flo_2023 <- Floraison_glb[year(Floraison_glb$date) == 2023,]
-Flo_2024 <- Floraison_glb[year(Floraison_glb$date) == 2024,]
+Flo_glb_2020 <- Floraison_glb[year(Floraison_glb$date) == 2020,]
+Flo_glb_2021 <- Floraison_glb[year(Floraison_glb$date) == 2021,]
+Flo_glb_2022 <- Floraison_glb[year(Floraison_glb$date) == 2022,]
+Flo_glb_2023 <- Floraison_glb[year(Floraison_glb$date) == 2023,]
+Flo_glb_2024 <- Floraison_glb[year(Floraison_glb$date) == 2024,]
+
+# Data pour Symphonia sp1
+pheno2 %>% 
+  filter(Genus_Spec == "Symphonia_sp.1") %>% 
+  select(date, PPFlo, CrownID) %>% 
+  mutate(PPFlo = if_else(is.na(PPFlo), "not_Fl", PPFlo)) %>% 
+  print() ->
+  Sympho_sp1
+
+Sympho_sp1 %>% 
+  mutate(Nb_Flo = ifelse(PPFlo == "Fl", 1, 0)) %>% 
+  group_by(date) %>% 
+  summarise(Nb_Flo = sum(Nb_Flo)) %>% 
+  select(date, Nb_Flo) %>% 
+  print() ->
+  Floraison_sp1
+
+sum(is.na(Floraison_sp1))
+
+# Nombre de floraison par date pour chaque annee
+Flo_sp1_2020 <- Floraison_sp1[year(Floraison_sp1$date) == 2020,]
+Flo_sp1_2021 <- Floraison_sp1[year(Floraison_sp1$date) == 2021,]
+Flo_sp1_2022 <- Floraison_sp1[year(Floraison_sp1$date) == 2022,]
+Flo_sp1_2023 <- Floraison_sp1[year(Floraison_sp1$date) == 2023,]
+Flo_sp1_2024 <- Floraison_sp1[year(Floraison_sp1$date) == 2024,]
+
+# Data pour Vouacapoua americana
+pheno2 %>% 
+  filter(Genus_Spec == "Vouacapoua_americana") %>% 
+  select(date, PPFlo, CrownID) %>% 
+  mutate(PPFlo = if_else(is.na(PPFlo), "not_Fl", PPFlo)) %>% 
+  print() ->
+  Sympho_ame
+
+Sympho_ame %>% 
+  mutate(Nb_Flo = ifelse(PPFlo == "Fl", 1, 0)) %>% 
+  group_by(date) %>% 
+  summarise(Nb_Flo = sum(Nb_Flo)) %>% 
+  select(date, Nb_Flo) %>% 
+  print() ->
+  Floraison_ame
+
+sum(is.na(Floraison_ame))
+
+# Nombre de floraison par date pour chaque annee
+Flo_ame_2020 <- Floraison_ame[year(Floraison_ame$date) == 2020,]
+Flo_ame_2021 <- Floraison_ame[year(Floraison_ame$date) == 2021,]
+Flo_ame_2022 <- Floraison_ame[year(Floraison_ame$date) == 2022,]
+Flo_ame_2023 <- Floraison_ame[year(Floraison_ame$date) == 2023,]
+Flo_ame_2024 <- Floraison_ame[year(Floraison_ame$date) == 2024,]
 
 #### CLIMAT (donnees de M.Bonal) ####
 
@@ -183,35 +233,62 @@ dev.off()
 
 # Pour 2020
 par(mar = c(3, 2, 2, 1) + 0.1)
-correlation_2020 <- ccf(Flo_2020$Nb_Flo, climat_2020$Rain)
+correlation_2020 <- ccf(Flo_glb_2020$Nb_Flo, climat_2020$Rain)
 png("correlation_2020.png", width = 800, height = 600)
 plot(correlation_2020)
 dev.off()
 
 # Pour 2021
 par(mar = c(3, 2, 2, 1) + 0.1)
-correlation_2021 <- ccf(Flo_2021$Nb_Flo, climat_2021$Rain)
+correlation_2021 <- ccf(Flo_glb_2021$Nb_Flo, climat_2021$Rain)
 png("correlation_2021.png", width = 800, height = 600)
 plot(correlation_2021)
 dev.off()
 
 # Pour 2022
 par(mar = c(3, 2, 2, 1) + 0.1)
-correlation_2022 <- ccf(Flo_2022$Nb_Flo, climat_2022$Rain)
+correlation_2022 <- ccf(Flo_glb_2022$Nb_Flo, climat_2022$Rain)
 png("correlation_2022.png", width = 800, height = 600)
 plot(correlation_2022)
 dev.off()
 
 # Pour 2023
 par(mar = c(3, 2, 2, 1) + 0.1)
-correlation_2023 <- ccf(Flo_2023$Nb_Flo, climat_2023$Rain)
+correlation_2023 <- ccf(Flo_glb_2023$Nb_Flo, climat_2023$Rain)
 png("correlation_2023.png", width = 800, height = 600)
 plot(correlation_2023)
 dev.off()
 
-# Pour 2024
+# Pour 2024 (pas assez d'element pour avoir un graphique correct)
 par(mar = c(3, 2, 2, 1) + 0.1)
-correlation_2024 <- ccf(Flo_2024$Nb_Flo, climat_2024$Rain)
+correlation_2024 <- ccf(Flo_glb_2024$Nb_Flo, climat_2024$Rain)
 png("correlation_2024.png", width = 800, height = 600)
 plot(correlation_2024)
 dev.off()
+
+
+## Calculer la corrélation croisée entre Nb_Flo et Rain pour S.sp1 ##
+
+# Convertir la colonne date en classe Date
+Floraison_sp1$date <- as.Date(Floraison_sp1$date)
+
+# Sur les 4 ans
+par(mar = c(3, 2, 2, 1) + 0.1)
+correlation_sp1 <- ccf(Floraison_sp1$Nb_Flo, climat$Rain)
+png("correlation_sp1_full.png", width = 800, height = 600)
+plot(correlation_sp1)
+dev.off()
+
+
+## Calculer la corrélation croisée entre Nb_Flo et Rain pour V.americana ##
+
+# Convertir la colonne date en classe Date
+Floraison_ame$date <- as.Date(Floraison_ame$date)
+
+# Sur les 4 ans
+par(mar = c(3, 2, 2, 1) + 0.1)
+correlation_am <- ccf(Floraison_ame$Nb_Flo, climat$Rain)
+png("correlation_am_full.png", width = 800, height = 600)
+plot(correlation_am)
+dev.off()
+
