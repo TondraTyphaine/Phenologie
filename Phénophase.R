@@ -39,7 +39,6 @@ pheno[,-c(1,4)] ->
 # Formatage des donnees
 PrepPhase(pheno) -> pheno2 #Preparation des données brutes
 
-
 # Formatage des colonnes
 pheno2 = pheno2 %>% mutate(CrownID = as.factor(CrownID), # Pour être sure que ce soit considérer comme un facteur
                            PPVeg = str_replace_all(PPVeg,"(NA|Na|Na;|NA;)", NA_character_), # au cas-où il y a des NA mal écrits
@@ -299,7 +298,7 @@ Leaf_Circular(Data = pheno2,
               Spec = "Symphonia_sp.1",
               Pattern = c("Fl"),
               Obs_Veg = "PPFlo",
-              perYears = FALSE)[[2]]
+              perYears = F)[[2]]
 
 # Pour V.americana
 Leaf_Circular(Data = pheno2, 
