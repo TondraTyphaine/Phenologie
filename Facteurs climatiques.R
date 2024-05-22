@@ -1,12 +1,11 @@
 # Titre : Analyses des donnees meteorologiques
 # Auteur : Tondra Typhaine
 # Date de creation : 03/05/2024
-# Derniere modification : 03/05/2024
 
 
 ## Packages necessaires
 install.packages("pacman")
-pacman::p_load("tidyverse","lubridate","RColorBrewer","pracma", "vioplot")
+pacman::p_load("tidyverse","lubridate","RColorBrewer","pracma", "vioplot","lmtest")
 
 #### Avec les donnees de M.Badouard ####
 
@@ -1140,9 +1139,6 @@ with(humidity2020 , {
     main = "Humidité de l'air à 55m en 2022"
   )
  })
-
-ggplot(data = humidity2020) +
-  geom_line(aes(x = date, y = `Hr(55)`))
 
 
 
@@ -2536,7 +2532,7 @@ ggplot() +
   )
 
 
-# ETP sur les 4 annees de suivies #
+# ETP sur les 4 annees de suivi #
 
 # Journalier
 ggplot() +
@@ -2717,8 +2713,8 @@ ggplot() +
     y = "ETP (mm)"
   )
 
-# VWC_10cm sur les 4 annees de suivies #
 
+# VWC_10cm sur les 4 annees de suivi #
 
 #Journalier
 ggplot() +
@@ -3082,4 +3078,237 @@ ggplot() +
     y = "VPD (kPa)"
   )
 
+
+# LIEN ENTRE LES VARIABLES CLIMATIQUES #
+dataB_resume %>% 
+  group_by(Year, Month, Day, date) %>% 
+  summarise(`Temp(55)` = mean(`Temp(55)`),`Hr(55)` = mean(`Hr(55)`), vpd55 = mean(vpd55), 
+            Rain = sum(Rain),ETP = sum(ETP), VWC_10cm = mean(VWC_10cm)) %>% 
+  print() ->
+  climat
+
+climat %>% 
+  group_by(Year, Month) %>% 
+  summarise(`Temp(55)` = mean(`Temp(55)`),`Hr(55)` = mean(`Hr(55)`), vpd55 = mean(vpd55), 
+            Rain = sum(Rain),ETP = sum(ETP), VWC_10cm = mean(VWC_10cm)) %>% 
+  mutate(date = floor_date(make_date(Year, Month, day = 1), unit = "month")) %>% 
+  print() ->
+  climat_month
+
+Pluie <- climat$Rain
+VPD <- climat$vpd55
+VWC <- climat$VWC_10cm
+ETP <- climat$ETP
+Hr <- climat$`Hr(55)`
+Temp <- climat$`Temp(55)`
+
+# 1) Independance des variables
+
+cov(Pluie,Temp) # Covariance négative, les variables ne sont pas independantes
+cov(Pluie,VPD) # Idem
+cov(Pluie,ETP) # Idem
+cov(Pluie, Hr) # Covariance positive, les variables ne sont pas independantes
+cov(Pluie, VWC) # Covariance nulle, les variables sont independantes
+cov(ETP,Hr) # Non independance
+cov(ETP, Temp) # Non independance
+
+
+# 2) Correlation entre les variables
+
+cor.test(Pluie,Temp) # Forte correlation negative et coeff significativement different de 0
+cor.test(Pluie,VPD) # Idem
+cor.test(Pluie,ETP) # Idem
+cor.test(Pluie, Hr) # Forte correlation positive
+cor.test(Pluie, VWC) # Correlation moderee non nulle
+cor.test(ETP,Hr) # Forte correlation negative
+cor.test(ETP, Temp) # Forte correlation positive
+
+
+# 3) Representation des variables 2 à 2
+
+ggplot(data = climat, aes(x = Temp, y = Pluie)) +
+  geom_point()
+
+ggplot(data = climat, aes(x = Hr, y = Pluie)) +
+  geom_point()
+
+ggplot(data = climat, aes(x = ETP, y = Pluie)) +
+  geom_point()
+
+ggplot(data = climat, aes(x = VPD, y = Pluie)) +
+  geom_point()
+
+ggplot(data = climat, aes(x = VWC, y = Pluie)) +
+  geom_point()
+
+
+# 4) Modele lineaire simple 
+
+Pluie_Temp <- lm(Pluie ~ Temp, data = climat) # Modele
+Pluie_Temp_res <- residuals(Pluie_Temp) # Residus
+dwtest(Pluie_Temp) # Test d'independance des residus : autocorrelation positive
+bptest(Pluie_Temp) # Non homogeneite des variances des residus
+names(Pluie_Temp)
+
+Pluie_Hr <- lm(Pluie ~ Hr, data = climat)
+Pluie_Hr_res <- residuals(Pluie_Hr)
+dwtest(Pluie_Hr) # Autocorrelation positive
+
+Pluie_ETP <- lm(Pluie ~ ETP, data = climat)
+Pluie_ETP_res <- residuals(Pluie_ETP)
+dwtest(Pluie_ETP) # Autocorrelation positive
+
+Pluie_VPD <- lm(Pluie ~ VPD, data = climat)
+Pluie_VPD_res <- residuals(Pluie_VPD)
+dwtest(Pluie_VPD) # Autocorrelation positive
+
+Pluie_VWC <- lm(Pluie ~ VWC, data = climat)
+Pluie_VWC_res <- residuals(Pluie_VWC)
+dwtest(Pluie_VWC) # Autocorrelation positive
+
+# 5) Representation graphique des modeles
+
+par(mfrow = c(2, 2), oma = c(0, 0, 2, 0))
+plot(Pluie_Temp)
+
+plot(Pluie_Hr)
+
+plot(Pluie_ETP)
+
+plot(Pluie_VPD)
+
+plot(Pluie_VWC)
+
+
+install.packages("ade4")
+library(ade4)
+install.packages("psych")
+library(psych)
+
+# Etude des variables et de leurs relations
+pairs.panels(climat, 
+             method = "spearman", # correlation method
+             hist.col = "#00AFBB",
+             density = TRUE,  # show density plots
+             ellipses = FALSE # show correlation ellipses
+)
+
+acp_climat <- dudi.pca(climat[,5:9], scale=T, center=T, scannf = F,nf=5)
+
+valeurs_propres <- acp_climat$eig
+mean(valeurs_propres) # mean = 1
+
+var(acp_climat$li[,1])
+var(acp_climat$li[,2])
+var(acp_climat$li[,3])
+var(acp_climat$li[,4])
+var(acp_climat$li[,5])
+
+pc<-round(acp_climat$eig/sum(acp_climat$eig)*100,2) # Inertie de chaque axe
+cumsum(pc) # % cumule
+
+# BarPlot des % d'inertie
+# Definir le min et max de l'axe des y
+ylim <- c(0, 1.2*max(pc))
+xx <- barplot(pc, xaxt = 'n', xlab = '', width = 0.85, ylim = ylim, ylab = "% d'inertie")
+## Ajout des valeurs de % en dessus des barres
+text(x = xx, y = pc, label = pc, pos = 3, cex = 0.8, col = "black")
+## Ajout des labels sur l'axe des x (ie. numero des axes factoriels)
+axis(1, at=xx, labels=c(1:length(pc)), tick=FALSE, las=1, line=-0.5, cex.axis=0.8)
+
+
+s.corcircle(acp_climat$co) # Cercle des correlations
+
+s.label(acp_climat$li[,1:2], clabel=0.5)
+
+plot(acp_climat$li[,2],climat[,1], xlab="Axe 2", ylab=colnames(climat[1]))
+
+
+
+climat %>% 
+  filter(Year == 2020) %>% 
+  print() ->
+  climat_2020
+
+climat %>% 
+  filter(Year == 2021) %>% 
+  print() ->
+  climat_2021
+
+climat %>% 
+  filter(Year == 2022) %>% 
+  print() ->
+  climat_2022
+
+climat %>% 
+  filter(Year == 2023) %>% 
+  print() ->
+  climat_2023
+
+climat %>% 
+  filter(Year == 2024) %>% 
+  print() ->
+  climat_2024
+
+
+
+
+
+# Journalier
+ggplot(data = climat) +
+  geom_line(aes(x = date, y = `Hr(55)`), colour = "#D73027") +
+  geom_line(aes(x = date, y = Rain), colour = "#01665E") +
+  geom_line(aes(x = date, y = ETP), colour = "black") +
+  geom_line(aes(x = date, y = `Temp(55)`), colour = "#8E0152") +
+  scale_y_continuous(name = "Pluviométrie (mm)", sec.axis = sec_axis(~., name = "Hr(%)")) 
+
+# Mensuel
+ggplot(data = climat_month) +
+  geom_line(aes(x = date, y = `Hr(55)`), colour = "#D73027") +
+  geom_line(aes(x = date, y = Rain), colour = "#01665E") +
+  geom_line(aes(x = date, y = ETP), colour = "black") +
+  geom_line(aes(x = date, y = `Temp(55)`), colour = "#8E0152") +
+  scale_y_continuous(name = "Pluviométrie (mm)", sec.axis = sec_axis(~., name = "Hr(%)")) 
+
+display.brewer.all(colorblindFriendly = TRUE)
+brewer.pal(n = 11, name = "PiYG")
+
+library(lmtest)
+
+plot(climat$Rain ~ climat$ETP, data = climat)
+plot(climat$vpd55 ~ climat$ETP, data = climat)
+
+shapiro.test(climat$Rain)
+shapiro.test(climat$ETP)
+qqnorm(climat$Rain)
+qqline(climat$Rain)
+qqnorm(climat$ETP)
+qqline(climat$ETP)
+
+var.test(climat$Rain,climat$ETP)
+
+cov(climat$Rain,climat$ETP)
+
+cor(climat$Rain,climat$ETP)
+cor(climat$vpd55,climat$ETP)
+
+cor.test(climat$Rain,climat$ETP)
+cor.test(climat$vpd55,climat$ETP)
+
+Rain_ETP <- lm(climat$Rain ~ climat$ETP, data = climat)
+VPD_ETP <- lm(climat$vpd55 ~ climat$ETP, data = climat)
+
+Rain_ETP_res <- residuals(Rain_ETP)
+
+# Independance des residus
+dwtest(Rain_ETP)
+
+par(mfrow = c(2, 2), oma = c(0, 0, 2, 0))
+plot(Rain_ETP)
+
+par(mfrow = c(2, 2), oma = c(0, 0, 2, 0))
+plot(VPD_ETP)
+
+summary(Rain_ETP)
+summary(VPD_ETP)
 
