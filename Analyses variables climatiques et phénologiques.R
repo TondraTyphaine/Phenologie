@@ -312,3 +312,12 @@ png("correlation_am_full.png", width = 800, height = 600)
 plot(correlation_am)
 dev.off()
 
+# Pour 2023
+par(mar = c(3, 2, 2, 1) + 0.1)
+correlation_ame_2023 <- ccf(Flo_ame_2023$Nb_Flo, climat_2023$Rain)
+png("correlation_ame_2023.png", width = 800, height = 600)
+plot(correlation_ame_2023)
+dev.off()
+
+
+
