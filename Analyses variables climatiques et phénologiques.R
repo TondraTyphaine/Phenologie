@@ -279,6 +279,26 @@ png("correlation_sp1_full.png", width = 800, height = 600)
 plot(correlation_sp1)
 dev.off()
 
+# Pour 2021
+par(mar = c(3, 2, 2, 1) + 0.1)
+correlation_sp1_2021 <- ccf(Flo_sp1_2021$Nb_Flo, climat_2021$Rain)
+png("correlation_sp1_2021.png", width = 800, height = 600)
+plot(correlation_sp1_2021)
+dev.off()
+
+# Pour 2022
+par(mar = c(3, 2, 2, 1) + 0.1)
+correlation_sp1_2022 <- ccf(Flo_sp1_2022$Nb_Flo, climat_2022$Rain)
+png("correlation_sp1_2022.png", width = 800, height = 600)
+plot(correlation_sp1_2022)
+dev.off()
+
+# Pour 2023
+par(mar = c(3, 2, 2, 1) + 0.1)
+correlation_sp1_2023 <- ccf(Flo_sp1_2023$Nb_Flo, climat_2023$Rain)
+png("correlation_sp1_2023.png", width = 800, height = 600)
+plot(correlation_sp1_2023)
+dev.off()
 
 ## Calculer la corrélation croisée entre Nb_Flo et Rain pour V.americana ##
 
