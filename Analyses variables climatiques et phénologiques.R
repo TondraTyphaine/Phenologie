@@ -8,7 +8,7 @@ pacman::p_load ("tidyverse","plotly","strucchange","timeSeries","lubridate","bfa
                 "ggpubr", "kableExtra", "tibbletime", "pracma", "imputeTS",
                 "TraMineR", "clValid", "FactoMineR", "factoextra", "dunn.test", "ggrepel")
 
-pacman::p_load("tidyverse","lubridate","RColorBrewer","pracma", "vioplot","lmtest")
+pacman::p_load("tidyverse","lubridate","RColorBrewer","pracma", "vioplot","lmtest","zoo")
 
 
 ## Source custom functions
@@ -112,13 +112,7 @@ dataB<- read_csv2("data/GX-METEO-2020 - 2024E - AK.csv")
 
 ## Reduction deu jeu de donnees
 dataB %>% 
-  filter(!is.na(`Temp(55)`)) %>% 
   filter(!is.na(Rain)) %>% 
-  filter(!is.na(`Hr(55)`)) %>% 
-  filter(!is.na(vpd55)) %>%
-  filter(!is.na(ETP)) %>% 
-  filter(!is.na(VWC_10cm)) %>% 
-  filter(!is.na(T_10cm)) %>% 
   select(Year,Month, Day,`J/N`, 
          `Temp(55)`, `Hr(55)`,
          vpd55,
@@ -318,6 +312,515 @@ correlation_ame_2023 <- ccf(Flo_ame_2023$Nb_Flo, climat_2023$Rain)
 png("correlation_ame_2023.png", width = 800, height = 600)
 plot(correlation_ame_2023)
 dev.off()
+
+
+
+### FLORAISON ET PLUVIOMETRIE ###
+
+## Symphonia globulifera ##
+
+# Porportion de floraison pour S.globulifera #
+
+LeafedOTim(Data=pheno2 %>% 
+             filter(Usable==1),
+           Spec= "Symphonia_globulifera",
+           Pattern=c("Fl"),
+           Obs_Veg = "PPFlo")[[1]] %>% 
+  mutate(Year = year(date)) %>% 
+  print() ->
+  data_signal_globu
+
+# Selection de la colonne prop (proportion de phenophase) issue des donnees de signaux de floraison
+data_signal_globu %>% 
+  select(prop) %>% 
+  pull() ->
+  signal_globu
+
+# Max de floraison par annee
+data_signal_globu %>% 
+  filter(Year == 2020) %>% 
+  print() ->
+  prop2020_glb
+
+max_prop2020_glb_X <- which.max(prop2020_glb$prop)
+max_prop2020_glb_Y <- max(prop2020_glb$prop)
+min_prop2020_glb_X <- which.min(prop2020_glb$prop)
+
+data_signal_globu %>% 
+  filter(Year == 2021) %>% 
+  print() ->
+  prop2021_glb
+
+max_prop2021_glb_X <- which.max(prop2021_glb$prop)
+max_prop2021_glb_Y <- max(prop2021_glb$prop)
+min_prop2021_glb_X <- which.min(prop2021_glb$prop)
+min_prop2021_glb_Y <- min(prop2021_glb$prop)
+
+data_signal_globu %>% 
+  filter(Year == 2022) %>% 
+  print() ->
+  prop2022_glb
+
+max_prop2022_glb_X <- which.max(prop2022_glb$prop)
+max_prop2022_glb_Y <- max(prop2022_glb$prop)
+min_prop2022_glb_X <- which.min(prop2022_glb$prop)
+min_prop2022_glb_Y <- min(prop2022_glb$prop)
+
+data_signal_globu %>% 
+  filter(Year == 2023) %>% 
+  print() ->
+  prop2023_glb
+
+max_prop2023_glb_X <- which.max(prop2023_glb$prop)
+max_prop2023_glb_Y <- max(prop2023_glb$prop)
+min_prop2023_glb_X <- which.min(prop2023_glb$prop)
+min_prop2023_glb_Y <- min(prop2023_glb$prop)
+
+data_signal_globu %>% 
+  filter(Year == 2024) %>% 
+  print() ->
+  prop2024_glb
+
+max_prop2024_glb_X <- which.max(prop2024_glb$prop)
+max_prop2024_glb_Y <- max(prop2024_glb$prop)
+min_prop2024_glb_X <- which.min(prop2024_glb$prop)
+min_prop2024_glb_Y <- min(prop2024_glb$prop)
+
+# Pluviometrie cumulee #
+
+# Full data pour chaque jour du suivi
+dataB_resume %>% 
+  mutate(`Temp(55)` = if_else(is.na(`Temp(55)`), 26,`Temp(55)`)) %>% 
+  select(Year, Month, date, Rain,`Temp(55)`) %>% 
+  group_by(Year, Month, date) %>% 
+  summarise(Rain = sum(Rain), `Temp(55)`= mean(`Temp(55)`)) %>%
+  print() ->
+  Rain
+
+sum(is.na(Rain$Rain))
+
+# Calcul du cumule de pluviometrie tous les 15 j
+
+Rain$Cumule_15J <- rollapply(Rain$Rain, width = 15, FUN = sum, fill = NA, align = "right")
+
+# Calcul du cumule de pluviometrie tous les 30 j
+
+Rain$Cumule_30J <- rollapply(Rain$Rain, width = 30, FUN = sum, fill = NA, align = "right")
+
+# Verifications 
+sum(Rain$Rain[1:15])
+sum(Rain$Rain[2:16])
+sum(Rain$Rain[3:17])
+
+# Maximum et minimum de pluviometrie cumulee 15 j par annee 
+Rain %>% 
+  filter(Year == 2020) %>% 
+  select(date, Cumule_15J) %>% 
+  print() ->
+  Cumule_15J_glb_2020
+
+max_glb_2020_Y <- max(Cumule_15J_glb_2020$Cumule_15J,na.rm = TRUE)
+max_glb_2020_X <- which.max(Cumule_15J_glb_2020$Cumule_15J)
+Cumule_15J_glb_2020[117,]
+
+min_glb_2020_Y <- min(Cumule_15J_glb_2020$Cumule_15J,na.rm = TRUE)
+min_glb_2020_X <- which.min(Cumule_15J_glb_2020$Cumule_15J)
+Cumule_15J_glb_2020[min_glb_2020_X,]
+
+
+Rain %>% 
+  filter(Year == 2021) %>% 
+  select(date,Cumule_15J) %>% 
+  print() ->
+  Cumule_15J_glb_2021
+
+max_glb_2021_Y <- max(Cumule_15J_glb_2021$Cumule_15J,na.rm = TRUE)
+max_glb_2021_X <- which.max(Cumule_15J_glb_2021$Cumule_15J)
+Cumule_15J_glb_2021[148,]
+
+min_glb_2021_Y <- min(Cumule_15J_glb_2021$Cumule_15J,na.rm = TRUE)
+min_glb_2021_X <- which.min(Cumule_15J_glb_2021$Cumule_15J)
+Cumule_15J_glb_2021[min_glb_2021_X,]
+
+Rain %>% 
+  filter(Year == 2022) %>% 
+  select(date,Cumule_15J) %>% 
+  print() ->
+  Cumule_15J_glb_2022
+
+max_glb_2022_Y <- max(Cumule_15J_glb_2022$Cumule_15J,na.rm = TRUE)
+max_glb_2022_X <- which.max(Cumule_15J_glb_2022$Cumule_15J)
+Cumule_15J_glb_2022[58,]
+
+min_glb_2022_Y <- min(Cumule_15J_glb_2022$Cumule_15J,na.rm = TRUE)
+min_glb_2022_X <- which.min(Cumule_15J_glb_2022$Cumule_15J)
+Cumule_15J_glb_2022[min_glb_2022_X,]
+
+Rain %>% 
+  filter(Year == 2023) %>% 
+  select(date,Cumule_15J) %>% 
+  print() ->
+  Cumule_15J_glb_2023
+
+max_glb_2023_Y <- max(Cumule_15J_glb_2023$Cumule_15J,na.rm = TRUE)
+max_glb_2023_X <- which.max(Cumule_15J_glb_2023$Cumule_15J)
+Cumule_15J_glb_2023[57,]
+
+min_glb_2023_Y <- min(Cumule_15J_glb_2023$Cumule_15J,na.rm = TRUE)
+min_glb_2023_X <- which.min(Cumule_15J_glb_2023$Cumule_15J)
+Cumule_15J_glb_2023[min_glb_2023_X,]
+
+Rain %>% 
+  filter(Year == 2024) %>% 
+  select(date,Cumule_15J) %>% 
+  print() ->
+  Cumule_15J_glb_2024
+
+max_glb_2024_Y <- max(Cumule_15J_glb_2024$Cumule_15J,na.rm = TRUE)
+max_glb_2024_X <- which.max(Cumule_15J_glb_2024$Cumule_15J)
+Cumule_15J_glb_2024[1,]
+
+min_glb_2024_Y <- min(Cumule_15J_glb_2024$Cumule_15J,na.rm = TRUE)
+min_glb_2024_X <- which.min(Cumule_15J_glb_2024$Cumule_15J)
+Cumule_15J_glb_2024[min_glb_2024_X,]
+
+
+# Maximum et minimum de pluviometrie cumulee 30 j par annee 
+Rain %>% 
+  filter(Year == 2020) %>% 
+  select(date, Cumule_30J) %>% 
+  print() ->
+  Cumule_30J_glb_2020
+
+max_glb_30J_2020_Y <- max(Cumule_30J_glb_2020$Cumule_30J,na.rm = TRUE)
+max_glb_30J_2020_X <- which.max(Cumule_30J_glb_2020$Cumule_30J)
+Cumule_30J_glb_2020[132,]
+
+min_glb_30J_2020_Y <- min(Cumule_30J_glb_2020$Cumule_30J,na.rm = TRUE)
+min_glb_30J_2020_X <- which.min(Cumule_30J_glb_2020$Cumule_30J)
+Cumule_30J_glb_2020[282,]
+
+
+Rain %>% 
+  filter(Year == 2021) %>% 
+  select(date,Cumule_30J) %>% 
+  print() ->
+  Cumule_30J_glb_2021
+
+max_glb_30J_2021_Y <- max(Cumule_30J_glb_2021$Cumule_30J,na.rm = TRUE)
+max_glb_30J_2021_X <- which.max(Cumule_30J_glb_2021$Cumule_30J)
+Cumule_30J_glb_2021[162,]
+
+min_glb_30J_2021_Y <- min(Cumule_30J_glb_2021$Cumule_30J,na.rm = TRUE)
+min_glb_30J_2021_X <- which.min(Cumule_30J_glb_2021$Cumule_30J)
+Cumule_30J_glb_2021[305,]
+
+Rain %>% 
+  filter(Year == 2022) %>% 
+  select(date,Cumule_30J) %>% 
+  print() ->
+  Cumule_30J_glb_2022
+
+max_glb_30J_2022_Y <- max(Cumule_30J_glb_2022$Cumule_30J,na.rm = TRUE)
+max_glb_30J_2022_X <- which.max(Cumule_30J_glb_2022$Cumule_30J)
+Cumule_30J_glb_2022[63,]
+
+min_glb_30J_2022_Y <- min(Cumule_30J_glb_2022$Cumule_30J,na.rm = TRUE)
+min_glb_30J_2022_X <- which.min(Cumule_30J_glb_2022$Cumule_30J)
+Cumule_30J_glb_2022[263,]
+
+Rain %>% 
+  filter(Year == 2023) %>% 
+  select(date,Cumule_30J) %>% 
+  print() ->
+  Cumule_30J_glb_2023
+
+max_glb_30J_2023_Y <- max(Cumule_30J_glb_2023$Cumule_30J,na.rm = TRUE)
+max_glb_30J_2023_X <- which.max(Cumule_30J_glb_2023$Cumule_30J)
+Cumule_30J_glb_2023[57,]
+
+min_glb_30J_2023_Y <- min(Cumule_30J_glb_2023$Cumule_30J,na.rm = TRUE)
+min_glb_30J_2023_X <- which.min(Cumule_30J_glb_2023$Cumule_30J)
+Cumule_30J_glb_2023[206,]
+
+Rain %>% 
+  filter(Year == 2024) %>% 
+  select(date,Cumule_30J) %>% 
+  print() ->
+  Cumule_30J_glb_2024
+
+max_glb_30J_2024_Y <- max(Cumule_30J_glb_2024$Cumule_30J,na.rm = TRUE)
+max_glb_30J_2024_X <- which.max(Cumule_30J_glb_2024$Cumule_30J)
+Cumule_30J_glb_2024[2,]
+
+min_glb_30J_2024_Y <- min(Cumule_30J_glb_2024$Cumule_30J,na.rm = TRUE)
+min_glb_30J_2024_X <- which.min(Cumule_30J_glb_2024$Cumule_30J)
+Cumule_30J_glb_2024[47,]
+
+
+display.brewer.all(type = "div")
+display.brewer.all(type = "seq")
+display.brewer.all(type = "qual")
+brewer.pal(n = 4, name = "Set1")
+
+
+# Graphique pluviometrie cumulee 15J et pourcentage floraison #
+
+x_date_4ans <- scale_x_date(breaks = as.Date(c("2020-01-01", "2020-02-01", "2020-03-01", "2020-04-01",
+                                               "2020-05-01", "2020-06-01", "2020-07-01", "2020-08-01",
+                                               "2020-09-01", "2020-10-01", "2020-11-01", "2020-12-01",
+                                               "2021-01-01", "2021-02-01", "2021-03-01", "2021-04-01",
+                                               "2021-05-01", "2021-06-01", "2021-07-01", "2021-08-01",
+                                               "2021-09-01", "2021-10-01", "2021-11-01", "2021-12-01",
+                                               "2022-01-01", "2022-02-01", "2022-03-01", "2022-04-01",
+                                               "2022-05-01", "2022-06-01", "2022-07-01", "2022-08-01",
+                                               "2022-09-01", "2022-10-01", "2022-11-01", "2022-12-01",
+                                               "2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01",
+                                               "2023-05-01", "2023-06-01", "2023-07-01", "2023-08-01",
+                                               "2023-09-01", "2023-10-01", "2023-11-01", "2023-12-01",
+                                               "2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01",
+                                               "2024-05-01", "2024-06-01", "2024-07-01", "2024-08-01",
+                                               "2024-09-01", "2024-10-01", "2024-11-01", "2024-12-01")),
+                            date_labels = "%Y-%m-%d") 
+
+ggplot() + 
+  #geom_point(data = data_signal_globu, aes(x = date, y = signal_globu, color = "% de floraison")) +
+  geom_line(data = data_signal_globu, aes(x = date, y = signal_globu, color = "% de floraison")) +
+  #geom_point(data = Rain, aes(x = date, y = Cumule_15J, color = "Pluviométrie cumulée")) +
+  geom_line(data = Rain, aes(x = date, y = Cumule_15J, color = "Pluviométrie cumulée")) +
+  
+  # Min et max pour l'annee 2020
+  geom_vline(xintercept = Cumule_15J_glb_2020$date[max_glb_2020_X], col = "grey40", linetype = "dashed") + 
+  geom_vline(xintercept = Cumule_15J_glb_2020$date[min_glb_2020_X], col = "grey40", linetype = "dashed") + 
+  geom_point(data = Cumule_15J_glb_2020, aes(x = Cumule_15J_glb_2020$date[max_glb_2020_X], y = max_glb_2020_Y), 
+             colour = "black", size = 1.3) + 
+  geom_point(data = Cumule_15J_glb_2020, aes(x = Cumule_15J_glb_2020$date[min_glb_2020_X], y = min_glb_2020_Y),
+             colour = "black", size = 1.3) + 
+  annotate("text", x = Cumule_15J_glb_2020$date[max_glb_2020_X], y = max_glb_2020_Y+20, 
+           label = max_glb_2020_Y, colour = "#4DAF4A", fontface = "bold", size = 3.5) +
+  annotate("text", x = Cumule_15J_glb_2020$date[min_glb_2020_X], y = min_glb_2020_Y-20, 
+           label = min_glb_2020_Y, colour = "#4DAF4A",fontface = "bold", size = 3.5) +
+  
+  # Min et max pour l'annee 2021
+  geom_vline(xintercept = Cumule_15J_glb_2021$date[max_glb_2021_X], col = "grey40", linetype = "dashed") + 
+  geom_vline(xintercept = Cumule_15J_glb_2021$date[min_glb_2021_X], col = "grey40", linetype = "dashed") + 
+  geom_point(data = Cumule_15J_glb_2021, aes(x = Cumule_15J_glb_2021$date[max_glb_2021_X], y = max_glb_2021_Y), 
+             colour = "black", size = 1.3) + 
+  geom_point(data = Cumule_15J_glb_2021, aes(x = Cumule_15J_glb_2021$date[min_glb_2021_X], y = min_glb_2021_Y),
+             colour = "black", size = 1.3) + 
+  annotate("text", x = Cumule_15J_glb_2021$date[max_glb_2021_X], y = max_glb_2021_Y+20, 
+           label = max_glb_2021_Y, colour = "#4DAF4A", fontface = "bold", size = 3.5) +
+  annotate("text", x = Cumule_15J_glb_2021$date[min_glb_2021_X], y = min_glb_2021_Y-20, 
+           label = min_glb_2021_Y, colour = "#4DAF4A", fontface = "bold", size = 3.5) +
+  
+  geom_vline(xintercept = prop2021_glb$date[max_prop2021_glb_X], col = "grey40", linetype = "dashed") + 
+  geom_vline(xintercept = prop2021_glb$date[min_prop2021_glb_X], col = "grey40", linetype = "dashed") + 
+  geom_point(data = prop2021_glb, aes(x = prop2021_glb$date[max_prop2021_glb_X], y = max_prop2021_glb_Y), 
+             colour = "black", size = 1.3) + 
+  geom_point(data = prop2021_glb, aes(x = prop2021_glb$date[min_prop2021_glb_X], y = min_prop2021_glb_Y),
+             colour = "black", size = 1.3) + 
+  annotate("text", x = prop2021_glb$date[max_prop2021_glb_X], y = max_prop2021_glb_Y+20, 
+           label = round(max_prop2021_glb_Y, digits = 1), colour = "#984EA3", fontface = "bold", size = 3.5) +
+  annotate("text", x = prop2021_glb$date[min_prop2021_glb_X], y = min_prop2021_glb_Y-20, 
+           label = min_prop2021_glb_Y, colour = "#984EA3", fontface = "bold", size = 3.5) +
+
+  
+  # Min et max pour l'annee 2022
+  geom_vline(xintercept = Cumule_15J_glb_2022$date[max_glb_2022_X], col = "grey40", linetype = "dashed") + 
+  geom_vline(xintercept = Cumule_15J_glb_2022$date[min_glb_2022_X], col = "grey40", linetype = "dashed") + 
+  geom_point(data = Cumule_15J_glb_2022, aes(x = Cumule_15J_glb_2022$date[max_glb_2022_X], y = max_glb_2022_Y), 
+             colour = "black", size = 1.3) + 
+  geom_point(data = Cumule_15J_glb_2022, aes(x = Cumule_15J_glb_2022$date[min_glb_2022_X], y = min_glb_2022_Y),
+             colour = "black", size = 1.3) + 
+  annotate("text", x = Cumule_15J_glb_2022$date[max_glb_2022_X], y = max_glb_2022_Y+20, 
+           label = max_glb_2022_Y, colour = "#4DAF4A", fontface = "bold", size = 3.5) +
+  annotate("text", x = Cumule_15J_glb_2022$date[min_glb_2022_X], y = min_glb_2022_Y-20, 
+           label = min_glb_2022_Y, colour = "#4DAF4A", fontface = "bold", size = 3.5) +
+  
+  geom_vline(xintercept = prop2022_glb$date[max_prop2022_glb_X], col = "grey40", linetype = "dashed") + 
+  geom_vline(xintercept = prop2022_glb$date[min_prop2022_glb_X], col = "grey40", linetype = "dashed") + 
+  geom_point(data = prop2022_glb, aes(x = prop2022_glb$date[max_prop2022_glb_X], y = max_prop2022_glb_Y), 
+             colour = "black", size = 1.3) + 
+  geom_point(data = prop2022_glb, aes(x = prop2022_glb$date[min_prop2022_glb_X], y = min_prop2022_glb_Y),
+             colour = "black", size = 1.3) + 
+  annotate("text", x = prop2022_glb$date[max_prop2022_glb_X], y = max_prop2022_glb_Y+20, 
+           label = round(max_prop2022_glb_Y, digits = 1), colour = "#984EA3", fontface = "bold", size = 3.5) +
+  annotate("text", x = prop2022_glb$date[min_prop2022_glb_X], y = min_prop2022_glb_Y-20, 
+           label = min_prop2022_glb_Y, colour = "#984EA3", fontface = "bold", size = 3.5) +
+
+  
+  # Min et max pour l'annee 2023
+  geom_vline(xintercept = Cumule_15J_glb_2023$date[max_glb_2023_X], col = "grey40", linetype = "dashed") + 
+  geom_vline(xintercept = Cumule_15J_glb_2023$date[min_glb_2023_X], col = "grey40", linetype = "dashed") + 
+  geom_point(data = Cumule_15J_glb_2023, aes(x = Cumule_15J_glb_2023$date[max_glb_2023_X], y = max_glb_2023_Y), 
+             colour = "black", size = 1.3) + 
+  geom_point(data = Cumule_15J_glb_2023, aes(x = Cumule_15J_glb_2023$date[min_glb_2023_X], y = min_glb_2023_Y),
+             colour = "black", size = 1.3) + 
+  annotate("text", x = Cumule_15J_glb_2023$date[max_glb_2023_X], y = max_glb_2023_Y+20, 
+           label = max_glb_2023_Y, colour = "#4DAF4A", fontface = "bold", size = 3.5) +
+  annotate("text", x = Cumule_15J_glb_2023$date[min_glb_2023_X], y = min_glb_2023_Y-20, 
+           label = min_glb_2023_Y, colour = "#4DAF4A", fontface = "bold", size = 3.5) +
+  
+  geom_vline(xintercept = prop2023_glb$date[max_prop2023_glb_X], col = "grey40", linetype = "dashed") + 
+  geom_vline(xintercept = prop2023_glb$date[min_prop2023_glb_X], col = "grey40", linetype = "dashed") +
+  geom_point(data = prop2023_glb, aes(x = prop2023_glb$date[max_prop2023_glb_X], y = max_prop2023_glb_Y), 
+             colour = "black", size = 1.3) + 
+  geom_point(data = prop2023_glb, aes(x = prop2023_glb$date[min_prop2023_glb_X], y = min_prop2023_glb_Y),
+             colour = "black", size = 1.3) + 
+  annotate("text", x = prop2023_glb$date[max_prop2023_glb_X], y = max_prop2023_glb_Y+20, 
+           label = round(max_prop2023_glb_Y, digits = 1), colour = "#984EA3", fontface = "bold", size = 3.5) +
+  annotate("text", x = prop2023_glb$date[min_prop2023_glb_X], y = min_prop2023_glb_Y-20, 
+           label = min_prop2023_glb_Y, colour = "#984EA3", fontface = "bold", size = 3.5) +
+  
+  
+    # Min et max pour l'annee 2024
+  geom_vline(xintercept = Cumule_15J_glb_2024$date[max_glb_2024_X], col = "grey40", linetype = "dashed") + 
+  geom_vline(xintercept = Cumule_15J_glb_2024$date[min_glb_2024_X], col = "grey40", linetype = "dashed") + 
+  geom_point(data = Cumule_15J_glb_2024, aes(x = Cumule_15J_glb_2024$date[max_glb_2024_X], y = max_glb_2024_Y), 
+             colour = "black", size = 1.3) + 
+  geom_point(data = Cumule_15J_glb_2024, aes(x = Cumule_15J_glb_2024$date[min_glb_2024_X], y = min_glb_2024_Y),
+             colour = "black", size = 1.3) + 
+  annotate("text", x = Cumule_15J_glb_2024$date[max_glb_2024_X], y = max_glb_2024_Y+20, 
+           label = round(max_glb_2024_Y, digits = 2), colour = "#4DAF4A", fontface = "bold", size = 3.5) +
+  annotate("text", x = Cumule_15J_glb_2024$date[min_glb_2024_X], y = min_glb_2024_Y-20, 
+           label = min_glb_2024_Y, colour = "#4DAF4A", fontface = "bold", size = 3.5) +
+  
+  geom_vline(xintercept = prop2024_glb$date[max_prop2024_glb_X], col = "grey40", linetype = "dashed") + 
+  geom_vline(xintercept = prop2024_glb$date[min_prop2024_glb_X], col = "grey40", linetype = "dashed") + 
+
+  
+  # Mise en forme
+  x_date_4ans +
+  scale_y_continuous(name = "Pourcentage d'arbre en fleur", sec.axis = sec_axis(~., name = "Pluviométrie cumulée (mm)")) +
+  scale_color_manual(values = c("% de floraison" = "#984EA3", "Pluviométrie cumulée" = "#4DAF4A")) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust = 1, size = 8)) +
+  labs(
+    title = "Pluviométrie cumulée tous les 15 jours et pourcentage de floraison au cours du suivi phénologique",
+    x = "Dates",
+    color = "Légende"
+  )
+
+
+
+
+# Graphique pluviometrie cumulee 30J et pourcentage floraison #
+
+ggplot() + 
+  #geom_point(data = data_signal_globu, aes(x = date, y = signal_globu, color = "% de floraison")) +
+  geom_line(data = data_signal_globu, aes(x = date, y = signal_globu, color = "% de floraison")) +
+  #geom_point(data = Rain, aes(x = date, y = Cumule_30J, color = "Pluviométrie cumulée")) +
+  geom_line(data = Rain, aes(x = date, y = Cumule_30J, color = "Pluviométrie cumulée")) +
+  
+  # Min et max pour l'annee 2020
+  geom_vline(xintercept = Cumule_30J_glb_2020$date[max_glb_30J_2020_X], col = "grey40", linetype = "dashed") + 
+  geom_vline(xintercept = Cumule_30J_glb_2020$date[min_glb_30J_2020_X], col = "grey40", linetype = "dashed") + 
+  geom_point(data = Cumule_30J_glb_2020, aes(x = Cumule_30J_glb_2020$date[max_glb_30J_2020_X], y = max_glb_30J_2020_Y), 
+             colour = "black", size = 1.3) + 
+  geom_point(data = Cumule_30J_glb_2020, aes(x = Cumule_30J_glb_2020$date[min_glb_30J_2020_X], y = min_glb_30J_2020_Y),
+             colour = "black", size = 1.3) + 
+  annotate("text", x = Cumule_30J_glb_2020$date[max_glb_30J_2020_X], y = max_glb_30J_2020_Y+20, 
+           label = max_glb_30J_2020_Y, colour = "#4DAF4A", fontface = "bold", size = 3.5) +
+  annotate("text", x = Cumule_30J_glb_2020$date[min_glb_30J_2020_X], y = min_glb_30J_2020_Y-20, 
+           label = min_glb_30J_2020_Y, colour = "#4DAF4A",fontface = "bold", size = 3.5) +
+  
+  # Min et max pour l'annee 2021
+  geom_vline(xintercept = Cumule_30J_glb_2021$date[max_glb_30J_2021_X], col = "grey40", linetype = "dashed") + 
+  geom_vline(xintercept = Cumule_30J_glb_2021$date[min_glb_30J_2021_X], col = "grey40", linetype = "dashed") + 
+  geom_point(data = Cumule_30J_glb_2021, aes(x = Cumule_30J_glb_2021$date[max_glb_30J_2021_X], y = max_glb_30J_2021_Y), 
+             colour = "black", size = 1.3) + 
+  geom_point(data = Cumule_30J_glb_2021, aes(x = Cumule_30J_glb_2021$date[min_glb_30J_2021_X], y = min_glb_30J_2021_Y),
+             colour = "black", size = 1.3) + 
+  annotate("text", x = Cumule_30J_glb_2021$date[max_glb_30J_2021_X], y = max_glb_30J_2021_Y+20, 
+           label = max_glb_30J_2021_Y, colour = "#4DAF4A", fontface = "bold", size = 3.5) +
+  annotate("text", x = Cumule_30J_glb_2021$date[min_glb_30J_2021_X], y = min_glb_30J_2021_Y-20, 
+           label = min_glb_30J_2021_Y, colour = "#4DAF4A", fontface = "bold", size = 3.5) +
+  
+  geom_vline(xintercept = prop2021_glb$date[max_prop2021_glb_X], col = "grey40", linetype = "dashed") + 
+  geom_vline(xintercept = prop2021_glb$date[min_prop2021_glb_X], col = "grey40", linetype = "dashed") + 
+  geom_point(data = prop2021_glb, aes(x = prop2021_glb$date[max_prop2021_glb_X], y = max_prop2021_glb_Y), 
+             colour = "black", size = 1.3) + 
+  geom_point(data = prop2021_glb, aes(x = prop2021_glb$date[min_prop2021_glb_X], y = min_prop2021_glb_Y),
+             colour = "black", size = 1.3) + 
+  annotate("text", x = prop2021_glb$date[max_prop2021_glb_X], y = max_prop2021_glb_Y+20, 
+           label = round(max_prop2021_glb_Y, digits = 1), colour = "#984EA3", fontface = "bold", size = 3.5) +
+  annotate("text", x = prop2021_glb$date[min_prop2021_glb_X], y = min_prop2021_glb_Y-20, 
+           label = min_prop2021_glb_Y, colour = "#984EA3", fontface = "bold", size = 3.5) +
+  
+  
+  # Min et max pour l'annee 2022
+  geom_vline(xintercept = Cumule_30J_glb_2022$date[max_glb_30J_2022_X], col = "grey40", linetype = "dashed") + 
+  geom_vline(xintercept = Cumule_30J_glb_2022$date[min_glb_30J_2022_X], col = "grey40", linetype = "dashed") + 
+  geom_point(data = Cumule_30J_glb_2022, aes(x = Cumule_30J_glb_2022$date[max_glb_30J_2022_X], y = max_glb_30J_2022_Y), 
+             colour = "black", size = 1.3) + 
+  geom_point(data = Cumule_30J_glb_2022, aes(x = Cumule_30J_glb_2022$date[min_glb_30J_2022_X], y = min_glb_30J_2022_Y),
+             colour = "black", size = 1.3) + 
+  annotate("text", x = Cumule_30J_glb_2022$date[max_glb_30J_2022_X], y = max_glb_30J_2022_Y+20, 
+           label = max_glb_30J_2022_Y, colour = "#4DAF4A", fontface = "bold", size = 3.5) +
+  annotate("text", x = Cumule_30J_glb_2022$date[min_glb_30J_2022_X], y = min_glb_30J_2022_Y-20, 
+           label = min_glb_30J_2022_Y, colour = "#4DAF4A", fontface = "bold", size = 3.5) +
+  
+  geom_vline(xintercept = prop2022_glb$date[max_prop2022_glb_X], col = "grey40", linetype = "dashed") + 
+  geom_vline(xintercept = prop2022_glb$date[min_prop2022_glb_X], col = "grey40", linetype = "dashed") + 
+  geom_point(data = prop2022_glb, aes(x = prop2022_glb$date[max_prop2022_glb_X], y = max_prop2022_glb_Y), 
+             colour = "black", size = 1.3) + 
+  geom_point(data = prop2022_glb, aes(x = prop2022_glb$date[min_prop2022_glb_X], y = min_prop2022_glb_Y),
+             colour = "black", size = 1.3) + 
+  annotate("text", x = prop2022_glb$date[max_prop2022_glb_X], y = max_prop2022_glb_Y+20, 
+           label = round(max_prop2022_glb_Y, digits = 1), colour = "#984EA3", fontface = "bold", size = 3.5) +
+  annotate("text", x = prop2022_glb$date[min_prop2022_glb_X], y = min_prop2022_glb_Y-20, 
+           label = min_prop2022_glb_Y, colour = "#984EA3", fontface = "bold", size = 3.5) +
+  
+  
+  # Min et max pour l'annee 2023
+  geom_vline(xintercept = Cumule_30J_glb_2023$date[max_glb_30J_2023_X], col = "grey40", linetype = "dashed") + 
+  geom_vline(xintercept = Cumule_30J_glb_2023$date[min_glb_30J_2023_X], col = "grey40", linetype = "dashed") + 
+  geom_point(data = Cumule_30J_glb_2023, aes(x = Cumule_30J_glb_2023$date[max_glb_30J_2023_X], y = max_glb_30J_2023_Y), 
+             colour = "black", size = 1.3) + 
+  geom_point(data = Cumule_30J_glb_2023, aes(x = Cumule_30J_glb_2023$date[min_glb_30J_2023_X], y = min_glb_30J_2023_Y),
+             colour = "black", size = 1.3) + 
+  annotate("text", x = Cumule_30J_glb_2023$date[max_glb_30J_2023_X], y = max_glb_30J_2023_Y+20, 
+           label = max_glb_30J_2023_Y, colour = "#4DAF4A", fontface = "bold", size = 3.5) +
+  annotate("text", x = Cumule_30J_glb_2023$date[min_glb_30J_2023_X], y = min_glb_30J_2023_Y-20, 
+           label = min_glb_30J_2023_Y, colour = "#4DAF4A", fontface = "bold", size = 3.5) +
+  
+  geom_vline(xintercept = prop2023_glb$date[max_prop2023_glb_X], col = "grey40", linetype = "dashed") + 
+  geom_vline(xintercept = prop2023_glb$date[min_prop2023_glb_X], col = "grey40", linetype = "dashed") +
+  geom_point(data = prop2023_glb, aes(x = prop2023_glb$date[max_prop2023_glb_X], y = max_prop2023_glb_Y), 
+             colour = "black", size = 1.3) + 
+  geom_point(data = prop2023_glb, aes(x = prop2023_glb$date[min_prop2023_glb_X], y = min_prop2023_glb_Y),
+             colour = "black", size = 1.3) + 
+  annotate("text", x = prop2023_glb$date[max_prop2023_glb_X], y = max_prop2023_glb_Y+20, 
+           label = round(max_prop2023_glb_Y, digits = 1), colour = "#984EA3", fontface = "bold", size = 3.5) +
+  annotate("text", x = prop2023_glb$date[min_prop2023_glb_X], y = min_prop2023_glb_Y-20, 
+           label = min_prop2023_glb_Y, colour = "#984EA3", fontface = "bold", size = 3.5) +
+  
+  
+  # Min et max pour l'annee 2024
+  geom_vline(xintercept = Cumule_30J_glb_2024$date[max_glb_30J_2024_X], col = "grey40", linetype = "dashed") + 
+  geom_vline(xintercept = Cumule_30J_glb_2024$date[min_glb_30J_2024_X], col = "grey40", linetype = "dashed") + 
+  geom_point(data = Cumule_30J_glb_2024, aes(x = Cumule_30J_glb_2024$date[max_glb_30J_2024_X], y = max_glb_30J_2024_Y), 
+             colour = "black", size = 1.3) + 
+  geom_point(data = Cumule_30J_glb_2024, aes(x = Cumule_30J_glb_2024$date[min_glb_30J_2024_X], y = min_glb_30J_2024_Y),
+             colour = "black", size = 1.3) + 
+  annotate("text", x = Cumule_30J_glb_2024$date[max_glb_30J_2024_X], y = max_glb_30J_2024_Y+20, 
+           label = round(max_glb_30J_2024_Y, digits = 2), colour = "#4DAF4A", fontface = "bold", size = 3.5) +
+  annotate("text", x = Cumule_30J_glb_2024$date[min_glb_30J_2024_X], y = min_glb_30J_2024_Y-20, 
+           label = min_glb_30J_2024_Y, colour = "#4DAF4A", fontface = "bold", size = 3.5) +
+  
+  geom_vline(xintercept = prop2024_glb$date[max_prop2024_glb_X], col = "grey40", linetype = "dashed") + 
+  geom_vline(xintercept = prop2024_glb$date[min_prop2024_glb_X], col = "grey40", linetype = "dashed") + 
+  
+  
+  # Mise en forme
+  x_date_4ans +
+  scale_y_continuous(name = "Pourcentage d'arbre en fleur", sec.axis = sec_axis(~., name = "Pluviométrie cumulée (mm)")) +
+  scale_color_manual(values = c("% de floraison" = "#984EA3", "Pluviométrie cumulée" = "#4DAF4A")) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust = 1, size = 8)) +
+  labs(
+    title = "Pluviométrie cumulée tous les 30 jours et pourcentage de floraison au cours du suivi phénologique",
+    x = "Dates",
+    color = "Légende"
+  )
 
 
 
