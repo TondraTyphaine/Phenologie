@@ -168,6 +168,29 @@ Leaf_Pattern(
   fertility = TRUE
 )[[2]]
 
+# Heatmap pour Couma guianensis
+Leaf_Pattern(
+  Data = filter(pheno2, Usable == 1) ,
+  Obs_Veg = "PPVeg",
+  Spec = "Couma_guianensis", 
+  fertility = TRUE
+)[[2]]
+
+# Heatmap pour Moronobea coccinea
+Leaf_Pattern(
+  Data = filter(pheno2, Usable == 1) ,
+  Obs_Veg = "PPVeg",
+  Spec = "Moronobea_coccinea", 
+  fertility = TRUE
+)[[2]]
+
+# Heatmap pour Platonia insignis
+Leaf_Pattern(
+  Data = filter(pheno2, Usable == 1) ,
+  Obs_Veg = "PPVeg",
+  Spec = "Platonia_insignis", 
+  fertility = TRUE
+)[[2]]
 
 ## Temps de sejour (difference entre le debut et la fin d'un evenement de floraison)
 
@@ -194,6 +217,33 @@ PhenoPhase_Time(
   Data = pheno2,
   Pattern = "Fl",
   Spec = "Vouacapoua_americana",
+  Obs_Veg = "PPFlo",
+  markers = "Residence_time"
+)[[2]]
+
+# Temps de sejour de la floraison pour C.guianensis
+PhenoPhase_Time(
+  Data = pheno2,
+  Pattern = "Fl",
+  Spec = "Couma_guianensis",
+  Obs_Veg = "PPFlo",
+  markers = "Residence_time"
+)[[2]]
+
+# Temps de sejour de la floraison pour M.coccinea
+PhenoPhase_Time(
+  Data = pheno2,
+  Pattern = "Fl",
+  Spec = "Moronobea_coccinea",
+  Obs_Veg = "PPFlo",
+  markers = "Residence_time"
+)[[2]]
+
+# Temps de sejour de la floraison pour P.insignis
+PhenoPhase_Time(
+  Data = pheno2,
+  Pattern = "Fl",
+  Spec = "Platonia_insignis",
   Obs_Veg = "PPFlo",
   markers = "Residence_time"
 )[[2]]
@@ -229,6 +279,32 @@ PhenoPhase_Time(
   markers = "Return_time"
 )[[2]]
 
+# Temps de retour pour C.guianensis
+PhenoPhase_Time(
+  Data = pheno2,
+  Pattern = "Fl",
+  Spec = "Couma_guianensis",
+  Obs_Veg = "PPFlo",
+  markers = "Return_time"
+)[[2]]
+
+# Temps de retour pour M.coccinea
+PhenoPhase_Time(
+  Data = pheno2,
+  Pattern = "Fl",
+  Spec = "Moronobea_coccinea",
+  Obs_Veg = "PPFlo",
+  markers = "Return_time"
+)[[2]]
+
+# Temps de retour pour P.insignis
+PhenoPhase_Time(
+  Data = pheno2,
+  Pattern = "Fl",
+  Spec = "Platonia_insignis",
+  Obs_Veg = "PPFlo",
+  markers = "Return_time"
+)[[2]]
 
 ## Temps des cycles (temps de sejour + temps de retour)
 
@@ -259,6 +335,34 @@ PhenoPhase_Time(
   markers = "Cycle_time"
 )[[2]]
 
+# Temps de cycle pour C.guianensis
+PhenoPhase_Time(
+  Data = pheno2,
+  Pattern = "Fl",
+  Spec = "Couma_guianensis",
+  Obs_Veg = "PPFlo",
+  markers = "Cycle_time"
+)[[2]]
+
+# Temps de cycle pour M.coccinea
+PhenoPhase_Time(
+  Data = pheno2,
+  Pattern = "Fl",
+  Spec = "Moronobea_coccinea",
+  Obs_Veg = "PPFlo",
+  markers = "Cycle_time"
+)[[2]]
+
+# Temps de cycle pour P.insignis
+PhenoPhase_Time(
+  Data = pheno2,
+  Pattern = "Fl",
+  Spec = "Platonia_insignis",
+  Obs_Veg = "PPFlo",
+  markers = "Cycle_time"
+)[[2]]
+
+
 
 ## Nombre d'individu en floraison par date
 
@@ -283,6 +387,27 @@ GraphPropF_americana<- LeafedOTim(Data=pheno2,
                                Obs_Veg = "PPFlo")
 GraphPropF_americana[[2]]
 
+# Pour C.guianensis
+GraphPropF_guianensis <- LeafedOTim(Data=pheno2,
+                                  Spec= "Couma_guianensis",
+                                  Pattern=c("Fl"),
+                                  Obs_Veg = "PPFlo")
+GraphPropF_guianensis[[2]]
+
+# Pour M.coccinea
+GraphPropF_coccinea <- LeafedOTim(Data=pheno2,
+                                    Spec= "Moronobea_coccinea",
+                                    Pattern=c("Fl"),
+                                    Obs_Veg = "PPFlo")
+GraphPropF_coccinea[[2]]
+
+# Pour P.insignis
+GraphPropF_insignis <- LeafedOTim(Data=pheno2,
+                                  Spec= "Platonia_insignis",
+                                  Pattern=c("Fl"),
+                                  Obs_Veg = "PPFlo")
+GraphPropF_insignis[[2]]
+
 
 ## Proportion de phenophase par mois
 
@@ -303,6 +428,27 @@ Leaf_Circular(Data = pheno2,
 # Pour V.americana
 Leaf_Circular(Data = pheno2, 
               Spec = "Vouacapoua_americana",
+              Pattern = c("Fl"),
+              Obs_Veg = "PPFlo",
+              perYears = FALSE)[[2]]
+
+# Pour C.guianensis
+Leaf_Circular(Data = pheno2, 
+              Spec = "Couma_guianensis",
+              Pattern = c("Fl"),
+              Obs_Veg = "PPFlo",
+              perYears = FALSE)[[2]]
+
+# Pour M.coccinea
+Leaf_Circular(Data = pheno2, 
+              Spec = "Moronobea_coccinea",
+              Pattern = c("Fl"),
+              Obs_Veg = "PPFlo",
+              perYears = FALSE)[[2]]
+
+# Pour P.insignis
+Leaf_Circular(Data = pheno2, 
+              Spec = "Platonia_insignis",
               Pattern = c("Fl"),
               Obs_Veg = "PPFlo",
               perYears = FALSE)[[2]]
@@ -330,6 +476,27 @@ Leaf_Circular(Data = pheno2,
               Pattern = c("Fl"),
               Obs_Veg = "PPFlo",
               perYears = TRUE)[[2]]
+
+# Pour C.guianensis
+Leaf_Circular(Data = pheno2, 
+              Spec = "Couma_guianensis",
+              Pattern = c("Fl"),
+              Obs_Veg = "PPFlo",
+              perYears = T)[[2]]
+
+# Pour M.coccinea
+Leaf_Circular(Data = pheno2, 
+              Spec = "Moronobea_coccinea",
+              Pattern = c("Fl"),
+              Obs_Veg = "PPFlo",
+              perYears = T)[[2]]
+
+# Pour P.insignis
+Leaf_Circular(Data = pheno2, 
+              Spec = "Platonia_insignis",
+              Pattern = c("Fl"),
+              Obs_Veg = "PPFlo",
+              perYears = T)[[2]]
 
 
 ## Temporalité de la proportion d'individu en floraison
@@ -638,4 +805,312 @@ summary_table_am = tibble(Genus_Spec = data_signal_am$Genus_Spec %>% unique(),
 
 # Representation formatee pour Markdown (une table)
 kable(summary_table_am)
+
+
+
+# Pour C.guianensis #
+
+# 1) Signal de floraison au cours du temps (nombre d'individu en fleur au cours du temps).
+# (plot the number of each individual in the given State (Pattern) across sampling time.)
+data_signal_gui = LeafedOTim(Data = pheno2 %>% 
+                              filter(Usable==1),
+                            Spec= "Couma_guianensis",
+                            Pattern=c("Fl"),
+                            Obs_Veg = "PPFlo")[[1]]
+
+# 2) Selection de la colonne prop (proportion) issue des donnees de signaux de floraison
+signal_gui = data_signal_gui %>% 
+  select(prop) %>% 
+  pull() # pour extraire une seule colonne
+
+# Calcul d'une nouvelle sequence de donnes avec moins de fluctuations temporelle
+# grace a la technique de la moyenne mobile.
+moyenne_mobile_gui = moving_average(data_signal_gui %>% 
+                                     select(prop) %>% 
+                                     pull(),
+                                   filter = fpoids(n=2,p=2,q=2)$y) 
+
+#   On indentifie les différents pics positif et négatif de la floraison
+dates_gui = data_signal_gui %>% 
+  select(date) %>% 
+  pull() # Extraction des différentes dates
+
+# the maximum of pics
+# sort () permet de trier les elements d'un vecteur
+# findpeaks () premet de trouver les pics de floraison
+dates_max_gui = sort(findpeaks(moyenne_mobile_gui,minpeakheight  = 10,nups =1)[,2])
+
+# When the pics begin
+dates_begin_gui = sort(findpeaks(moyenne_mobile_gui,minpeakheight  = 10,nups = 1)[,3])
+
+# When the pics end
+dates_end_gui = sort(findpeaks(moyenne_mobile_gui,minpeakheight  = 10,nups = 1)[,4])
+
+# Percent of ind by peaks 
+amplitude_peaks_gui = findpeaks(moyenne_mobile_gui,minpeakheight  = 10,nups = 1)[,1]
+
+# Compilation des amplitudes relles des pics du signal
+amplitude_real_gui = signal_gui[dates_max_gui]
+
+# Tracé du signal d'origine, de la moyenne mobile et de la dérivée avec ggplot2
+Plot = ggplot(data_signal_gui, 
+              aes(x = date)) +
+  geom_line(aes(y = prop, 
+                color = "original signal")) +
+  geom_line(aes(y = moyenne_mobile_gui, 
+                color = "processed signal"))+
+  geom_point(aes(y = prop, 
+                 color = "original signal")) +
+  scale_color_manual(values = c("original signal" = "blue","processed signal" = "red"))+
+  theme(axis.text.x = element_text(angle = 90),
+        panel.background = element_rect(fill = "white")) +
+  geom_vline(xintercept = dates_gui[dates_max_gui],
+             col = "tomato3" , 
+             linetype = "dashed") + 
+  geom_vline(xintercept = dates_gui[dates_begin_gui],
+             col = "grey30", linetype = "dashed") +
+  geom_vline(xintercept = dates_gui[dates_end_gui],
+             col = "grey30", linetype = "dashed") +
+  scale_x_date(date_breaks = "2 month", 
+               date_labels = "%b-%Y") +
+  labs(title = "original and processed signal by Moving average for Couma guianensis", 
+       x = "Time", y = "Value") + 
+  annotate("text",x = dates_gui[dates_max_gui], 
+           y= 100,label = paste(round(amplitude_real_gui,1),"%"),
+           col = "grey40")
+
+Plot
+
+# Ajout des pics de floraison precedenment calcules sur la figure du pattern general de V.americana
+Leaf_Pattern(Data = pheno2 %>% filter(Usable ==1), 
+             Obs_Veg ="PPVeg", 
+             Spec = "Couma_guianensis", 
+             fertility = TRUE)[[2]] +    
+  geom_vline(xintercept = dates_gui[dates_max_gui], 
+             col = "white" , 
+             linetype = "dashed") + 
+  geom_vline(xintercept = dates_gui[dates_begin_gui], 
+             col = "black" , 
+             linetype = "dashed") +
+  geom_vline(xintercept = dates_gui[dates_end_gui], 
+             col = "black" , 
+             linetype = "dashed")
+
+
+# Recapitulatif des informations du signal floral pour S.globulifera
+summary_table_gui = tibble(Genus_Spec = data_signal_gui$Genus_Spec %>% unique(),
+                          max = dates_gui[dates_max_gui],
+                          range = abs(difftime(dates_gui[dates_begin_gui],
+                                               dates_gui[dates_end_gui])),
+                          start = dates_gui[dates_begin_gui],
+                          end = dates_gui[dates_end_gui]
+)
+
+# Representation formatee pour Markdown (une table)
+kable(summary_table_gui)
+
+
+# Pour M.coccinea #
+
+# 1) Signal de floraison au cours du temps (nombre d'individu en fleur au cours du temps).
+# (plot the number of each individual in the given State (Pattern) across sampling time.)
+data_signal_cocci = LeafedOTim(Data = pheno2 %>% 
+                               filter(Usable==1),
+                             Spec= "Moronobea_coccinea",
+                             Pattern=c("Fl"),
+                             Obs_Veg = "PPFlo")[[1]]
+
+# 2) Selection de la colonne prop (proportion) issue des donnees de signaux de floraison
+signal_cocci = data_signal_cocci %>% 
+  select(prop) %>% 
+  pull() # pour extraire une seule colonne
+
+# Calcul d'une nouvelle sequence de donnes avec moins de fluctuations temporelle
+# grace a la technique de la moyenne mobile.
+moyenne_mobile_cocci = moving_average(data_signal_cocci %>% 
+                                      select(prop) %>% 
+                                      pull(),
+                                    filter = fpoids(n=2,p=2,q=2)$y) 
+
+#   On indentifie les différents pics positif et négatif de la floraison
+dates_cocci = data_signal_cocci %>% 
+  select(date) %>% 
+  pull() # Extraction des différentes dates
+
+# the maximum of pics
+# sort () permet de trier les elements d'un vecteur
+# findpeaks () premet de trouver les pics de floraison
+dates_max_cocci = sort(findpeaks(moyenne_mobile_cocci,minpeakheight  = 10,nups =1)[,2])
+
+# When the pics begin
+dates_begin_cocci = sort(findpeaks(moyenne_mobile_cocci,minpeakheight  = 10,nups = 1)[,3])
+
+# When the pics end
+dates_end_cocci = sort(findpeaks(moyenne_mobile_cocci,minpeakheight  = 10,nups = 1)[,4])
+
+# Percent of ind by peaks 
+amplitude_peaks_cocci = findpeaks(moyenne_mobile_cocci,minpeakheight  = 10,nups = 1)[,1]
+
+# Compilation des amplitudes relles des pics du signal
+amplitude_real_cocci = signal_cocci[dates_max_cocci]
+
+# Tracé du signal d'origine, de la moyenne mobile et de la dérivée avec ggplot2
+Plot = ggplot(data_signal_cocci, 
+              aes(x = date)) +
+  geom_line(aes(y = prop, 
+                color = "original signal")) +
+  geom_line(aes(y = moyenne_mobile_cocci, 
+                color = "processed signal"))+
+  geom_point(aes(y = prop, 
+                 color = "original signal")) +
+  scale_color_manual(values = c("original signal" = "blue","processed signal" = "red"))+
+  theme(axis.text.x = element_text(angle = 90),
+        panel.background = element_rect(fill = "white")) +
+  geom_vline(xintercept = dates_cocci[dates_max_cocci],
+             col = "tomato3" , 
+             linetype = "dashed") + 
+  geom_vline(xintercept = dates_cocci[dates_begin_cocci],
+             col = "grey30", linetype = "dashed") +
+  geom_vline(xintercept = dates_cocci[dates_end_cocci],
+             col = "grey30", linetype = "dashed") +
+  scale_x_date(date_breaks = "2 month", 
+               date_labels = "%b-%Y") +
+  labs(title = "original and processed signal by Moving average for Moronobea coccinea", 
+       x = "Time", y = "Value") + 
+  annotate("text",x = dates_cocci[dates_max_cocci], 
+           y= 100,label = paste(round(amplitude_real_cocci,1),"%"),
+           col = "grey40")
+
+Plot
+
+# Ajout des pics de floraison precedenment calcules sur la figure du pattern general de V.americana
+Leaf_Pattern(Data = pheno2 %>% filter(Usable ==1), 
+             Obs_Veg ="PPVeg", 
+             Spec = "Moronobea_coccinea", 
+             fertility = TRUE)[[2]] +    
+  geom_vline(xintercept = dates_cocci[dates_max_cocci], 
+             col = "white" , 
+             linetype = "dashed") + 
+  geom_vline(xintercept = dates_cocci[dates_begin_cocci], 
+             col = "black" , 
+             linetype = "dashed") +
+  geom_vline(xintercept = dates_cocci[dates_end_cocci], 
+             col = "black" , 
+             linetype = "dashed")
+
+
+# Recapitulatif des informations du signal floral pour S.globulifera
+summary_table_cocci = tibble(Genus_Spec = data_signal_cocci$Genus_Spec %>% unique(),
+                           max = dates_cocci[dates_max_cocci],
+                           range = abs(difftime(dates_cocci[dates_begin_cocci],
+                                                dates_cocci[dates_end_cocci])),
+                           start = dates_cocci[dates_begin_cocci],
+                           end = dates_cocci[dates_end_cocci]
+)
+
+# Representation formatee pour Markdown (une table)
+kable(summary_table_cocci)
+
+
+
+# Pour P.insignis #
+
+# 1) Signal de floraison au cours du temps (nombre d'individu en fleur au cours du temps).
+# (plot the number of each individual in the given State (Pattern) across sampling time.)
+data_signal_insi = LeafedOTim(Data = pheno2 %>% 
+                                 filter(Usable==1),
+                               Spec= "Platonia_insignis",
+                               Pattern=c("Fl"),
+                               Obs_Veg = "PPFlo")[[1]]
+
+# 2) Selection de la colonne prop (proportion) issue des donnees de signaux de floraison
+signal_insi = data_signal_insi %>% 
+  select(prop) %>% 
+  pull() # pour extraire une seule colonne
+
+# Calcul d'une nouvelle sequence de donnes avec moins de fluctuations temporelle
+# grace a la technique de la moyenne mobile.
+moyenne_mobile_insi = moving_average(data_signal_insi %>% 
+                                        select(prop) %>% 
+                                        pull(),
+                                      filter = fpoids(n=2,p=2,q=2)$y) 
+
+#   On indentifie les différents pics positif et négatif de la floraison
+dates_insi = data_signal_insi %>% 
+  select(date) %>% 
+  pull() # Extraction des différentes dates
+
+# the maximum of pics
+# sort () permet de trier les elements d'un vecteur
+# findpeaks () premet de trouver les pics de floraison
+dates_max_insi = sort(findpeaks(moyenne_mobile_insi,minpeakheight  = 10,nups =1)[,2])
+
+# When the pics begin
+dates_begin_insi = sort(findpeaks(moyenne_mobile_insi,minpeakheight  = 10,nups = 1)[,3])
+
+# When the pics end
+dates_end_insi = sort(findpeaks(moyenne_mobile_insi,minpeakheight  = 10,nups = 1)[,4])
+
+# Percent of ind by peaks 
+amplitude_peaks_insi = findpeaks(moyenne_mobile_insi,minpeakheight  = 10,nups = 1)[,1]
+
+# Compilation des amplitudes relles des pics du signal
+amplitude_real_insi = signal_insi[dates_max_insi]
+
+# Tracé du signal d'origine, de la moyenne mobile et de la dérivée avec ggplot2
+Plot = ggplot(data_signal_insi, 
+              aes(x = date)) +
+  geom_line(aes(y = prop, 
+                color = "original signal")) +
+  geom_line(aes(y = moyenne_mobile_insi, 
+                color = "processed signal"))+
+  geom_point(aes(y = prop, 
+                 color = "original signal")) +
+  scale_color_manual(values = c("original signal" = "blue","processed signal" = "red"))+
+  theme(axis.text.x = element_text(angle = 90),
+        panel.background = element_rect(fill = "white")) +
+  geom_vline(xintercept = dates_insi[dates_max_insi],
+             col = "tomato3" , 
+             linetype = "dashed") + 
+  geom_vline(xintercept = dates_insi[dates_begin_insi],
+             col = "grey30", linetype = "dashed") +
+  geom_vline(xintercept = dates_insi[dates_end_insi],
+             col = "grey30", linetype = "dashed") +
+  scale_x_date(date_breaks = "2 month", 
+               date_labels = "%b-%Y") +
+  labs(title = "original and processed signal by Moving average for Platonia insignis", 
+       x = "Time", y = "Value") + 
+  annotate("text",x = dates_insi[dates_max_insi], 
+           y= 100,label = paste(round(amplitude_real_insi,1),"%"),
+           col = "grey40")
+
+Plot
+
+# Ajout des pics de floraison precedenment calcules sur la figure du pattern general de V.americana
+Leaf_Pattern(Data = pheno2 %>% filter(Usable ==1), 
+             Obs_Veg ="PPVeg", 
+             Spec = "Platonia_insignis", 
+             fertility = TRUE)[[2]] +    
+  geom_vline(xintercept = dates_insi[dates_max_insi], 
+             col = "white" , 
+             linetype = "dashed") + 
+  geom_vline(xintercept = dates_insi[dates_begin_insi], 
+             col = "black" , 
+             linetype = "dashed") +
+  geom_vline(xintercept = dates_insi[dates_end_insi], 
+             col = "black" , 
+             linetype = "dashed")
+
+
+# Recapitulatif des informations du signal floral pour S.globulifera
+summary_table_insi = tibble(Genus_Spec = data_signal_insi$Genus_Spec %>% unique(),
+                             max = dates_insi[dates_max_insi],
+                             range = abs(difftime(dates_insi[dates_begin_insi],
+                                                  dates_insi[dates_end_insi])),
+                             start = dates_insi[dates_begin_insi],
+                             end = dates_insi[dates_end_insi]
+)
+
+# Representation formatee pour Markdown (une table)
+kable(summary_table_insi)
 
