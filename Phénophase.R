@@ -368,22 +368,22 @@ PhenoPhase_Time(
 
 # Pour S.globulifera
 GraphPropF_globu <- LeafedOTim(Data=pheno2,
-                         Spec= "Symphonia_globulifera",
-                         Pattern=c("Fl"),
+                         Spec = "Symphonia_globulifera",
+                         Pattern = c("Fl"),
                          Obs_Veg = "PPFlo")
 GraphPropF_globu[[2]]
 
 #Pour S.sp1
 GraphPropF_sp1 <- LeafedOTim(Data=pheno2,
-                               Spec= "Symphonia_sp.1",
-                               Pattern=c("Fl"),
+                               Spec = "Symphonia_sp.1",
+                               Pattern = c("Fl"),
                                Obs_Veg = "PPFlo")
 GraphPropF_sp1[[2]]
 
 # Pour V.americana
 GraphPropF_americana<- LeafedOTim(Data=pheno2,
-                               Spec= "Vouacapoua_americana",
-                               Pattern=c("Fl"),
+                               Spec = "Vouacapoua_americana",
+                               Pattern = c("Fl"),
                                Obs_Veg = "PPFlo")
 GraphPropF_americana[[2]]
 
