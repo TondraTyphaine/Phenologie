@@ -735,16 +735,16 @@ dates_am = data_signal_am %>%
 # the maximum of pics
 # sort () permet de trier les elements d'un vecteur
 # findpeaks () premet de trouver les pics de floraison
-dates_max_am = sort(findpeaks(moyenne_mobile_am,minpeakheight  = 10,nups =1)[,2])
+dates_max_am = sort(findpeaks(moyenne_mobile_am,minpeakheight  = 5,nups =0)[,2])
 
 # When the pics begin
-dates_begin_am = sort(findpeaks(moyenne_mobile_am,minpeakheight  = 10,nups = 1)[,3])
+dates_begin_am = sort(findpeaks(moyenne_mobile_am,minpeakheight  = 5,nups = 0)[,3])
 
 # When the pics end
-dates_end_am = sort(findpeaks(moyenne_mobile_am,minpeakheight  = 10,nups = 1)[,4])
+dates_end_am = sort(findpeaks(moyenne_mobile_am,minpeakheight  = 5,nups = 0)[,4])
 
 # Percent of ind by peaks 
-amplitude_peaks_am = findpeaks(moyenne_mobile_am,minpeakheight  = 10,nups = 1)[,1]
+amplitude_peaks_am = findpeaks(moyenne_mobile_am,minpeakheight  = 5,nups = 0)[,1]
 
 # Compilation des amplitudes relles des pics du signal
 amplitude_real_am = signal_am[dates_max_am]
@@ -773,7 +773,7 @@ Plot = ggplot(data_signal_am,
   labs(title = "original and processed signal by Moving average for Vouacapoua americana", 
        x = "Time", y = "Value") + 
   annotate("text",x = dates_am[dates_max_am], 
-           y= 100,label = paste(round(amplitude_real_am,1),"%"),
+           y = 35,label = paste(round(amplitude_real_am,1),"%"),
            col = "grey40")
 
 Plot
