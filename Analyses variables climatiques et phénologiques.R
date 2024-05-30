@@ -8,8 +8,9 @@ pacman::p_load ("tidyverse","plotly","strucchange","timeSeries","lubridate","bfa
                 "ggpubr", "kableExtra", "tibbletime", "pracma", "imputeTS",
                 "TraMineR", "clValid", "FactoMineR", "factoextra", "dunn.test", "ggrepel")
 
-pacman::p_load("tidyverse","lubridate","RColorBrewer","pracma", "vioplot","lmtest","zoo")
-
+pacman::p_load("RColorBrewer","vioplot","lmtest","zoo", "ade4", "psych")
+install.packages("tidyverse")
+library(tidyverse)
 
 ## Source custom functions
 source("Source_custom_functions/Func_dataPrepExplo.R")
@@ -32,7 +33,7 @@ PrepPhase(pheno) -> pheno2 #Preparation des données brutes
 
 # Data pour Symphonia globulifera
 pheno2 %>% 
-  filter(Genus_Spec == "Symphonia_sp1lifera") %>% 
+  filter(Genus_Spec == "Symphonia_globulifera") %>% 
   select(date, PPFlo, CrownID) %>% 
   mutate(PPFlo = if_else(is.na(PPFlo), "not_Fl", PPFlo)) %>% 
   print() ->
@@ -112,14 +113,6 @@ dataB<- read_csv2("data/GX-METEO-2020 - 2024E - AK.csv")
 
 ## Reduction deu jeu de donnees
 dataB %>% 
-  filter(!is.na(Rain)) %>% 
-  select(Year,Month, Day,`J/N`, 
-         `Temp(55)`, `Hr(55)`,
-         vpd55,
-         Rain, 
-         ETP,
-         VWC_10cm,
-         T_10cm) %>% 
   group_by(Year, Month, Day,`J/N`) %>% 
   summarise(`Temp(55)` = mean(`Temp(55)`),
             `Hr(55)`= mean(`Hr(55)`),
@@ -127,7 +120,8 @@ dataB %>%
             Rain= sum(Rain),
             ETP = sum(ETP),
             VWC_10cm = mean(VWC_10cm),
-            T_10cm = mean(T_10cm)) ->
+            T_10cm = mean(T_10cm)) %>% 
+  print( ) ->
   dataB
 
 
@@ -163,7 +157,6 @@ dataB %>%
 
 # Pour 2024
 dataB %>% 
-  filter(!is.na(Rain)) %>% 
   filter(Year == 2024) %>% 
   mutate(date = ymd("2024-01-01") + days(Day - 1)) %>%
   print() ->
@@ -177,6 +170,7 @@ bind_rows(dataB2020) %>%
   bind_rows(dataB2024) %>% 
   print ->
   dataB_resume
+
 
 dataB_resume %>% 
   group_by(Year, Month, Day, date) %>% 
@@ -315,6 +309,15 @@ dev.off()
 
 
 
+
+
+
+
+
+
+
+
+
 ### FLORAISON ET PLUVIOMETRIE ###
 
 ## Symphonia globulifera ##
@@ -324,55 +327,55 @@ dev.off()
 # Nombre d'individus en fleur et pourcentage de floraison
 LeafedOTim(Data=pheno2 %>% 
              filter(Usable==1),
-           Spec= "Symphonia_sp1lifera",
+           Spec= "Symphonia_globulifera",
            Pattern=c("Fl"),
            Obs_Veg = "PPFlo")[[1]] %>% 
   mutate(Year = year(date)) %>% 
   print() ->
-  data_signal_sp1
+  data_signal_globu
 
 # Selection de la colonne proportion de floraison 
-data_signal_sp1 %>% 
+data_signal_globu %>% 
   select(prop) %>% 
   pull() ->
-  signal_sp1
+  signal_globu
 
 # Calcul d'une nouvelle sequence de donnes avec moins de fluctuations temporelle
 # grace a la technique de la moyenne mobile.
-moving_average(data_signal_sp1 %>% 
+moving_average(data_signal_globu %>% 
                  select(prop) %>% 
                  pull(),
                filter = fpoids(n=2,p=2,q=2)$y) ->
-  moyenne_mobile_sp1
+  moyenne_mobile_globu
 
 # Dates 
-data_signal_sp1 %>% 
+data_signal_globu %>% 
   select(date) %>% 
   pull() ->
-  dates_sp1
+  dates_globu
 
 # Maximum des pics de floraison
-dates_max_sp1 = sort(findpeaks(moyenne_mobile_sp1,minpeakheight  = 10,nups =1)[,2])
+dates_max_globu = sort(findpeaks(moyenne_mobile_globu,minpeakheight  = 10,nups =1)[,2])
 
 # Debut des pics
-dates_begin_sp1 = sort(findpeaks(moyenne_mobile_sp1,minpeakheight  = 10,nups = 1)[,3])
+dates_begin_globu = sort(findpeaks(moyenne_mobile_globu,minpeakheight  = 10,nups = 1)[,3])
 
 # Fin des pics
-dates_end_sp1 = sort(findpeaks(moyenne_mobile_sp1,minpeakheight  = 10,nups = 1)[,4])
+dates_end_globu = sort(findpeaks(moyenne_mobile_globu,minpeakheight  = 10,nups = 1)[,4])
 
 # Pourcentage de floraison par pic
-amplitude_peaks_sp1 = findpeaks(moyenne_mobile_sp1,minpeakheight  = 10,nups = 1)[,1]
+amplitude_peaks_globu = findpeaks(moyenne_mobile_globu,minpeakheight  = 10,nups = 1)[,1]
 
 # Compilation des amplitudes relles des pics du signal
-amplitude_real_sp1 = signal_sp1[dates_max_sp1]
+amplitude_real_globu = signal_globu[dates_max_globu]
 
 
 # Pluviometrie cumulee #
 
 # Full data pour chaque jour du suivi
 dataB_resume %>% 
+  filter(!is.na(Rain)) %>% 
   mutate(`Temp(55)` = if_else(is.na(`Temp(55)`), 26,`Temp(55)`)) %>% 
-  select(Year, Month, date, Rain,`Temp(55)`) %>% 
   group_by(Year, Month, date) %>% 
   summarise(Rain = sum(Rain), `Temp(55)`= mean(`Temp(55)`)) %>%
   print() ->
@@ -463,12 +466,6 @@ amplitude_peaks_30J = findpeaks(moyenne_mobile_30J,minpeakheight  = 700,nups = 1
 amplitude_real_30J = Rain_bis$Cumule_30J[dates_max_30J]
 
 
-display.brewer.all(type = "div")
-display.brewer.all(type = "seq")
-display.brewer.all(type = "qual")
-brewer.pal(n = 4, name = "Set1")
-
-
 # Graphique pluviometrie cumulee 15J et pourcentage floraison #
 # Attention : utilisation de la methode de la moyenne mobile sur le signal de floraison
 
@@ -490,21 +487,21 @@ x_date_4ans <- scale_x_date(breaks = as.Date(c("2020-01-01", "2020-02-01", "2020
                             date_labels = "%Y-%m-%d") 
 
 ggplot() + 
-  #geom_point(data = data_signal_sp1, aes(x = date, y = signal_sp1, color = "% de floraison")) +
-  geom_line(data = data_signal_sp1, aes(x = date, y = prop, color = "% de floraison")) +
+  #geom_point(data = data_signal_globu, aes(x = date, y = signal_globu, color = "% de floraison")) +
+  geom_line(data = data_signal_globu, aes(x = date, y = prop, color = "% de floraison")) +
   #geom_point(data = Rain, aes(x = date, y = Cumule_15J, color = "Pluviométrie cumulée")) +
   geom_line(data = Rain, aes(x = date, y = moyenne_mobile_15J, color = "Pluviométrie cumulée")) +
   
   # Debut/maximum/fin des pics de floraison
-  geom_vline(xintercept = dates_sp1[dates_max_sp1],
+  geom_vline(xintercept = dates_globu[dates_max_globu],
              col = "#984EA3" , 
              linetype = "dashed", linewidth = 0.7) + 
-  geom_vline(xintercept = dates_sp1[dates_begin_sp1],
+  geom_vline(xintercept = dates_globu[dates_begin_globu],
              col = "grey30", linetype = "dashed") +
-  geom_vline(xintercept = dates_sp1[dates_end_sp1],
+  geom_vline(xintercept = dates_globu[dates_end_globu],
              col = "grey30", linetype = "dashed") +
-  annotate("text",x = dates_sp1[dates_max_sp1], 
-           y= data_signal_sp1$prop[dates_max_sp1]+20,label = paste(round(amplitude_real_sp1,1),"%"),
+  annotate("text",x = dates_globu[dates_max_globu], 
+           y= data_signal_globu$prop[dates_max_globu]+20,label = paste(round(amplitude_real_globu,1),"%"),
            col = "black") +
  
   # Debut/maximum/fin des pics de pluviometrie cumulee
@@ -530,21 +527,21 @@ ggplot() +
 # Graphique pluviometrie cumulee 30J et pourcentage floraison #
 
 ggplot() + 
-  #geom_point(data = data_signal_sp1, aes(x = date, y = signal_sp1, color = "% de floraison")) +
-  geom_line(data = data_signal_sp1, aes(x = date, y = signal_sp1, color = "% de floraison")) +
+  #geom_point(data = data_signal_globu, aes(x = date, y = signal_globu, color = "% de floraison")) +
+  geom_line(data = data_signal_globu, aes(x = date, y = signal_globu, color = "% de floraison")) +
   #geom_point(data = Rain, aes(x = date, y = Cumule_30J, color = "Pluviométrie cumulée")) +
   geom_line(data = Rain, aes(x = date, y = moyenne_mobile_30J, color = "Pluviométrie cumulée")) +
   
   # Debut/maximum/fin des pics de floraison
-  geom_vline(xintercept = dates_sp1[dates_max_sp1],
+  geom_vline(xintercept = dates_globu[dates_max_globu],
              col = "#984EA3" , 
              linetype = "dashed", linewidth = 0.7) + 
-  geom_vline(xintercept = dates_sp1[dates_begin_sp1],
+  geom_vline(xintercept = dates_globu[dates_begin_globu],
              col = "grey30", linetype = "dashed") +
-  geom_vline(xintercept = dates_sp1[dates_end_sp1],
+  geom_vline(xintercept = dates_globu[dates_end_globu],
              col = "grey30", linetype = "dashed") +
-  annotate("text",x = dates_sp1[dates_max_sp1], 
-           y= data_signal_sp1$prop[dates_max_sp1]+20,label = paste(round(amplitude_real_sp1,1),"%"),
+  annotate("text",x = dates_globu[dates_max_globu], 
+           y= data_signal_globu$prop[dates_max_globu]+20,label = paste(round(amplitude_real_globu,1),"%"),
            col = "black") +
   
   # Debut/maximum/fin des pics de pluviometrie cumulee
@@ -1182,9 +1179,7 @@ ggplot() +
 # Graphique pluviometrie cumulee 30J et pourcentage floraison #
 
 ggplot() + 
-  #geom_point(data = data_signal_ins, aes(x = date, y = signal_ins, color = "% de floraison")) +
   geom_line(data = data_signal_ins, aes(x = date, y = signal_ins, color = "% de floraison")) +
-  #geom_point(data = Rain, aes(x = date, y = Cumule_30J, color = "Pluviométrie cumulée")) +
   geom_line(data = Rain, aes(x = date, y = moyenne_mobile_30J, color = "Pluviométrie cumulée")) +
   
   # Debut/maximum/fin des pics de floraison
@@ -1199,7 +1194,7 @@ ggplot() +
            y= data_signal_ins$prop[dates_max_ins]+20,label = paste(round(amplitude_real_ins,1),"%"),
            col = "black") +
   
-  # Debut/maximum/fin des pics de pluviometrie cumulee
+  # Maximums des pics de pluviometrie cumulee
   geom_vline(xintercept = dates_rain[dates_max_30J],
              col = "#4DAF4A" , 
              linetype = "dashed", linewidth = 0.7) + 
@@ -1217,6 +1212,367 @@ ggplot() +
     x = "Dates",
     color = "Légende"
   )
+
+
+
+
+
+
+### Relation entre les variables climatiques ### 
+
+dataB_resume %>% 
+  filter(!is.na(`Temp(55)`)) %>%
+  filter(!is.na(`Hr(55)`)) %>%
+  filter(!is.na(vpd55)) %>%
+  filter(!is.na(Rain)) %>%
+  filter(!is.na(ETP)) %>%
+  filter(!is.na(VWC_10cm)) %>%
+  group_by(Year, Month, Day, date) %>% 
+  summarise(`Temp(55)` = mean(`Temp(55)`),`Hr(55)` = mean(`Hr(55)`), vpd55 = mean(vpd55), 
+            Rain = sum(Rain),ETP = sum(ETP), VWC_10cm = mean(VWC_10cm)) %>% 
+  print() ->
+  climat2
+
+# Visualisation des variables et de leurs relations
+pairs.panels(climat2[,5:10], 
+             method = "pearson", # correlation method
+             hist.col = "#00AFBB",
+             density = TRUE,  # show density plots
+             ellipses = FALSE # show correlation ellipses
+)
+
+
+install.packages("moments")
+library(moments)
+skewness(climat$Rain, na.rm = TRUE)
+skewness(climat$VWC_10cm , na.rm = TRUE)
+
+# Transformation des données de la variable Rain pour obtenir une distribution plus proche de la normalité
+climat2$Rain <- log(sqrt(climat$Rain)+1)
+
+# Standardisation des variables climatiques
+climat2[,5:10]%>% 
+  scale() %>% 
+  print ->
+  climat2_scaled
+
+climat2_scaled <- as.data.frame(climat2_scaled)
+
+
+# Visualisation des variables et de leurs relations
+pairs.panels(climat2_scaled, 
+             method = "pearson", # correlation method
+             hist.col = "#00AFBB",
+             density = TRUE,  # show density plots
+             ellipses = FALSE # show correlation ellipses
+)
+
+# ACP #
+acp_climat <- dudi.pca(climat2_scaled, , scale=T, center=T, scannf = F,nf=4)
+
+# #Calcul des % de chaque axe :
+pc<-round(acp_climat$eig/sum(acp_climat$eig)*100,2)
+
+# % cumulés
+cumsum(pc)
+
+# BarPlot des % d'inertie
+# Definir le min et max de l'axe des y
+ylim <- c(0, 1.2*max(pc))
+xx <- barplot(pc, xaxt = 'n', xlab = '', width = 0.85, ylim = ylim, ylab = "% d'inertie")
+## Ajout des valeurs de % en dessus des barres
+text(x = xx, y = pc, label = pc, pos = 3, cex = 0.8, col = "black")
+## Ajout des labels sur l'axe des x (ie. numero des axes factoriels)
+axis(1, at=xx, labels=c(1:length(pc)), tick=FALSE, las=1, line=-0.5, cex.axis=0.8)
+
+
+# cercle des correlations (pour une ACP normee)
+s.corcircle(acp_climat$co)
+
+# Valeurs des coefficients de correlation de Pearson : 
+cor(climat2_scaled)
+
+# representation sur les deux premiers axes
+s.label(acp_climat$li[,1:2], clabel=0.5) 
+
+# Coordonnees des individus sur l'axe 1 (axe des x) en fonction de leur valeur pour chaque variable (axe des y) : 
+score(acp_climat)
+
+# Calcul de la somme des cos2 des individus
+cont=inertia.dudi(acp_climat, row.inertia = TRUE)
+cont
+
+# Calcul des cos2 :
+cos2=abs(cont$row.rel)/10000
+
+# Calcul des cos2 cumulees des axes 1-2 formant le premier plan factoriel :
+c2p12=rowSums(cos2[,c(1,2)])
+barplot(cos2[,1],las=2)
+barplot(cos2[,2],las=2)
+barplot(c2p12,las=2)
+s.value(acp_climat$li[,1:2], c2p12, method="greylevel",csize=0.4)
+
+# Autre representation :
+install.packages("factoextra")
+library(factoextra) 
+fviz_cos2(acp_climat, choice = "ind", axe=1:2)
+fviz_pca_biplot(acp_climat, col.ind = "cos2", gradient.cols=c("red","yellow","green"),repel = TRUE) 
+
+
+
+### FLORAISON ET VPD ###
+
+# VPD #
+
+# Full data pour chaque jour du suivi
+climat %>% 
+  select(Year, Month, date, vpd55) %>% 
+  filter(!is.na(vpd55)) %>% 
+  mutate(vpd55 = vpd55*100) %>% # Multiplication par 100 pour mieux voir les variations
+  print() ->
+  VPD
+
+sum(is.na(VPD$vpd55))
+
+# Calcul du moyenne VPD tous les 15 j
+
+VPD$vpd_15 <- rollapply(VPD$vpd55, width = 15, FUN = mean, fill = NA, align = "right")
+
+# Calcul du moyenne VPD tous les 30 j
+
+VPD$vpd_30 <- rollapply(VPD$vpd55, width = 30, FUN = mean, fill = NA, align = "right")
+
+
+VPD %>% 
+  mutate(vpd_15 = if_else(is.na(vpd_15), 0, vpd_15)) %>% 
+  mutate(vpd_30 = if_else(is.na(vpd_30), 0, vpd_30)) %>% 
+  print() ->
+  VPD_bis
+
+
+# Maximum VPD 15j par annee #
+
+# Calcul d'une nouvelle sequence de donnes avec moins de fluctuations temporelle
+moving_average(VPD_bis %>% 
+                 select(vpd_15) %>% 
+                 pull(),
+               filter = fpoids(n=2,p=2,q=2)$y) %>% 
+  print() ->
+  moyenne_mobile_VPD_15
+
+# Dates 
+VPD %>% 
+  select(date) %>% 
+  pull() ->
+  dates_VPD
+
+# Maximum des pics de floraison
+dates_max_VPD_15 = sort(findpeaks(moyenne_mobile_VPD_15,minpeakheight  = 60,nups =1)[,2])
+indices2 <- c(5, 7, 8, 10, 13, 15, 20, 27)
+dates_max_VPD_15 <- dates_max_VPD_15[indices2]
+
+# Debut des pics
+dates_begin_VPD_15 = sort(findpeaks(moyenne_mobile_VPD_15,minpeakheight  = 60,nups = 1)[,3])
+
+# Fin des pics
+dates_end_VPD_15= sort(findpeaks(moyenne_mobile_VPD_15,minpeakheight  = 60,nups = 1)[,4])
+
+# Pourcentage de floraison par pic
+amplitude_peaks_VPD_15 = findpeaks(moyenne_mobile_VPD_15,minpeakheight  = 60,nups = 1)[,1]
+
+# Compilation des amplitudes relles des pics du signal
+amplitude_real_VPD_15 = VPD_bis$vpd_15[dates_max_VPD_15]
+
+
+
+# Maximum VPD 30j par annee #
+
+# Calcul d'une nouvelle sequence de donnes avec moins de fluctuations temporelle
+moving_average(VPD_bis %>% 
+                 select(vpd_30) %>% 
+                 pull(),
+               filter = fpoids(n=2,p=2,q=2)$y) %>% 
+  print() ->
+  moyenne_mobile_VPD_30
+
+# Dates 
+dates_VPD
+
+# Maximum des pics de floraison
+dates_max_VPD_30 = sort(findpeaks(moyenne_mobile_VPD_30,minpeakheight  = 60,nups =1)[,2])
+indices2 <- c(5, 7, 8, 10, 13, 15, 20, 27)
+dates_max_VPD_30 <- dates_max_VPD_30[indices2]
+
+# Debut des pics
+dates_begin_VPD_30 = sort(findpeaks(moyenne_mobile_VPD_30,minpeakheight  = 60,nups = 1)[,3])
+
+# Fin des pics
+dates_end_VPD_30= sort(findpeaks(moyenne_mobile_VPD_30,minpeakheight  = 60,nups = 1)[,4])
+
+# Pourcentage de floraison par pic
+amplitude_peaks_VPD_30 = findpeaks(moyenne_mobile_VPD_30,minpeakheight  = 60,nups = 1)[,1]
+
+# Compilation des amplitudes relles des pics du signal
+amplitude_real_VPD_30 = VPD_bis$vpd_30[dates_max_VPD_30]
+
+
+
+display.brewer.all(type = "div")
+display.brewer.all(type = "seq")
+display.brewer.all(type = "qual")
+brewer.pal(n = 3, name = "Set2")
+
+# Graphique VPD 15J
+ggplot() + 
+  geom_line(data = data_signal_globu, aes(x = date, y = signal_globu, color = "% de floraison"), linewidth = 0.7) +
+  geom_line(data = VPD, aes(x = date, y = moyenne_mobile_VPD_15, color = "VPD"), linewidth = 0.7) +
+  
+  # Debut/maximum/fin des pics de floraison
+  geom_vline(xintercept = dates_globu[dates_max_globu],
+             col = "#984EA3" , 
+             linetype = "dashed", linewidth = 0.7) + 
+  geom_vline(xintercept = dates_globu[dates_begin_globu],
+             col = "black", linetype = "dotdash", linewidth = 0.5) +
+  geom_vline(xintercept = dates_globu[dates_end_globu],
+             col = "black", linetype = "dotdash", linewidth = 0.5) +
+  annotate("text",x = dates_globu[dates_max_globu]+10, 
+           y= data_signal_globu$prop[dates_max_globu]+7,label = paste(round(amplitude_real_globu,1),"%"),
+           col = "black") +
+  
+  # Maximums des pics de VPD
+  geom_vline(xintercept = dates_VPD[dates_max_VPD_15],
+             col = "#FC8D62" , 
+             linetype = "dashed", linewidth = 0.7) + 
+  annotate("text",x = dates_VPD[dates_max_VPD_15], 
+           y= moyenne_mobile_VPD_15[dates_max_VPD_15]+5,label = paste(round(amplitude_real_VPD_15,1)),
+           col = "black") +
+  
+  
+  # Mise en forme
+  x_date_4ans +
+  scale_y_continuous(name = "Pourcentage d'arbre en fleur", sec.axis = sec_axis(~., name = "VPD x100 (kPa)")) +
+  scale_color_manual(values = c("% de floraison" = "#984EA3", "VPD" = "#FC8D62")) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust = 1, size = 8)) +
+  labs(
+    title = "Déficit de vapeur moyen de la dernière quinzaine de jour et pourcentage de floraison au cours du suivi phénologique de Symphonia globulifera",
+    x = "Dates",
+    color = "Légende"
+  )
+
+
+# Graphique VPD 30J
+ggplot() + 
+  geom_line(data = data_signal_globu, aes(x = date, y = signal_globu, color = "% de floraison"), linewidth = 0.7) +
+  geom_line(data = VPD, aes(x = date, y = moyenne_mobile_VPD_30, color = "VPD"), linewidth = 0.7) +
+  
+  # Debut/maximum/fin des pics de floraison
+  geom_vline(xintercept = dates_globu[dates_max_globu],
+             col = "#984EA3" , 
+             linetype = "dashed", linewidth = 0.7) + 
+  geom_vline(xintercept = dates_globu[dates_begin_globu],
+             col = "black", linetype = "dotdash", linewidth = 0.5) +
+  geom_vline(xintercept = dates_globu[dates_end_globu],
+             col = "black", linetype = "dotdash", linewidth = 0.5) +
+  annotate("text",x = dates_globu[dates_max_globu]+10, 
+           y= data_signal_globu$prop[dates_max_globu]+7,label = paste(round(amplitude_real_globu,1),"%"),
+           col = "black") +
+  
+  # Maximums des pics de VPD
+ # geom_vline(xintercept = dates_VPD[dates_max_VPD_30],
+ #            col = "#FC8D62" , 
+  #           linetype = "dashed", linewidth = 0.7) + 
+  #annotate("text",x = dates_VPD[dates_max_VPD_30], 
+  #         y= moyenne_mobile_VPD_30[dates_max_VPD_30]+5,label = paste(round(amplitude_real_VPD_30,1)),
+  #        col = "black") +
+  
+  
+  # Mise en forme
+  x_date_4ans +
+  scale_y_continuous(name = "Pourcentage d'arbre en fleur", sec.axis = sec_axis(~., name = "VPD x100 (kPa)")) +
+  scale_color_manual(values = c("% de floraison" = "#984EA3", "VPD" = "#FC8D62")) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust = 1, size = 8)) +
+  labs(
+    title = "Déficit de vapeur moyen de la dernière trentaine de jour et pourcentage de floraison au cours du suivi phénologique de Symphonia globulifera",
+    x = "Dates",
+    color = "Légende"
+  )
+
+
+
+
+### FLORAISON ET TEMPERATURES ###
+
+# Temperatures #
+
+# Full data pour chaque jour du suivi
+climat %>% 
+  select(Year, Month, date, `Temp(55)`) %>% 
+  filter(!is.na(`Temp(55)`)) %>% 
+  print() ->
+  Temperature
+
+# Dates 
+Temperature %>% 
+  select(date) %>% 
+  pull() ->
+  dates_Temp
+
+max(Temperature$`Temp(55)`)
+
+# Maximum des pics de floraison
+dates_max_Temp = sort(findpeaks(Temperature$`Temp(55)`, minpeakheight  = 28,nups =1)[,2])
+
+# Debut des pics
+dates_begin_Temp = sort(findpeaks(Temperature$`Temp(55)`,minpeakheight  = 28,nups = 1)[,3])
+
+# Fin des pics
+dates_end_Temp = sort(findpeaks(Temperature$`Temp(55)`,minpeakheight  = 28,nups = 1)[,4])
+
+# Pourcentage de floraison par pic
+amplitude_peaks_Temp = findpeaks(Temperature$`Temp(55)`,minpeakheight  = 28,nups = 1)[,1]
+
+# Compilation des amplitudes relles des pics du signal
+amplitude_real_Temp = Temperature$`Temp(55)`[dates_max_Temp]
+
+
+
+
+ggplot() + 
+  geom_line(data = data_signal_globu, aes(x = date, y = signal_globu, color = "% de floraison"), linewidth =1) +
+  geom_line(data = Temperature, aes(x = date, y = `Temp(55)`, color = "Temperature")) +
+  
+  # Debut/maximum/fin des pics de floraison
+  geom_vline(xintercept = dates_globu[dates_max_globu],
+             col = "#984EA3" , 
+             linetype = "dashed", linewidth = 0.7) + 
+  geom_vline(xintercept = dates_globu[dates_begin_globu],
+             col = "grey30", linetype = "dashed") +
+  geom_vline(xintercept = dates_globu[dates_end_globu],
+             col = "grey30", linetype = "dashed") +
+  annotate("text",x = dates_globu[dates_max_globu], 
+           y= data_signal_globu$prop[dates_max_globu]+20,label = paste(round(amplitude_real_globu,1),"%"),
+           col = "black") +
+  
+  # Debut/maximum/fin des pics de pluviometrie cumulee
+  geom_vline(xintercept = dates_Temp[dates_max_Temp],
+             col = "#4DAF4A", 
+             linetype = "dashed", linewidth = 0.7) + 
+  annotate("text",x = dates_Temp[dates_max_Temp], 
+           y= Temperature$`Temp(55)`[dates_max_Temp]+20,label = paste(round(amplitude_real_Temp,1)),
+           col = "black") +
+  
+  # Mise en forme
+  x_date_4ans +
+  scale_y_continuous(name = "Pourcentage d'arbre en fleur", sec.axis = sec_axis(~., name = "VPD (kPa)")) +
+  scale_color_manual(values = c("% de floraison" = "#984EA3", "Temperature" = "#999999")) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust = 1, size = 8)) +
+  labs(
+    title = "Températures et pourcentage de floraison au cours du suivi phénologique de Symphonia globulifera",
+    x = "Dates",
+    color = "Légende"
+  )
+
+
 
 
 
