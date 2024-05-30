@@ -940,16 +940,17 @@ dates_cocci = data_signal_cocci %>%
 # the maximum of pics
 # sort () permet de trier les elements d'un vecteur
 # findpeaks () premet de trouver les pics de floraison
-dates_max_cocci = sort(findpeaks(moyenne_mobile_cocci,minpeakheight  = 10,nups =1)[,2])
+dates_max_cocci = sort(findpeaks(moyenne_mobile_cocci,minpeakheight  = 10, nups = 0)[,2])
+dates_max_cocci <- dates_max_cocci[1]
 
 # When the pics begin
-dates_begin_cocci = sort(findpeaks(moyenne_mobile_cocci,minpeakheight  = 10,nups = 1)[,3])
+dates_begin_cocci = sort(findpeaks(moyenne_mobile_cocci,minpeakheight  = 10, nups = 0)[,3])[1]
 
 # When the pics end
-dates_end_cocci = sort(findpeaks(moyenne_mobile_cocci,minpeakheight  = 10,nups = 1)[,4])
+dates_end_cocci = sort(findpeaks(moyenne_mobile_cocci,minpeakheight  = 10, nups = 0)[,4])[3]
 
 # Percent of ind by peaks 
-amplitude_peaks_cocci = findpeaks(moyenne_mobile_cocci,minpeakheight  = 10,nups = 1)[,1]
+amplitude_peaks_cocci = findpeaks(moyenne_mobile_cocci,minpeakheight = 10, nups = 0)[,1]
 
 # Compilation des amplitudes relles des pics du signal
 amplitude_real_cocci = signal_cocci[dates_max_cocci]
@@ -978,7 +979,7 @@ Plot = ggplot(data_signal_cocci,
   labs(title = "original and processed signal by Moving average for Moronobea coccinea", 
        x = "Time", y = "Value") + 
   annotate("text",x = dates_cocci[dates_max_cocci], 
-           y= 100,label = paste(round(amplitude_real_cocci,1),"%"),
+           y = 25,label = paste(round(amplitude_real_cocci,1),"%"),
            col = "grey40")
 
 Plot
