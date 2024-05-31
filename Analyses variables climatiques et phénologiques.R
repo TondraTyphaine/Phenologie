@@ -431,18 +431,8 @@ Rain_bis %>%
 # Maximum des pics de floraison
 dates_max_15J = sort(findpeaks(moyenne_mobile_15J,minpeakheight  = 430,nups =1)[,2])
 
-# Debut des pics
-dates_begin_15J = sort(findpeaks(moyenne_mobile_15J,minpeakheight  = 430,nups = 1)[,3])
-
-# Fin des pics
-dates_end_15J = sort(findpeaks(moyenne_mobile_15J,minpeakheight  = 430,nups = 1)[,4])
-
-# Pourcentage de floraison par pic
-amplitude_peaks_15J = findpeaks(moyenne_mobile_15J,minpeakheight  = 430,nups = 1)[,1]
-
 # Compilation des amplitudes relles des pics du signal
 amplitude_real_15J = Rain_bis$Cumule_15J[dates_max_15J]
-
 
 
 # Maximum et minimum de pluviometrie cumulee 30 j par annee #
@@ -461,16 +451,7 @@ dates_rain
 # Maximum des pics de floraison
 dates_max_30J = sort(findpeaks(moyenne_mobile_30J,minpeakheight  = 700,nups = 1)[,2])
 dates_max_30J <- dates_max_30J[c(1, 5, 8, 9)]
-
-# # Debut des pics
-# dates_begin_30J = sort(findpeaks(moyenne_mobile_30J,minpeakheight  = 700,nups = 1)[,3])
-# 
-# # Fin des pics
-# dates_end_30J = sort(findpeaks(moyenne_mobile_30J,minpeakheight  = 700,nups = 1)[,4])
-# 
-# # Pourcentage de floraison par pic
-# amplitude_peaks_30J = findpeaks(moyenne_mobile_30J,minpeakheight  = 700,nups = 1)[,1]
-# 
+ 
 # Compilation des amplitudes relles des pics du signal
 amplitude_real_30J = Rain_bis$Cumule_30J[dates_max_30J]
 
@@ -1391,15 +1372,6 @@ VPD %>%
 dates_max_VPD_15 = sort(findpeaks(moyenne_mobile_VPD_15,minpeakheight  = 60,nups =1)[,2])
 dates_max_VPD_15 <- dates_max_VPD_15[c(5, 7, 8, 10, 13, 15, 20, 27)]
 
-# Debut des pics
-dates_begin_VPD_15 <- sort(findpeaks(moyenne_mobile_VPD_15,minpeakheight  = 60,nups = 1)[,3])
-
-# Fin des pics
-dates_end_VPD_15 <- sort(findpeaks(moyenne_mobile_VPD_15,minpeakheight  = 60,nups = 1)[,4])
-
-# Valeur de VPD par pic
-amplitude_peaks_VPD_15 <- findpeaks(moyenne_mobile_VPD_15,minpeakheight  = 60,nups = 1)[,1]
-
 # Valeurs relles des pics
 amplitude_real_VPD_15 <- VPD_bis$VPD_15[dates_max_VPD_15]
 
@@ -1422,15 +1394,6 @@ dates_VPD
 dates_max_VPD_30 <- sort(findpeaks(moyenne_mobile_VPD_30,minpeakheight  = 60,nups = 1)[,2])
 dates_max_VPD_30 <- dates_max_VPD_30[c(5, 6, 7, 8, 9, 13, 23)]
 
-# Debut des pics
-dates_begin_VPD_30 <- sort(findpeaks(moyenne_mobile_VPD_30,minpeakheight  = 60,nups = 1)[,3])
-
-# Fin des pics
-dates_end_VPD_30 <- sort(findpeaks(moyenne_mobile_VPD_30,minpeakheight  = 60,nups = 1)[,4])
-
-# Valeurs des pics
-amplitude_peaks_VPD_30 <- findpeaks(moyenne_mobile_VPD_30,minpeakheight  = 60,nups = 1)[,1]
-
 # Valeurs relles des pics
 amplitude_real_VPD_30 <- VPD_bis$VPD_30[dates_max_VPD_30]
 
@@ -1441,7 +1404,7 @@ display.brewer.all(type = "seq")
 display.brewer.all(type = "qual")
 brewer.pal(n = 3, name = "Set2")
 
-# Graphique VPD 15J
+# Graphique VPD 15J et floraison
 ggplot() + 
   geom_line(data = data_signal_globu, aes(x = date, y = signal_globu, color = "Signal de floraison réel"), linewidth = 0.7) +
   geom_line(data = data_signal_globu, aes(x = date, y = moyenne_mobile_globu, color = "Signal de floraison traité"), linewidth = 0.5) +
@@ -1481,7 +1444,7 @@ ggplot() +
   )
 
 
-# Graphique VPD 30J
+# Graphique VPD 30J et floraison
 ggplot() + 
   geom_line(data = data_signal_globu, aes(x = date, y = signal_globu, color = "Signal de floraison réel"), linewidth = 0.7) +
   geom_line(data = data_signal_globu, aes(x = date, y = moyenne_mobile_globu, color = "Signal de floraison traité"), linewidth = 0.5) +
@@ -1522,7 +1485,7 @@ ggplot() +
 
 # Symphonia sp1 #
 
-# Graphique VPD 15J
+# Graphique VPD 15J et floraison
 ggplot() + 
   geom_line(data = data_signal_sp1, aes(x = date, y = signal_sp1, color = "Signal de floraison réel"), linewidth = 0.7) +
   geom_line(data = data_signal_sp1, aes(x = date, y = moyenne_mobile_sp1, color = "Signal de floraison traité"), linewidth = 0.5) +
@@ -1562,7 +1525,7 @@ ggplot() +
   )
 
 
-# Graphique VPD 30J
+# Graphique VPD 30J et floraison
 ggplot() + 
   geom_line(data = data_signal_sp1, aes(x = date, y = signal_sp1, color = "Signal de floraison réel"), linewidth = 0.7) +
   geom_line(data = data_signal_sp1, aes(x = date, y = moyenne_mobile_sp1, color = "Signal de floraison traité"), linewidth = 0.5) +
@@ -1605,7 +1568,7 @@ ggplot() +
 
 # Vouacapoua americana #
 
-# Graphique VPD 15J
+# Graphique VPD 15J et floraison 
 ggplot() + 
   geom_line(data = data_signal_am, aes(x = date, y = signal_am, color = "Signal de floraison réel"), linewidth = 0.7) +
   geom_line(data = data_signal_am, aes(x = date, y = moyenne_mobile_am, color = "Signal de floraison traité"), linewidth = 0.5) +
@@ -1645,7 +1608,7 @@ ggplot() +
   )
 
 
-# Graphique VPD 30J
+# Graphique VPD 30J et floraison 
 ggplot() + 
   geom_line(data = data_signal_am, aes(x = date, y = signal_am, color = "Signal de floraison réel"), linewidth = 0.7) +
   geom_line(data = data_signal_am, aes(x = date, y = moyenne_mobile_am, color = "Signal de floraison traité"), linewidth = 0.5) +
@@ -1982,15 +1945,6 @@ VWC %>%
 dates_max_VWC_15 <- sort(findpeaks(moyenne_mobile_VWC_15,minpeakheight  = 30, nups = 1)[,2])
 dates_max_VWC_15 <- dates_max_VWC_15[c(2, 9, 24, 28)]
 
-# # Debut des pics
-# dates_begin_VWC_15 = sort(findpeaks(moyenne_mobile_VWC_15,minpeakheight  = 30,nups = 1)[,3])
-# 
-# # Fin des pics
-# dates_end_VWC_15= sort(findpeaks(moyenne_mobile_VWC_15,minpeakheight  = 30,nups = 1)[,4])
-# 
-# # Valeur de VWC par pic
-# amplitude_peaks_VWC_15 = findpeaks(moyenne_mobile_VWC_15,minpeakheight  = 30,nups = 1)[,1]
-
 # Valeurs relles des pics
 amplitude_real_VWC_15 = VWC_bis$VWC_15[dates_max_VWC_15]
 
@@ -2012,15 +1966,6 @@ dates_VWC
 # Maximum des pics de VWC
 dates_max_VWC_30J <- sort(findpeaks(moyenne_mobile_VWC_30,minpeakheight  = 30, nups = 1)[,2])
 dates_max_VWC_30J <- dates_max_VWC_30J[c(2, 7, 12, 20)]
-
-# # Debut des pics
-# dates_begin_VWC_30 = sort(findpeaks(moyenne_mobile_VWC_30,minpeakheight  = 60,nups = 1)[,3])
-# 
-# # Fin des pics
-# dates_end_VWC_30= sort(findpeaks(moyenne_mobile_VWC_30,minpeakheight  = 60,nups = 1)[,4])
-# 
-# # Valeurs des pics
-# amplitude_peaks_VWC_30 = findpeaks(moyenne_mobile_VWC_30,minpeakheight  = 60,nups = 1)[,1]
 
 # Valeurs relles des pics
 amplitude_real_VWC_30 = VWC_bis$VWC_30[dates_max_VWC_30J]
