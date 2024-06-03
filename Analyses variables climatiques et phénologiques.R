@@ -18,15 +18,13 @@ source("Source_custom_functions/Func_analyse.R")
 source("Source_custom_functions/myTheme.R")
 
 
-### FLORAISON ###
+#### DATA FLORAISON ####
 
 ## Data brutes
 pheno <- read_csv2("data/Synthese_Pheno_20230724.csv")
-  
 
 # On ajuste en supprimant les colonnes qu'on veut garder (dans ton jeux de données adapté tu as deux colonnes factices encore)
 pheno <- pheno[,-c(1,4)]
-  
 
 # Formatage des donnees
 pheno2 <- PrepPhase(pheno) #Preparation des données brutes
@@ -40,86 +38,7 @@ pheno2 %>%
   pheno2  
 
 
-# # Data pour Symphonia globulifera
-# pheno2 %>% 
-#   filter(Genus_Spec == "Symphonia_globulifera") %>% 
-#   select(date, PPFlo, CrownID) %>% 
-#   mutate(PPFlo = if_else(is.na(PPFlo), "not_Fl", PPFlo)) %>% 
-#   print() ->
-#   Sympho_glb
-# 
-# Sympho_glb %>% 
-#   mutate(Nb_Flo = ifelse(PPFlo == "Fl", 1, 0)) %>% 
-#   group_by(date) %>% 
-#   summarise(Nb_Flo = sum(Nb_Flo)) %>% 
-#   select(date, Nb_Flo) %>% 
-#   print() ->
-#   Floraison_glb
-# 
-# sum(is.na(Floraison_glb))
-# 
-# # Nombre de floraison par date pour chaque annee
-# Flo_glb_2020 <- Floraison_glb[year(Floraison_glb$date) == 2020,]
-# Flo_glb_2021 <- Floraison_glb[year(Floraison_glb$date) == 2021,]
-# Flo_glb_2022 <- Floraison_glb[year(Floraison_glb$date) == 2022,]
-# Flo_glb_2023 <- Floraison_glb[year(Floraison_glb$date) == 2023,]
-# Flo_glb_2024 <- Floraison_glb[year(Floraison_glb$date) == 2024,]
-# 
-# # Data pour Symphonia sp1
-# pheno2 %>% 
-#   filter(Genus_Spec == "Symphonia_sp.1") %>% 
-#   select(date, PPFlo, CrownID) %>% 
-#   mutate(PPFlo = if_else(is.na(PPFlo), "not_Fl", PPFlo)) %>% 
-#   print() ->
-#   Sympho_sp1
-# 
-# Sympho_sp1 %>% 
-#   mutate(Nb_Flo = ifelse(PPFlo == "Fl", 1, 0)) %>% 
-#   group_by(date) %>% 
-#   summarise(Nb_Flo = sum(Nb_Flo)) %>% 
-#   select(date, Nb_Flo) %>% 
-#   print() ->
-#   Floraison_sp1
-# 
-# sum(is.na(Floraison_sp1))
-# 
-# # Nombre de floraison par date pour chaque annee
-# Flo_sp1_2020 <- Floraison_sp1[year(Floraison_sp1$date) == 2020,]
-# Flo_sp1_2021 <- Floraison_sp1[year(Floraison_sp1$date) == 2021,]
-# Flo_sp1_2022 <- Floraison_sp1[year(Floraison_sp1$date) == 2022,]
-# Flo_sp1_2023 <- Floraison_sp1[year(Floraison_sp1$date) == 2023,]
-# Flo_sp1_2024 <- Floraison_sp1[year(Floraison_sp1$date) == 2024,]
-# 
-# # Data pour Vouacapoua americana
-# pheno2 %>% 
-#   filter(Genus_Spec == "Vouacapoua_americana") %>% 
-#   select(date, PPFlo, CrownID) %>% 
-#   mutate(PPFlo = if_else(is.na(PPFlo), "not_Fl", PPFlo)) %>% 
-#   print() ->
-#   Sympho_ame
-# 
-# Sympho_ame %>% 
-#   mutate(Nb_Flo = ifelse(PPFlo == "Fl", 1, 0)) %>% 
-#   group_by(date) %>% 
-#   summarise(Nb_Flo = sum(Nb_Flo)) %>% 
-#   select(date, Nb_Flo) %>% 
-#   print() ->
-#   Floraison_ame
-# 
-# sum(is.na(Floraison_ame))
-# 
-# # Nombre de floraison par date pour chaque annee
-# Flo_ame_2020 <- Floraison_ame[year(Floraison_ame$date) == 2020,]
-# Flo_ame_2021 <- Floraison_ame[year(Floraison_ame$date) == 2021,]
-# Flo_ame_2022 <- Floraison_ame[year(Floraison_ame$date) == 2022,]
-# Flo_ame_2023 <- Floraison_ame[year(Floraison_ame$date) == 2023,]
-# Flo_ame_2024 <- Floraison_ame[year(Floraison_ame$date) == 2024,]
-
-
-
-
-
-#### CLIMAT (donnees de M.Bonal) ####
+#### DATA CLIMAT (donnees de M.Bonal) ####
 
 ## Data 
 dataB <- read_csv2("data/GX-METEO-2020 - 2024E - AK.csv")
@@ -129,6 +48,7 @@ dataB %>%
   group_by(Year, Month, Day,`J/N`) %>% 
   summarise(`Temp(55)` = mean(`Temp(55)`),
             `Hr(55)`= mean(`Hr(55)`),
+            Rg = mean(Rg),
             vpd55= mean(vpd55),
             Rain= sum(Rain),
             ETP = sum(ETP),
@@ -185,153 +105,113 @@ bind_rows(dataB2020) %>%
   dataB_resume
 
 
+#### RELATION ENTRE LES VARIABLES CLIMATIQUES #### 
+
 dataB_resume %>% 
+  filter(!is.na(`Temp(55)`)) %>%
+  filter(!is.na(`Hr(55)`)) %>%
+  filter(!is.na(Rg)) %>%
+  filter(!is.na(vpd55)) %>%
+  filter(!is.na(Rain)) %>%
+  filter(!is.na(ETP)) %>%
+  filter(!is.na(VWC_10cm)) %>%
   group_by(Year, Month, Day, date) %>% 
-  summarise(`Temp(55)` = mean(`Temp(55)`),`Hr(55)` = mean(`Hr(55)`), vpd55 = mean(vpd55), 
+  summarise(`Temp(55)` = mean(`Temp(55)`),`Hr(55)` = mean(`Hr(55)`), Rg = mean(Rg), vpd55 = mean(vpd55), 
             Rain = sum(Rain),ETP = sum(ETP), VWC_10cm = mean(VWC_10cm)) %>% 
   print() ->
   climat
 
+# Visualisation des variables et de leurs relations (variables non transformees)
+pairs.panels(climat[,5:11], 
+             method = "pearson", # correlation method
+             hist.col = "#00AFBB",
+             density = TRUE,  # show density plots
+             ellipses = FALSE # show correlation ellipses
+)
 
-climat %>% 
-  filter(Year == 2020) %>% 
-  print() ->
-  climat_2020
+# Transformation des données de la variable Rain pour obtenir une distribution plus proche de la normalité
+climat$Rain <- log(sqrt(climat$Rain)+1)
 
-climat %>% 
-  filter(Year == 2021) %>% 
-  print() ->
-  climat_2021
+# Standardisation des variables climatiques
+climat[,5:11]%>% 
+  scale() %>% 
+  print ->
+  climat_scaled
 
-climat %>% 
-  filter(Year == 2022) %>% 
-  print() ->
-  climat_2022
-
-climat %>% 
-  filter(Year == 2023) %>% 
-  print() ->
-  climat_2023
-
-climat %>% 
-  filter(Year == 2024) %>% 
-  print() ->
-  climat_2024
+climat_scaled <- as.data.frame(climat_scaled)
 
 
-# ## Calculer la corrélation croisée entre Nb_Flo et Rain pour S.globulifera ##
-# 
-# # Convertir la colonne date en classe Date
-# Floraison_glb$date <- as.Date(Floraison_glb$date)
-# climat$date <- as.Date(climat$date)
-# 
-# # Sur les 4 ans
-# par(mar = c(3, 2, 2, 1) + 0.1)
-# correlation <- ccf(Floraison_glb$Nb_Flo, climat$Rain)
-# png("correlation_full.png", width = 800, height = 600)
-# plot(correlation)
-# dev.off()
-# 
-# # Pour 2020
-# par(mar = c(3, 2, 2, 1) + 0.1)
-# correlation_2020 <- ccf(Flo_glb_2020$Nb_Flo, climat_2020$Rain)
-# png("correlation_2020.png", width = 800, height = 600)
-# plot(correlation_2020)
-# dev.off()
-# 
-# # Pour 2021
-# par(mar = c(3, 2, 2, 1) + 0.1)
-# correlation_2021 <- ccf(Flo_glb_2021$Nb_Flo, climat_2021$Rain)
-# png("correlation_2021.png", width = 800, height = 600)
-# plot(correlation_2021)
-# dev.off()
-# 
-# # Pour 2022
-# par(mar = c(3, 2, 2, 1) + 0.1)
-# correlation_2022 <- ccf(Flo_glb_2022$Nb_Flo, climat_2022$Rain)
-# png("correlation_2022.png", width = 800, height = 600)
-# plot(correlation_2022)
-# dev.off()
-# 
-# # Pour 2023
-# par(mar = c(3, 2, 2, 1) + 0.1)
-# correlation_2023 <- ccf(Flo_glb_2023$Nb_Flo, climat_2023$Rain)
-# png("correlation_2023.png", width = 800, height = 600)
-# plot(correlation_2023)
-# dev.off()
-# 
-# # Pour 2024 (pas assez d'element pour avoir un graphique correct)
-# par(mar = c(3, 2, 2, 1) + 0.1)
-# correlation_2024 <- ccf(Flo_glb_2024$Nb_Flo, climat_2024$Rain)
-# png("correlation_2024.png", width = 800, height = 600)
-# plot(correlation_2024)
-# dev.off()
-# 
-# 
-# ## Calculer la corrélation croisée entre Nb_Flo et Rain pour S.sp1 ##
-# 
-# # Convertir la colonne date en classe Date
-# Floraison_sp1$date <- as.Date(Floraison_sp1$date)
-# 
-# # Sur les 4 ans
-# par(mar = c(3, 2, 2, 1) + 0.1)
-# correlation_sp1 <- ccf(Floraison_sp1$Nb_Flo, climat$Rain)
-# png("correlation_sp1_full.png", width = 800, height = 600)
-# plot(correlation_sp1)
-# dev.off()
-# 
-# # Pour 2021
-# par(mar = c(3, 2, 2, 1) + 0.1)
-# correlation_sp1_2021 <- ccf(Flo_sp1_2021$Nb_Flo, climat_2021$Rain)
-# png("correlation_sp1_2021.png", width = 800, height = 600)
-# plot(correlation_sp1_2021)
-# dev.off()
-# 
-# # Pour 2022
-# par(mar = c(3, 2, 2, 1) + 0.1)
-# correlation_sp1_2022 <- ccf(Flo_sp1_2022$Nb_Flo, climat_2022$Rain)
-# png("correlation_sp1_2022.png", width = 800, height = 600)
-# plot(correlation_sp1_2022)
-# dev.off()
-# 
-# # Pour 2023
-# par(mar = c(3, 2, 2, 1) + 0.1)
-# correlation_sp1_2023 <- ccf(Flo_sp1_2023$Nb_Flo, climat_2023$Rain)
-# png("correlation_sp1_2023.png", width = 800, height = 600)
-# plot(correlation_sp1_2023)
-# dev.off()
-# 
-# ## Calculer la corrélation croisée entre Nb_Flo et Rain pour V.americana ##
-# 
-# # Convertir la colonne date en classe Date
-# Floraison_ame$date <- as.Date(Floraison_ame$date)
-# 
-# # Sur les 4 ans
-# par(mar = c(3, 2, 2, 1) + 0.1)
-# correlation_am <- ccf(Floraison_ame$Nb_Flo, climat$Rain)
-# png("correlation_am_full.png", width = 800, height = 600)
-# plot(correlation_am)
-# dev.off()
-# 
-# # Pour 2023
-# par(mar = c(3, 2, 2, 1) + 0.1)
-# correlation_ame_2023 <- ccf(Flo_ame_2023$Nb_Flo, climat_2023$Rain)
-# png("correlation_ame_2023.png", width = 800, height = 600)
-# plot(correlation_ame_2023)
-# dev.off()
+# Visualisation des variables et de leurs relations (variables transformees et centree-reduites)
+pairs.panels(climat_scaled, 
+             method = "pearson", # correlation method
+             hist.col = "#00AFBB",
+             density = TRUE,  # show density plots
+             ellipses = FALSE # show correlation ellipses
+)
+
+## ACP ##
+
+# Modele
+acp_climat <- dudi.pca(climat_scaled, scale = T, center = T, scannf = F, nf = 4)
+
+# Calcul des % de chaque axe
+pc <- round(acp_climat$eig/sum(acp_climat$eig)*100, 2)
+
+# % cumules
+cumsum(pc)
+
+# BarPlot des % d'inertie #
+
+# Definir le min et max de l'axe des y
+ylim <- c(0, 1.2*max(pc))
+
+# Barplot
+xx <- barplot(pc, xaxt = 'n', xlab = '', width = 0.85, ylim = ylim, ylab = "% d'inertie")
+
+# Ajout des valeurs de % en dessus des barres
+text(x = xx, y = pc, label = pc, pos = 3, cex = 0.8, col = "black")
+
+# Ajout des labels sur l'axe des x (ie. numero des axes factoriels)
+axis(1, at = xx, labels = c(1:length(pc)), tick = FALSE, las = 1, line = -0.5, cex.axis = 0.8)
+
+
+# cercle des correlations (pour une ACP normee) #
+s.corcircle(acp_climat$co)
+
+# Valeurs des coefficients de correlation de Pearson # 
+cor(climat_scaled)
+
+# representation sur les deux premiers axes #
+s.label(acp_climat$li[,1:2], clabel = 0.5) 
+
+# Coordonnees des individus sur l'axe 1 (axe des x) en fonction de leur valeur pour chaque variable (axe des y) : 
+score(acp_climat)
+
+# Calcul de la somme des cos2 des individus
+cont <- inertia.dudi(acp_climat, row.inertia = TRUE)
+cont
+
+# Calcul des cos2 :
+cos2 <- abs(cont$row.rel)/10000
+
+# Calcul des cos2 cumulees des axes 1-2 formant le premier plan factoriel :
+c2p12 <- rowSums(cos2[,c(1,2)])
+barplot(cos2[,1],las=2)
+barplot(cos2[,2],las=2)
+barplot(c2p12,las=2)
+s.value(acp_climat$li[,1:2], c2p12, method="greylevel",csize=0.4)
+
+# Autre representation :
+install.packages("factoextra")
+library(factoextra) 
+fviz_cos2(acp_climat, choice = "ind", axe=1:2)
+fviz_pca_biplot(acp_climat, col.ind = "cos2", gradient.cols=c("red","yellow","green"),repel = TRUE) 
 
 
 
 
 
-
-
-
-
-
-
-
-### FLORAISON ET PLUVIOMETRIE ###
+#### VISUALISATION FLORAISON ET PLUVIOMETRIE ####
 
 ## Symphonia globulifera ##
 
@@ -552,8 +432,6 @@ ggplot() +
     x = "Dates",
     color = "Légende"
   )
-
-
 
 
 
@@ -819,7 +697,7 @@ ggplot() +
 
 ## Couma guianensis ##
 
-# Proportions de floraison par jour pour V.americana #
+# Proportions de floraison par jour pour C.guianenesis #
 
 # Nombre d'individus en fleur et pourcentage de floraison
 LeafedOTim(Data = pheno2 %>% 
@@ -868,7 +746,7 @@ amplitude_peaks_gui = findpeaks(moyenne_mobile_gui,minpeakheight  = 10,nups = 1)
 amplitude_real_gui = signal_gui[dates_max_gui]
 
 
-# Graphique 15J #
+# Graphique pluviometrie cumulee 15J et pourcentage floraison #
 ggplot() + 
   geom_line(data = data_signal_gui, aes(x = date, y = prop, color = "Signal de floraison réel"), linewidth = 0.7) +
   geom_line(data = data_signal_gui, aes(x = date, y = moyenne_mobile_gui, color = "Signal de floraison traité"), linewidth = 0.5) +
@@ -1000,7 +878,7 @@ amplitude_peaks_cocci = findpeaks(moyenne_mobile_cocci,minpeakheight  = 10,nups 
 amplitude_real_cocci = signal_cocci[dates_max_cocci]
 
 
-# Graphique pluviometrie cumulee 30J et pourcentage floraison #
+# Graphique pluviometrie cumulee 15J et pourcentage floraison #
 ggplot() + 
   geom_line(data = data_signal_cocci, aes(x = date, y = prop, color = "Signal de floraison réel"), linewidth = 0.7) +
   geom_line(data = data_signal_cocci, aes(x = date, y = moyenne_mobile_cocci, color = "Signal de floraison traité"), linewidth = 0.5) +
@@ -1213,116 +1091,9 @@ ggplot() +
 
 
 
-### Relation entre les variables climatiques ### 
-
-dataB_resume %>% 
-  filter(!is.na(`Temp(55)`)) %>%
-  filter(!is.na(`Hr(55)`)) %>%
-  filter(!is.na(VWC55)) %>%
-  filter(!is.na(Rain)) %>%
-  filter(!is.na(ETP)) %>%
-  filter(!is.na(VWC_10cm)) %>%
-  group_by(Year, Month, Day, date) %>% 
-  summarise(`Temp(55)` = mean(`Temp(55)`),`Hr(55)` = mean(`Hr(55)`), VWC55 = mean(VWC55), 
-            Rain = sum(Rain),ETP = sum(ETP), VWC_10cm = mean(VWC_10cm)) %>% 
-  print() ->
-  climat2
-
-# Visualisation des variables et de leurs relations
-pairs.panels(climat2[,5:10], 
-             method = "pearson", # correlation method
-             hist.col = "#00AFBB",
-             density = TRUE,  # show density plots
-             ellipses = FALSE # show correlation ellipses
-)
 
 
-install.packages("moments")
-library(moments)
-skewness(climat$Rain, na.rm = TRUE)
-skewness(climat$VWC_10cm , na.rm = TRUE)
-
-# Transformation des données de la variable Rain pour obtenir une distribution plus proche de la normalité
-climat2$Rain <- log(sqrt(climat$Rain)+1)
-
-# Standardisation des variables climatiques
-climat2[,5:10]%>% 
-  scale() %>% 
-  print ->
-  climat2_scaled
-
-climat2_scaled <- as.data.frame(climat2_scaled)
-
-
-# Visualisation des variables et de leurs relations
-pairs.panels(climat2_scaled, 
-             method = "pearson", # correlation method
-             hist.col = "#00AFBB",
-             density = TRUE,  # show density plots
-             ellipses = FALSE # show correlation ellipses
-)
-
-## ACP ##
-
-# Modele
-acp_climat <- dudi.pca(climat2_scaled, scale = T, center = T, scannf = F, nf = 4)
-
-# Calcul des % de chaque axe
-pc <- round(acp_climat$eig/sum(acp_climat$eig)*100, 2)
-
-# % cumules
-cumsum(pc)
-
-# BarPlot des % d'inertie #
-
-# Definir le min et max de l'axe des y
-ylim <- c(0, 1.2*max(pc))
-
-# Barplot
-xx <- barplot(pc, xaxt = 'n', xlab = '', width = 0.85, ylim = ylim, ylab = "% d'inertie")
-
-# Ajout des valeurs de % en dessus des barres
-text(x = xx, y = pc, label = pc, pos = 3, cex = 0.8, col = "black")
-
-# Ajout des labels sur l'axe des x (ie. numero des axes factoriels)
-axis(1, at = xx, labels = c(1:length(pc)), tick = FALSE, las = 1, line = -0.5, cex.axis = 0.8)
-
-
-# cercle des correlations (pour une ACP normee) #
-s.corcircle(acp_climat$co)
-
-# Valeurs des coefficients de correlation de Pearson # 
-cor(climat2_scaled)
-
-# representation sur les deux premiers axes #
-s.label(acp_climat$li[,1:2], clabel = 0.5) 
-
-# Coordonnees des individus sur l'axe 1 (axe des x) en fonction de leur valeur pour chaque variable (axe des y) : 
-score(acp_climat)
-
-# Calcul de la somme des cos2 des individus
-cont <- inertia.dudi(acp_climat, row.inertia = TRUE)
-cont
-
-# Calcul des cos2 :
-cos2 <- abs(cont$row.rel)/10000
-
-# Calcul des cos2 cumulees des axes 1-2 formant le premier plan factoriel :
-c2p12 <- rowSums(cos2[,c(1,2)])
-barplot(cos2[,1],las=2)
-barplot(cos2[,2],las=2)
-barplot(c2p12,las=2)
-s.value(acp_climat$li[,1:2], c2p12, method="greylevel",csize=0.4)
-
-# Autre representation :
-install.packages("factoextra")
-library(factoextra) 
-fviz_cos2(acp_climat, choice = "ind", axe=1:2)
-fviz_pca_biplot(acp_climat, col.ind = "cos2", gradient.cols=c("red","yellow","green"),repel = TRUE) 
-
-
-
-### FLORAISON ET VPD ###
+#### VISUALISATION FLORAISON ET VPD ####
 
 # Symphonia globulifera #
 
@@ -1897,7 +1668,7 @@ ggplot() +
 
 
 
-# FLORAISON ET HUMIDITE DU SOL #
+#### VISUALISATION FLORAISON ET HUMIDITE DU SOL ####
 
 # Full data pour chaque jour du suivi
 climat %>% 
@@ -2459,3 +2230,341 @@ ggplot() +
     x = "Dates",
     color = "Légende"
   )
+
+
+#### VISUALISATION FLORAISON ET RAYONNEMENT GLOBAL ####
+
+# Full data pour chaque jour du suivi
+climat2 %>% 
+  select(Year, Month, date, Rg) %>% 
+  filter(!is.na(Rg)) %>% 
+  #mutate(Rg = Rg*100) %>% # Multiplication par 100 pour mieux voir les variations
+  print() ->
+  Rg
+
+sum(is.na(Rg$Rg))
+
+# Calcul moyenne Rg tous les 15 j
+
+Rg$Rg_15 <- rollapply(Rg$Rg, width = 15, FUN = mean, fill = NA, align = "right")
+
+# Calcul moyenne Rg tous les 30 j
+
+Rg$Rg_30 <- rollapply(Rg$Rg, width = 30, FUN = mean, fill = NA, align = "right")
+
+# Remplacement des Na par 0
+Rg %>% 
+  mutate(Rg_15 = if_else(is.na(Rg_15), 0, Rg_15)) %>% 
+  mutate(Rg_30 = if_else(is.na(Rg_30), 0, Rg_30)) %>% 
+  print() ->
+  Rg_bis
+
+
+# Maximum Rg 15j par annee #
+
+# Calcul d'une nouvelle sequence de donnes avec moins de fluctuations temporelle
+moving_average(Rg_bis %>% 
+                 select(Rg_15) %>% 
+                 pull(),
+               filter = fpoids(n= 2, p= 2, q= 2)$y) %>% 
+  print() ->
+  moyenne_mobile_Rg_15
+
+# Dates 
+Rg %>% 
+  select(date) %>% 
+  pull() ->
+  dates_Rg
+
+# Maximum des pics de Rg
+dates_max_Rg_15 <- sort(findpeaks(moyenne_mobile_Rg_15,minpeakheight  = 250, nups = 1)[,2])
+dates_max_Rg_15 <- dates_max_Rg_15[c(5, 6, 8, 16)]
+
+# Valeurs relles des pics
+amplitude_real_Rg_15 = Rg_bis$Rg_15[dates_max_Rg_15]
+
+
+
+# Maximum Rg 30j par annee #
+
+# Calcul d'une nouvelle sequence de donnes avec moins de fluctuations temporelle
+moving_average(Rg_bis %>% 
+                 select(Rg_30) %>% 
+                 pull(),
+               filter = fpoids(n= 2, p= 2, q= 2)$y) %>% 
+  print() ->
+  moyenne_mobile_Rg_30
+
+# Dates 
+dates_Rg
+
+# Maximum des pics de Rg
+dates_max_Rg_30J <- sort(findpeaks(moyenne_mobile_Rg_30,minpeakheight  = 30, nups = 1)[,2])
+dates_max_Rg_30J <- dates_max_Rg_30J[c(2, 7, 12, 20)]
+
+# Valeurs relles des pics
+amplitude_real_Rg_30 = Rg_bis$Rg_30[dates_max_Rg_30J]
+
+
+# Symphonia globulifera #
+
+# Graphique Rg 15J et floraison #
+ggplot() + 
+  geom_line(data = data_signal_globu, aes(x = date, y = signal_globu, color = "Signal de floraison réel"), linewidth = 0.7) +
+  geom_line(data = data_signal_globu, aes(x = date, y = moyenne_mobile_globu, color = "Signal de floraison traité"), linewidth = 0.5) +
+  geom_line(data = Rg, aes(x = date, y = moyenne_mobile_Rg_15, color = "Rg 15J"), linewidth = 0.7) +
+  
+  # Debut/maximum/fin des pics de floraison
+  geom_vline(xintercept = dates_globu[dates_max_globu],
+             col = "#984EA3" , 
+             linetype = "dashed", linewidth = 0.7) + 
+  geom_vline(xintercept = dates_globu[dates_begin_globu],
+             col = "black", linetype = "dotdash", linewidth = 0.5) +
+  geom_vline(xintercept = dates_globu[dates_end_globu],
+             col = "black", linetype = "dotdash", linewidth = 0.5) +
+  annotate("text",x = dates_globu[dates_max_globu]+10, 
+           y= data_signal_globu$prop[dates_max_globu]+7,label = paste(round(amplitude_real_globu,1),"%"),
+           col = "black") +
+  
+  # Maximums des pics de Rg
+  geom_vline(xintercept = dates_Rg[dates_max_Rg_15],
+             col = "#FC8D62" ,
+             linetype = "dashed", linewidth = 0.7) +
+  annotate("text",x = dates_Rg[dates_max_Rg_15],
+           y= moyenne_mobile_Rg_15[dates_max_Rg_15]+5,label = paste(round(amplitude_real_Rg_15,1)),
+           col = "black") +
+
+  
+  # Mise en forme
+  x_date_4ans +
+  scale_y_continuous(name = "Pourcentage d'arbre en fleur", sec.axis = sec_axis(~., name = "Rg X100 (m³/m³)")) +
+  scale_color_manual(values = c("Signal de floraison réel" = "#984EA3", 
+                                "Signal de floraison traité" = "grey40" ,"Rg 15J" = "#FC8D62")) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust = 1, size = 8)) +
+  labs(
+    title = "Rayonnement globale incident moyen tous les 15 jours  et pourcentage de floraison au cours du suivi phénologique de Symphonia globulifera",
+    x = "Dates",
+    color = "Légende"
+  )
+
+
+# Graphique Rg 30J et floraison #
+ggplot() + 
+  geom_line(data = data_signal_globu, aes(x = date, y = signal_globu, color = "Signal de floraison réel"), linewidth = 0.7) +
+  geom_line(data = data_signal_globu, aes(x = date, y = moyenne_mobile_globu, color = "Signal de floraison traité"), linewidth = 0.5) +
+  geom_line(data = Rg, aes(x = date, y = moyenne_mobile_Rg_30, color = "Rg 30J"), linewidth = 0.7) +
+  
+  # Debut/maximum/fin des pics de floraison
+  geom_vline(xintercept = dates_globu[dates_max_globu],
+             col = "#984EA3" , 
+             linetype = "dashed", linewidth = 0.7) + 
+  geom_vline(xintercept = dates_globu[dates_begin_globu],
+             col = "black", linetype = "dotdash", linewidth = 0.5) +
+  geom_vline(xintercept = dates_globu[dates_end_globu],
+             col = "black", linetype = "dotdash", linewidth = 0.5) +
+  annotate("text",x = dates_globu[dates_max_globu]+10, 
+           y= data_signal_globu$prop[dates_max_globu]+7,label = paste(round(amplitude_real_globu,1),"%"),
+           col = "black") +
+  
+  # # # Maximums des pics de Rg
+  # geom_vline(xintercept = dates_Rg[dates_max_Rg_30J],
+  #            col = "#FC8D62" ,
+  #            linetype = "dashed", linewidth = 0.7) +
+  # annotate("text",x = dates_Rg[dates_max_Rg_30J],
+  #          y= moyenne_mobile_Rg_30[dates_max_Rg_30J]+2,label = paste(round(amplitude_real_Rg_30,1)),
+  #          col = "black") +
+  
+  
+  # Mise en forme
+  x_date_4ans +
+  scale_y_continuous(name = "Pourcentage d'arbre en fleur", sec.axis = sec_axis(~., name = "Rg X100 (m³/m³)")) +
+  scale_color_manual(values = c("Signal de floraison réel" = "#984EA3", "Signal de floraison traité" = "black" ,"Rg 30J" = "#FC8D62")) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust = 1, size = 8)) +
+  labs(
+    title = "Rayonnement globale incident de la dernière trentaine de jour et pourcentage de floraison au cours du suivi phénologique de Platonia insignis",
+    x = "Dates",
+    color = "Légende"
+  )
+
+# Platonia insignis #
+
+# Graphique Rg 15J et floraison #
+ggplot() + 
+  geom_line(data = data_signal_ins, aes(x = date, y = signal_ins, color = "Signal de floraison réel"), linewidth = 0.7) +
+  geom_line(data = data_signal_ins, aes(x = date, y = moyenne_mobile_ins, color = "Signal de floraison traité"), linewidth = 0.5) +
+  geom_line(data = Rg, aes(x = date, y = moyenne_mobile_Rg_15, color = "Rg 15J"), linewidth = 0.7) +
+  
+  # Debut/maximum/fin des pics de floraison
+  geom_vline(xintercept = dates_ins[dates_max_ins],
+             col = "#984EA3" , 
+             linetype = "dashed", linewidth = 0.7) + 
+  geom_vline(xintercept = dates_ins[dates_begin_ins],
+             col = "black", linetype = "dotdash", linewidth = 0.5) +
+  geom_vline(xintercept = dates_ins[dates_end_ins],
+             col = "black", linetype = "dotdash", linewidth = 0.5) +
+  annotate("text",x = dates_ins[dates_max_ins]+10, 
+           y= data_signal_ins$prop[dates_max_ins]+7,label = paste(round(amplitude_real_ins,1),"%"),
+           col = "black") +
+  
+  # Maximums des pics de Rg
+  geom_vline(xintercept = dates_Rg[dates_max_Rg_15],
+             col = "#FC8D62" ,
+             linetype = "dashed", linewidth = 0.7) +
+  annotate("text",x = dates_Rg[dates_max_Rg_15],
+           y= moyenne_mobile_Rg_15[dates_max_Rg_15]+5,label = paste(round(amplitude_real_Rg_15,1)),
+           col = "black") +
+
+  
+  # Mise en forme
+  x_date_4ans +
+  scale_y_continuous(name = "Pourcentage d'arbre en fleur", sec.axis = sec_axis(~., name = "Rg X100 (m³/m³)")) +
+  scale_color_manual(values = c("Signal de floraison réel" = "#984EA3", 
+                                "Signal de floraison traité" = "grey40" ,"Rg 15J" = "#FC8D62")) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust = 1, size = 8)) +
+  labs(
+    title = "Rayonnement globale incident moyen tous les 15 jours et pourcentage de floraison au cours du suivi phénologique de Platonia insignis",
+    x = "Dates",
+    color = "Légende"
+  )
+
+
+# Graphique Rg 30J et floraison #
+ggplot() + 
+  geom_line(data = data_signal_ins, aes(x = date, y = signal_ins, color = "Signal de floraison réel"), linewidth = 0.7) +
+  geom_line(data = data_signal_ins, aes(x = date, y = moyenne_mobile_ins, color = "Signal de floraison traité"), linewidth = 0.5) +
+  geom_line(data = Rg, aes(x = date, y = moyenne_mobile_Rg_30, color = "Rg 30J"), linewidth = 0.7) +
+  
+  # Debut/maximum/fin des pics de floraison
+  geom_vline(xintercept = dates_ins[dates_max_ins],
+             col = "#984EA3" , 
+             linetype = "dashed", linewidth = 0.7) + 
+  geom_vline(xintercept = dates_ins[dates_begin_ins],
+             col = "black", linetype = "dotdash", linewidth = 0.5) +
+  geom_vline(xintercept = dates_ins[dates_end_ins],
+             col = "black", linetype = "dotdash", linewidth = 0.5) +
+  annotate("text",x = dates_ins[dates_max_ins]+10, 
+           y= data_signal_ins$prop[dates_max_ins]+7,label = paste(round(amplitude_real_ins,1),"%"),
+           col = "black") +
+  
+  # # # Maximums des pics de Rg
+  # geom_vline(xintercept = dates_Rg[dates_max_Rg_30J],
+  #            col = "#FC8D62" ,
+  #            linetype = "dashed", linewidth = 0.7) +
+  # annotate("text",x = dates_Rg[dates_max_Rg_30J],
+  #          y= moyenne_mobile_Rg_30[dates_max_Rg_30J]+2,label = paste(round(amplitude_real_Rg_30,1)),
+  #          col = "black") +
+  
+  
+  # Mise en forme
+  x_date_4ans +
+  scale_y_continuous(name = "Pourcentage d'arbre en fleur", sec.axis = sec_axis(~., name = "Rg X100 (m³/m³)")) +
+  scale_color_manual(values = c("Signal de floraison réel" = "#984EA3", "Signal de floraison traité" = "black" ,"Rg 30J" = "#FC8D62")) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust = 1, size = 8)) +
+  labs(
+    title = "Rayonnement globale incident moyen tous les 30 jours et pourcentage de floraison au cours du suivi phénologique de Symphonia inslifera",
+    x = "Dates",
+    color = "Légende"
+  )
+
+
+
+
+
+
+
+
+
+#### RELATION ENTRE FLORAISON ET VARIABLES CLIMATIQUES ####
+
+
+## FLORAISON ET PLUVIOMETRIE ##
+
+# Symphonia globulifera #
+
+# Toutes les dates
+all_dates <- seq(min(data_signal_globu$date, Rain_bis$date), max(data_signal_globu$date, Rain_bis$date), by = "day")
+
+# Compléter les tibbles avec les dates manquantes
+data_signal_globu %>%
+  right_join(tibble(date = all_dates), by = "date") %>% 
+  print() ->
+  Floraison_glb
+
+Rain_bis %>%
+  right_join(tibble(date = all_dates), by = "date") %>% 
+  print() ->
+  Rain_bis
+
+
+Floraison_glb %>% 
+  left_join(Rain_bis, by = "date") %>% 
+  filter(!is.na(prop)) %>% 
+  print() ->
+  Flo_pluvio
+
+Flo_pluvio %>%
+  select(prop, Cumule_15J, Cumule_30J, `Temp(55)`) %>%
+  scale() ->
+  Flo_pluvio
+
+cor(Flo_pluvio)
+
+
+# Visualisation des variables et de leurs relations
+pairs.panels(Flo_pluvio, 
+             method = "pearson", # correlation method
+             hist.col = "#00AFBB",
+             density = TRUE,  # show density plots
+             ellipses = FALSE # show correlation ellipses
+)
+
+## ACP ##
+
+ACP_glb <- dudi.pca(Flo_pluvio,scale = T, center = T, scannf = F, nf = 4 )
+
+# Calcul des % de chaque axe
+pc_glb <- round(ACP_glb$eig/sum(ACP_glb$eig)*100, 2)
+
+# % cumules
+cumsum(pc_glb)
+
+# BarPlot des % d'inertie #
+
+# Definir le min et max de l'axe des y
+ylim <- c(0, 1.2*max(pc_glb))
+
+# Barplot
+xx <- barplot(pc_glb, xaxt = 'n', xlab = '', width = 0.85, ylim = ylim, ylab = "% d'inertie")
+
+# Ajout des valeurs de % en dessus des barres
+text(x = xx, y = pc_glb, label = pc_glb, pos = 3, cex = 0.8, col = "black")
+
+# Ajout des labels sur l'axe des x (ie. numero des axes factoriels)
+axis(1, at = xx, labels = c(1:length(pc_glb)), tick = FALSE, las = 1, line = -0.5, cex.axis = 0.8)
+
+
+# cercle des correlations (pour une ACP normee) #
+s.corcircle(ACP_glb$co)
+
+# Valeurs des coefficients de correlation de Pearson # 
+cor(Flo_pluvio)
+
+# representation sur les deux premiers axes #
+s.label(ACP_glb$li[,1:2], clabel = 0.5) 
+
+# Calcul de la somme des cos2 des individus
+cont_glb <- inertia.dudi(ACP_glb, row.inertia = TRUE)
+cont_glb
+
+# Calcul des cos2 :
+cos2_glb <- abs(cont_glb$row.rel)/10000
+
+# Representation 
+fviz_cos2(ACP_glb, choice = "ind", axe=1:2)
+fviz_pca_biplot(ACP_glb, col.ind = "cos2", gradient.cols=c("red","yellow","green"),repel = TRUE) 
+
+
+
+
+
+
