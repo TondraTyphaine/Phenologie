@@ -13,13 +13,6 @@ pacman::p_load ("tidyverse","plotly","strucchange","timeSeries","lubridate","bfa
                 "ggpubr", "kableExtra", "tibbletime", "pracma", "imputeTS",
                 "TraMineR", "clValid", "FactoMineR", "factoextra", "dunn.test", "ggrepel")
 
-
-install.packages("knitr")
-install.packages("tidyverse")
-library(knitr)
-library(tidyverse)
-
-
 ## Source custom functions
 source("Source_custom_functions/Func_dataPrepExplo.R")
 source("Source_custom_functions/Func_analyse.R")
@@ -523,7 +516,7 @@ moyenne_mobile_globu = moving_average(data_signal_globu %>%
                                 pull(),
                                 filter = fpoids(n=2,p=2,q=2)$y) 
 
-#   On indentifie les différents pics positif et négatif de la floraison
+# On indentifie les différents pics positif et négatif de la floraison
 dates_globu = data_signal_globu %>% 
   select(date) %>% 
   pull() # Extraction des différentes dates
@@ -838,7 +831,7 @@ dates_gui = data_signal_gui %>%
 # the maximum of pics
 # sort () permet de trier les elements d'un vecteur
 # findpeaks () premet de trouver les pics de floraison
-dates_max_gui = sort(findpeaks(moyenne_mobile_gui,minpeakheight  = 10,nups =1)[,2])
+dates_max_gui = sort(findpeaks(moyenne_mobile_gui,minpeakheight  = 10,nups = 1)[,2])
 
 # When the pics begin
 dates_begin_gui = sort(findpeaks(moyenne_mobile_gui,minpeakheight  = 10,nups = 1)[,3])
