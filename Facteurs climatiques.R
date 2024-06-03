@@ -132,13 +132,6 @@ dataB<- read_csv2("data/GX-METEO-2020 - 2024E - AK.csv")
 
 ## Reduction deu jeu de donnees
 dataB %>% 
-  select(Year,Month, Day,`J/N`, 
-        `Temp(55)`, `Hr(55)`,
-        vpd55,
-        Rain, 
-        ETP,
-        VWC_10cm,
-        T_10cm) %>% 
   group_by(Year, Month, Day,`J/N`) %>% 
   summarise(`Temp(55)` = mean(`Temp(55)`),
             `Hr(55)`= mean(`Hr(55)`),
@@ -747,7 +740,7 @@ ggplot() +
   x_date_4ans +
   theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust = 1, size = 8)) +
   labs(
-    title = "Pluviométrie et températures mensuelles au cours des 4 années de suivie phénologique",
+    title = "Pluviométrie et températures mensuelles au cours des 4 années de suivi phénologique",
     x = "Mois"
     )
 
