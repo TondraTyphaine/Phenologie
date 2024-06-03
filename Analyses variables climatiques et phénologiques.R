@@ -2477,7 +2477,7 @@ ggplot() +
 #### RELATION ENTRE FLORAISON ET VARIABLES CLIMATIQUES ####
 
 
-## FLORAISON ET PLUVIOMETRIE ##
+## FLORAISON ET PLUVIOMETRIE/TEMPERATURE ##
 
 # Symphonia globulifera #
 
@@ -2502,8 +2502,13 @@ Floraison_glb %>%
   print() ->
   Flo_pluvio
 
+
 Flo_pluvio %>%
-  select(prop, Cumule_15J, Cumule_30J, `Temp(55)`) %>%
+  mutate(Temp_15J = rollapply(Flo_pluvio$`Temp(55)`, width = 15, FUN = sum, fill = NA, align = "right")) %>% 
+  mutate(Temp_30J = rollapply(Flo_pluvio$`Temp(55)`, width = 30, FUN = sum, fill = NA, align = "right")) %>% 
+  mutate(Temp_15J = if_else(is.na(Temp_15J), mean(`Temp(55)`), Temp_15J)) %>% 
+  mutate(Temp_30J = if_else(is.na(Temp_30J), mean(`Temp(55)`), Temp_30J)) %>% 
+  select(prop, Cumule_15J, Cumule_30J,Temp_15J,Temp_30J) %>%
   scale() ->
   Flo_pluvio
 
@@ -2563,6 +2568,155 @@ cos2_glb <- abs(cont_glb$row.rel)/10000
 fviz_cos2(ACP_glb, choice = "ind", axe=1:2)
 fviz_pca_biplot(ACP_glb, col.ind = "cos2", gradient.cols=c("red","yellow","green"),repel = TRUE) 
 
+
+
+
+
+
+
+
+
+
+
+
+# 
+# # Proportion de floraison de S.globulifera sur l'ensemble du suivi (variable réponse)
+# signal_globu <- round(Flo_pluvio$prop)
+# # signal_globu <- log(sqrt(signal_globu)+1)
+# # signal_globu <- signal_globu[-c(1,41,44)]
+# summary(signal_globu)
+# mean(signal_globu)
+# var(signal_globu)
+# sd(signal_globu)
+# 
+# # Ajustement de la distribution
+# fitdistr(signal_globu, "exponential")
+# fitdistr(round(signal_globu), "poisson")
+# 
+# # Visualisation de la distribution des donnees
+# hist(signal_globu, freq = F)
+# lines(density(signal_globu), col = "red")
+# 
+# # Test de normalite
+# shapiro.test(signal_globu) # Pas de normalité (p = 5.22e-09)
+# 
+# 
+# 
+
+
+# 
+# par(mfrow = c(2, 2), oma = c(0, 0, 2, 0))
+# hist(signal_globu, freq = F)
+# lines(density(signal_globu), col = "red")
+# ks.test(signal_globu, "plnorm", mean(signal_globu), sd(signal_globu))
+# 
+# glb <- fitdistr(signal_globu, "poisson")
+# 
+# 
+# qqnorm(signal_globu)
+# qqline(signal_globu)
+# 
+# 
+# # Pluviométrie cumulee tous les 15 jours sur la période du suivi (variable explicative)
+# Pluvio_15 <-Flo_pluvio$Cumule_15J
+# 
+# # Transformation des données pour fit la normalite
+# Pluvio_15 <- sqrt(Pluvio_15) 
+# length(Pluvio_15)
+# 
+# mean(Pluvio_15)
+# var(Pluvio_15)
+# sd(Pluvio_15)
+# 
+# shapiro.test(Pluvio_15) # Pas de normalité mais plus proche que avant transformation
+# hist(Pluvio_15)
+# qqnorm(Pluvio_15)
+# qqline(Pluvio_15)
+# 
+# var.test(signal_globu,Pluvio_15) # Heteroscedasticite
+# 
+# cov(signal_globu,Pluvio_15)
+# 
+# cor.test(signal_globu,Pluvio_15) # Corrélation significative et positive (0.48)
+# 
+# plot(signal_globu~Pluvio_15) # Visualition de la relation entre les variables
+# 
+# ggplot(Flo_pluvio, aes(x = Pluvio_15, y = signal_globu)) +
+#   geom_point() + 
+#   geom_smooth(method = "lm")
+# 
+# 
+# 
+# # Pluviométrie cumulee tous les 30 jours sur la période du suivi (variable explicative)
+# Pluvio_30 <- Flo_pluvio$Cumule_30J
+# 
+# # Transformation des données pour fit la normalite
+# Pluvio_30 <- sqrt(Pluvio_30) 
+# length(Pluvio_30)
+# 
+# mean(Pluvio_30)
+# var(Pluvio_30)
+# sd(Pluvio_30)
+# 
+# shapiro.test(Pluvio_30) # Pas de normalité mais plus proche que avant transformation
+# hist(Pluvio_30)
+# qqnorm(Pluvio_30)
+# qqline(Pluvio_30)
+# 
+# var.test(signal_globu,Pluvio_30) # Heteroscedasticite
+# 
+# cov(signal_globu,Pluvio_30)
+# 
+# cor.test(signal_globu,Pluvio_30) # Corrélation significative et positive (0.53)
+# 
+# plot(signal_globu~Pluvio_30) # Visualition de la relation entre les variables
+# 
+# ggplot(Flo_pluvio, aes(x = Pluvio_30, y = signal_globu)) +
+#   geom_point() + 
+#   geom_smooth(method = "lm")
+# 
+# 
+# 
+# # Model GLM
+# GLM_15 <- glm(signal_globu~Pluvio_15, data = Flo_pluvio, family = "poisson")
+# summary(GLM_15)
+# 
+# anova(GLM_15, test = "Chi")
+# 
+# par(mfrow = c(2,2))
+# plot(GLM_15)
+# 
+# plot(signal_globu~Pluvio_15, data = Flo_pluvio, col="blue")
+# abline(GLM_15, col="red")
+# 
+# # Model RLS
+# mod_flo_pluvio_15 <- lm(signal_globu~Pluvio_15, data = Flo_pluvio)
+# 
+# # Residus
+# mod_flo_pluvio_15_res <- residuals(mod_flo_pluvio_15)
+# 
+# dwtest(mod_flo_pluvio_15) # p < 0.05, autocorrelation des residus (pas d'independance)
+# 
+# par(mfrow = c(2, 2), oma = c(0, 0, 2, 0))
+# plot(mod_flo_pluvio_15)
+# 
+# shapiro.test(mod_flo_pluvio_15_res) # Pas de normalite
+# bptest(mod_flo_pluvio_15) # p < 0.05, Homogeneite des residus
+# 
+# # Etude des parametres du model
+# summary(mod_flo_pluvio_15)
+# confint(mod_flo_pluvio_15)
+# 
+# plot(signal_globu~Pluvio_15, data = Flo_pluvio, col="blue")
+# abline(mod_flo_pluvio_15, col="red")
+# 
+# # Etude table d'anova
+# anova(mod_flo_pluvio_15)
+# 
+# # Etude intervalle de confiance
+# pred<-predict(mod_flo_pluvio_15, interval = c( "confidence"),
+#               level = 0.95, type = c("response"))
+# pred
 
 
 
