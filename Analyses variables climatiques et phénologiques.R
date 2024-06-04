@@ -2495,7 +2495,13 @@ data_signal_globu %>%
   print() ->
   Floraison_glb
 
-Rain_bis %>%
+Rain %>% 
+  mutate(Cumule_15J = if_else(is.na(Cumule_15J), 0, Cumule_15J)) %>% 
+  mutate(Cumule_30J = if_else(is.na(Cumule_30J), 0, Cumule_30J)) %>% 
+  print() ->
+  Rain_bis
+
+Rain_bis[-c(4,5)] %>%
   right_join(tibble(date = all_dates), by = "date") %>% 
   print() ->
   Rain_bis
@@ -2509,26 +2515,20 @@ Floraison_glb %>%
 
 
 Flo_pluvio %>%
-  mutate(Temp_15J = rollapply(Flo_pluvio$`Temp(55)`, width = 15, FUN = sum, fill = NA, align = "right")) %>% 
-  mutate(Temp_30J = rollapply(Flo_pluvio$`Temp(55)`, width = 30, FUN = sum, fill = NA, align = "right")) %>% 
-  mutate(Temp_15J = if_else(is.na(Temp_15J), mean(`Temp(55)`), Temp_15J)) %>% 
-  mutate(Temp_30J = if_else(is.na(Temp_30J), mean(`Temp(55)`), Temp_30J)) %>% 
-  select(prop, Cumule_15J, Cumule_30J,Temp_15J,Temp_30J) %>%
+  select(prop, Cumule_15J, Cumule_30J) %>%
   scale() ->
-  Flo_pluvio
+  Flo_pluvio_acp
 
-cor(Flo_pluvio)
 
+## ACP ##
 
 # Visualisation des variables et de leurs relations
-pairs.panels(Flo_pluvio, 
+pairs.panels(Flo_pluvio_acp, 
              method = "pearson", # correlation method
              hist.col = "#00AFBB",
              density = TRUE,  # show density plots
              ellipses = FALSE # show correlation ellipses
 )
-
-## ACP ##
 
 ACP_glb <- dudi.pca(Flo_pluvio,scale = T, center = T, scannf = F, nf = 4 )
 
@@ -2574,17 +2574,107 @@ fviz_cos2(ACP_glb, choice = "ind", axe=1:2)
 fviz_pca_biplot(ACP_glb, col.ind = "cos2", gradient.cols=c("red","yellow","green"),repel = TRUE) 
 
 
+## Regression lineraire simple ##
+
+# Visualisationd de la relation entre les deux variables
+
+plot(Flo_pluvio$prop ~ Flo_pluvio$Cumule_15J, data = Flo_pluvio, col = "blue")
+plot(Flo_pluvio$prop ~ Flo_pluvio$Cumule_30J, data = Flo_pluvio, col = "purple")
+
+# Models
+RLS_glb_15J <- lm(Flo_pluvio$prop ~ Flo_pluvio$Cumule_15J, data = Flo_pluvio)
+RLS_glb_30J <- lm(Flo_pluvio$prop ~ Flo_pluvio$Cumule_30J, data = Flo_pluvio)
 
 
+# Residus
+RLS_glb_15J_res <- residuals(RLS_glb_15J)
+RLS_glb_30J_res <- residuals(RLS_glb_30J)
+
+# Visualisation 
+par(mfrow = c(2, 2), oma = c(0, 0, 2, 0))
+plot(RLS_glb_15J)
+par(mfrow = c(2, 2), oma = c(0, 0, 2, 0))
+plot(RLS_glb_30J)
+
+# Test independance des residus (les residus ne sont pas independants)
+dwtest(RLS_glb_15J)
+dwtest(RLS_glb_30J)
+
+# Test de normalite des residus (pas de normalite des residus)
+shapiro.test(RLS_glb_15J_res)
+shapiro.test(RLS_glb_30J_res)
+
+# Test de l'homogeneite des variances des residus (heteroscedasticite)
+bptest(RLS_glb_15J)
+bptest(RLS_glb_30J)
 
 
+## GLM ##
+
+# Models #
+GLM_glb_15J <- glm(prop ~ Cumule_15J, data = Flo_pluvio, family = "poisson")
+summary(GLM_glb_15J)
+anova(GLM_glb_15J, test = "Chi")
+
+GLM_glb_30J <- glm(prop ~ Cumule_30J, data = Flo_pluvio, family = "poisson")
+summary(GLM_glb_30J)
+anova(GLM_glb_30J, test = "Chi")
+
+# Representations graphiques #
+
+Flo_pluvio$predictions_15J <- predict(GLM_glb_15J, type = "response")
+
+ggplot(Flo_pluvio, aes(x = Cumule_15J, y = prop)) +
+  geom_point() +  # Points des données observées
+  geom_line(aes(y = predictions_15J), color = "blue") +  # Ligne des prédictions du modèle
+  labs(title = "GLM Poisson: signal_globu ~ Pluvio_15",
+       x = "Cumule_15J",
+       y = "signal_globu") +
+  theme_minimal()
 
 
+Flo_pluvio$predictions_30J <- predict(GLM_glb_30J, type = "response")
+
+ggplot(Flo_pluvio, aes(x = Cumule_30J, y = prop)) +
+  geom_point() +  # Points des données observées
+  geom_line(aes(y = predictions_30J), color = "purple") +  # Ligne des prédictions du modèle
+  labs(title = "GLM Poisson: signal_globu ~ Cumule_30J",
+       x = "Cumule_30J",
+       y = "signal_globu") +
+  theme_minimal()
 
 
-
-
+# ## Correlation croisee ##
 # 
+# Flo_pluvio$date <- as.Date(Flo_pluvio$date)
+# 
+# Prop_glb <- zoo(Flo_pluvio$prop, order.by = Flo_pluvio$date)
+# Pluvio_15J <- zoo(Flo_pluvio$Cumule_15J, order.by = Flo_pluvio$date)
+# 
+# ccf(Prop_glb,Pluvio_15J, main = "Corrélation croisée entre le signal de floraison de S.globulifera et la pluie cumulée tous les 15 jours")
+# ccf(Flo_pluvio$prop,Flo_pluvio$Cumule_30J)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # # Proportion de floraison de S.globulifera sur l'ensemble du suivi (variable réponse)
 # signal_globu <- round(Flo_pluvio$prop)
 # # signal_globu <- log(sqrt(signal_globu)+1)
