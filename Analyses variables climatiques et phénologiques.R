@@ -3,14 +3,11 @@
 # Date de creation : 22/05/2024
 
 # Packages
-pacman::p_load ("tidyverse","plotly","strucchange","timeSeries","lubridate","bfast", "data.table",
-                "ggfortify", "zoo", "readxl", "cluster", "stringr", "bookdown",
-                "ggpubr", "kableExtra", "tibbletime", "pracma", "imputeTS",
-                "TraMineR", "clValid", "FactoMineR", "factoextra", "dunn.test", "ggrepel")
-
-pacman::p_load("RColorBrewer","vioplot","lmtest","zoo", "ade4", "psych")
-install.packages("tidyverse")
-library(tidyverse)
+pacman::p_load ("tidyverse","plotly","strucchange","timeSeries","lubridate","bfast", 
+                "data.table", "ggfortify", "zoo", "readxl", "cluster", 
+                "stringr", "bookdown", "ggpubr", "kableExtra", "tibbletime", "pracma", 
+                "imputeTS","TraMineR", "clValid", "FactoMineR", "factoextra", "dunn.test",
+                "ggrepel", "ade4", "psych", "RColorBrewer", "lmtest", "factoextra")
 
 ## Source custom functions
 source("Source_custom_functions/Func_dataPrepExplo.R")
@@ -121,16 +118,16 @@ dataB_resume %>%
   print() ->
   climat
 
-# Visualisation des variables et de leurs relations (variables non transformees)
-pairs.panels(climat[,5:11], 
-             method = "pearson", # correlation method
-             hist.col = "#00AFBB",
-             density = TRUE,  # show density plots
-             ellipses = FALSE # show correlation ellipses
-)
+# # Visualisation des variables et de leurs relations (variables non transformees)
+# pairs.panels(climat[,5:11], 
+#              method = "pearson", # correlation method
+#              hist.col = "#00AFBB",
+#              density = TRUE,  # show density plots
+#              ellipses = FALSE # show correlation ellipses
+# )
 
 # Transformation des données de la variable Rain pour obtenir une distribution plus proche de la normalité
-climat$Rain <- log(sqrt(climat$Rain)+1)
+# climat$Rain <- log(sqrt(climat$Rain)+1)
 
 # Standardisation des variables climatiques
 climat[,5:11]%>% 
@@ -143,13 +140,30 @@ climat_scaled <- as.data.frame(climat_scaled)
 
 # Visualisation des variables et de leurs relations (variables transformees et centree-reduites)
 pairs.panels(climat_scaled, 
-             method = "pearson", # correlation method
+             method = "spearman", # correlation method
              hist.col = "#00AFBB",
              density = TRUE,  # show density plots
              ellipses = FALSE # show correlation ellipses
 )
 
-## ACP ##
+# Transformation des colonnes en rang
+Ranking <- function(DataBrut){
+  DataBrut = as.data.frame(DataBrut)
+  DataRang = DataBrut
+  NombreCol = length(ls(DataBrut))
+  for (col in 1:NombreCol) {
+    NomCol = ls(DataBrut)[col]
+    DataRang[,col] = rank(DataBrut[,col])
+    
+  }
+  return(DataRang)
+}
+
+Ranking(climat_scaled)
+
+
+
+## ACP non parametrique ##
 
 # Modele
 acp_climat <- dudi.pca(climat_scaled, scale = T, center = T, scannf = F, nf = 4)
@@ -194,16 +208,7 @@ cont
 # Calcul des cos2 :
 cos2 <- abs(cont$row.rel)/10000
 
-# Calcul des cos2 cumulees des axes 1-2 formant le premier plan factoriel :
-c2p12 <- rowSums(cos2[,c(1,2)])
-barplot(cos2[,1],las=2)
-barplot(cos2[,2],las=2)
-barplot(c2p12,las=2)
-s.value(acp_climat$li[,1:2], c2p12, method="greylevel",csize=0.4)
-
 # Autre representation :
-install.packages("factoextra")
-library(factoextra) 
 fviz_cos2(acp_climat, choice = "ind", axe=1:2)
 fviz_pca_biplot(acp_climat, col.ind = "cos2", gradient.cols=c("red","yellow","green"),repel = TRUE) 
 
