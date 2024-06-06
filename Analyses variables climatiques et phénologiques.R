@@ -3174,3 +3174,120 @@ cor.test(Flo_climat_cocci_acp$Rain_15J,Flo_climat_cocci_acp$Rg_15J, method = "pe
 cor.test(Flo_climat_cocci_acp$Rain_30J,Flo_climat_cocci_acp$Hr_30J, method = "pearson")
 cor.test(Flo_climat_cocci_acp$Rain_15J,Flo_climat_cocci_acp$Hr_15J, method = "pearson")
 
+
+
+### Platonia insignis ###
+
+dataB_resume
+
+# Toutes les dates
+all_dates_climat_ins <- seq(min(data_signal_ins$date, climat$date), max(data_signal_ins$date, climat$date), by = "day")
+
+# Compléter les tibbles avec les dates manquantes
+data_signal_ins %>%
+  right_join(tibble(date = all_dates_climat_ins), by = "date") %>% 
+  print() ->
+  Floraison_ins
+
+climat %>%
+  right_join(tibble(date = all_dates_climat_ins), by = "date") %>% 
+  print() ->
+  climat_ins
+
+
+Floraison_ins %>% 
+  select(date, prop) %>% 
+  left_join(climat_ins, by = "date") %>% 
+  filter(!is.na(prop)) %>%
+  filter(!is.na(Rain_15J)) %>% 
+  filter(!is.na(Rain_30J)) %>% 
+  filter(!is.na(Hr_15J)) %>% 
+  filter(!is.na(Hr_30J)) %>% 
+  filter(!is.na(Rg_15J)) %>% 
+  filter(!is.na(Rg_30J)) %>% 
+  filter(!is.na(ETP_15J)) %>% 
+  filter(!is.na(ETP_30J)) %>% 
+  filter(!is.na(Temp_15J)) %>% 
+  filter(!is.na(Temp_30J)) %>% 
+  filter(!is.na(VWC_15J)) %>% 
+  filter(!is.na(VWC_30J)) %>% 
+  print() ->
+  Flo_climat_ins
+
+Flo_climat_ins %>%
+  select(-date, -Year, -Day, -Month) %>% 
+  scale() ->
+  Flo_climat_ins_acp
+
+Flo_climat_ins_acp <- as.data.frame(Flo_climat_ins_acp)
+
+## ACP ##
+
+# Visualisation des variables et de leurs relations
+pairs.panels(Flo_climat_ins_acp, 
+             method = "pearson", # correlation method
+             hist.col = "#00AFBB",
+             density = TRUE,  # show density plots
+             ellipses = FALSE # show correlation ellipses
+)
+
+ACP_ins <- dudi.pca(Flo_climat_ins_acp,scale = T, center = T, scannf = F, nf = 2 )
+
+# Calcul des % de chaque axe
+pc_ins <- round(ACP_ins$eig/sum(ACP_ins$eig)*100, 2)
+
+# % cumules
+cumsum(pc_ins)
+
+# BarPlot des % d'inertie #
+
+# Definir le min et max de l'axe des y
+ylim <- c(0, 1.2*max(pc_ins))
+
+# Barplot
+xx <- barplot(pc_ins, xaxt = 'n', xlab = '', width = 0.85, ylim = ylim, ylab = "% d'inertie")
+
+# Ajout des valeurs de % en dessus des barres
+text(x = xx, y = pc_ins, label = pc_ins, pos = 3, cex = 0.8, col = "black")
+
+# Ajout des labels sur l'axe des x (ie. numero des axes factoriels)
+axis(1, at = xx, labels = c(1:length(pc_ins)), tick = FALSE, las = 1, line = -0.5, cex.axis = 0.8)
+
+
+# cercle des correlations (pour une ACP normee) #
+s.corcircle(ACP_ins$co)
+
+# Valeurs des coefficients de correlation de Pearson # 
+cor(Flo_climat_ins_acp)
+
+# representation sur les deux premiers axes #
+s.label(ACP_ins$li[,1:2], clabel = 0.5) 
+
+# Calcul de la somme des cos2 des individus
+cont_ins <- inertia.dudi(ACP_ins, row.inertia = TRUE)
+cont_ins
+
+# Calcul des cos2 :
+cos2_ins <- abs(cont_ins$row.rel)/10000
+
+# Representation 
+fviz_cos2(ACP_ins, choice = "ind", axe=1:2)
+fviz_pca_biplot(ACP_ins, col.ind = "cos2", gradient.cols=c("red","yellow","green"),repel = TRUE) 
+
+# Tests de correlations #
+cor.test(Flo_climat_ins_acp$prop, Flo_climat_ins_acp$Rg_30J, method = "pearson")
+cor.test(Flo_climat_ins_acp$prop, Flo_climat_ins_acp$Rain_30J, method = "pearson")
+cor.test(Flo_climat_ins_acp$prop, Flo_climat_ins_acp$VWC_30J, method = "pearson")
+cor.test(Flo_climat_ins_acp$prop, Flo_climat_ins_acp$Hr_30J, method = "pearson") 
+cor.test(Flo_climat_ins_acp$prop, Flo_climat_ins_acp$ETP_30J, method = "pearson") 
+cor.test(Flo_climat_ins_acp$prop, Flo_climat_ins_acp$Temp_30J, method = "pearson")
+
+cor.test(Flo_climat_ins_acp$prop, Flo_climat_ins_acp$Rg_15J, method = "pearson")
+cor.test(Flo_climat_ins_acp$prop, Flo_climat_ins_acp$Rain_15J, method = "pearson") 
+cor.test(Flo_climat_ins_acp$prop, Flo_climat_ins_acp$VWC_15J, method = "pearson") 
+cor.test(Flo_climat_ins_acp$prop, Flo_climat_ins_acp$Hr_15J, method = "pearson") 
+cor.test(Flo_climat_ins_acp$prop, Flo_climat_ins_acp$ETP_15J, method = "pearson")
+cor.test(Flo_climat_ins_acp$prop, Flo_climat_ins_acp$Temp_15J, method = "pearson") 
+
+
+
