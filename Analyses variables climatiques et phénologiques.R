@@ -2575,13 +2575,6 @@ cor.test(Flo_climat_acp$prop, Flo_climat_acp$Hr_15J, method = "pearson") # Non s
 cor.test(Flo_climat_acp$prop, Flo_climat_acp$ETP_15J, method = "pearson")
 cor.test(Flo_climat_acp$prop, Flo_climat_acp$Temp_15J, method = "pearson")
 
-cor.test(Flo_climat_acp$prop, Flo_climat_acp$Rg, method = "pearson") # Non significatif
-cor.test(Flo_climat_acp$prop, Flo_climat_acp$Rain, method = "pearson") # Non significatif
-cor.test(Flo_climat_acp$prop, Flo_climat_acp$VWC_10cm, method = "pearson")
-cor.test(Flo_climat_acp$prop, Flo_climat_acp$`Hr(55)`, method = "pearson") # Non significatif
-cor.test(Flo_climat_acp$prop, Flo_climat_acp$ETP, method = "pearson") # Non significatif
-cor.test(Flo_climat_acp$prop, Flo_climat_acp$`Temp(55)`, method = "pearson") # Non significatif
-
 
 ## ACP ##
 
@@ -2642,80 +2635,80 @@ inertia.dudi(ACP_glb, col.inertia = T)
 
 
 
-## GLM ##
-
-# Visualisation de la proportion d'individu en fleur
-hist(Flo_climat_acp$prop)
-boxplot(Flo_climat_acp$prop)
-qqnorm(Flo_climat_acp$prop)
-qqline(Flo_climat_acp$prop)
-shapiro.test(Flo_climat_acp$prop) # pas de normalité
-
-
-glm_test <- glm(prop ~ Rain_15J+ Rg_15J+ VWC_15J+ Hr_15J+ ETP_15J+ Temp_15J, data = Flo_climat_acp, family = gaussian(link = "identity"))
-
-glm(prop ~ Rain_15J+ Rg_15J+ VWC_15J+ Hr_15J+ ETP_15J+ Temp_15J, data = Flo_climat_acp, family = inverse.gaussian(link = "1/mu^2"))
-
-
-summary(glm_test)
-
-# Models #
-GLM_glb_15J <- glm(round(prop) ~ round(Rain_15J), data = Flo_climat_acp, family = "poisson")
-summary(GLM_glb_15J)
-anova(GLM_glb_15J, test = "Chi")
-
-GLM_glb_30J <- glm(round(prop) ~ round(Rain_30J), data = Flo_climat_acp, family = "poisson")
-summary(GLM_glb_30J)
-anova(GLM_glb_30J, test = "Chi")
-
-GLM_glb_VWC15J <- glm(prop ~ VWC_15J, data = Flo_climat_acp, family = "exponential")
-summary(GLM_glb_VWC15J)
-anova(GLM_glb_VWC15J, test = "Chi")
-
-plot(prop~VWC_15J, data = Flo_climat_acp)
-
-# Representations graphiques #
-
-Flo_pluvio$predictions_15J <- predict(GLM_glb_15J, type = "response")
-
-ggplot(Flo_pluvio, aes(x = Cumule_15J, y = prop)) +
-  geom_point() +  # Points des données observées
-  geom_line(aes(y = predictions_15J), color = "blue") +  # Ligne des prédictions du modèle
-  labs(title = "GLM Poisson: signal_globu ~ Pluvio_15",
-       x = "Cumule_15J",
-       y = "signal_globu") +
-  theme_minimal()
-
-
-Flo_pluvio$predictions_30J <- predict(GLM_glb_30J, type = "response")
-
-ggplot(Flo_pluvio, aes(x = Cumule_30J, y = prop)) +
-  geom_point() +  # Points des données observées
-  geom_line(aes(y = predictions_30J), color = "purple") +  # Ligne des prédictions du modèle
-  labs(title = "GLM Poisson: signal_globu ~ Cumule_30J",
-       x = "Cumule_30J",
-       y = "signal_globu") +
-  theme_minimal()
-
-
-## Correlation croisee ##
-
-Flo_pluvio$date <- as.Date(Flo_pluvio$date)
-
-# Series temporelles
-Prop_glb <- zoo(Flo_pluvio$prop, order.by = Flo_pluvio$date)
-Pluvio_15J <- zoo(Flo_pluvio$Cumule_15J, order.by = Flo_pluvio$date)
-Pluvio_30J <- zoo(Flo_pluvio$Cumule_30J, order.by = Flo_pluvio$date)
-
-# Lissage des series temporelles pour moins d'irregularites
-Prop_glb = moving_average(Prop_glb ,filter = fpoids(n=2,p=2,q=2)$y) 
-Pluvio_15J = moving_average(Pluvio_15J ,filter = fpoids(n=2,p=2,q=2)$y) 
-Pluvio_30J = moving_average(Pluvio_30J ,filter = fpoids(n=2,p=2,q=2)$y)  
-
-# Figure correlations croisees
-ccf(Prop_glb,Pluvio_15J, main = "Corrélation croisée entre le signal de floraison de S.globulifera et la pluie cumulée tous les 15 jours")
-ccf(Prop_glb,Pluvio_15J, main = "Corrélation croisée entre le signal de floraison de S.globulifera et la pluie cumulée tous les 30 jours")
-
+# ## GLM ##
+# 
+# # Visualisation de la proportion d'individu en fleur
+# hist(Flo_climat_acp$prop)
+# boxplot(Flo_climat_acp$prop)
+# qqnorm(Flo_climat_acp$prop)
+# qqline(Flo_climat_acp$prop)
+# shapiro.test(Flo_climat_acp$prop) # pas de normalité
+# 
+# 
+# glm_test <- glm(prop ~ Rain_15J+ Rg_15J+ VWC_15J+ Hr_15J+ ETP_15J+ Temp_15J, data = Flo_climat_acp, family = gaussian(link = "identity"))
+# 
+# glm(prop ~ Rain_15J+ Rg_15J+ VWC_15J+ Hr_15J+ ETP_15J+ Temp_15J, data = Flo_climat_acp, family = inverse.gaussian(link = "1/mu^2"))
+# 
+# 
+# summary(glm_test)
+# 
+# # Models #
+# GLM_glb_15J <- glm(round(prop) ~ round(Rain_15J), data = Flo_climat_acp, family = "poisson")
+# summary(GLM_glb_15J)
+# anova(GLM_glb_15J, test = "Chi")
+# 
+# GLM_glb_30J <- glm(round(prop) ~ round(Rain_30J), data = Flo_climat_acp, family = "poisson")
+# summary(GLM_glb_30J)
+# anova(GLM_glb_30J, test = "Chi")
+# 
+# GLM_glb_VWC15J <- glm(prop ~ VWC_15J, data = Flo_climat_acp, family = "exponential")
+# summary(GLM_glb_VWC15J)
+# anova(GLM_glb_VWC15J, test = "Chi")
+# 
+# plot(prop~VWC_15J, data = Flo_climat_acp)
+# 
+# # Representations graphiques #
+# 
+# Flo_pluvio$predictions_15J <- predict(GLM_glb_15J, type = "response")
+# 
+# ggplot(Flo_pluvio, aes(x = Cumule_15J, y = prop)) +
+#   geom_point() +  # Points des données observées
+#   geom_line(aes(y = predictions_15J), color = "blue") +  # Ligne des prédictions du modèle
+#   labs(title = "GLM Poisson: signal_globu ~ Pluvio_15",
+#        x = "Cumule_15J",
+#        y = "signal_globu") +
+#   theme_minimal()
+# 
+# 
+# Flo_pluvio$predictions_30J <- predict(GLM_glb_30J, type = "response")
+# 
+# ggplot(Flo_pluvio, aes(x = Cumule_30J, y = prop)) +
+#   geom_point() +  # Points des données observées
+#   geom_line(aes(y = predictions_30J), color = "purple") +  # Ligne des prédictions du modèle
+#   labs(title = "GLM Poisson: signal_globu ~ Cumule_30J",
+#        x = "Cumule_30J",
+#        y = "signal_globu") +
+#   theme_minimal()
+# 
+# 
+# ## Correlation croisee ##
+# 
+# Flo_pluvio$date <- as.Date(Flo_pluvio$date)
+# 
+# # Series temporelles
+# Prop_glb <- zoo(Flo_pluvio$prop, order.by = Flo_pluvio$date)
+# Pluvio_15J <- zoo(Flo_pluvio$Cumule_15J, order.by = Flo_pluvio$date)
+# Pluvio_30J <- zoo(Flo_pluvio$Cumule_30J, order.by = Flo_pluvio$date)
+# 
+# # Lissage des series temporelles pour moins d'irregularites
+# Prop_glb = moving_average(Prop_glb ,filter = fpoids(n=2,p=2,q=2)$y) 
+# Pluvio_15J = moving_average(Pluvio_15J ,filter = fpoids(n=2,p=2,q=2)$y) 
+# Pluvio_30J = moving_average(Pluvio_30J ,filter = fpoids(n=2,p=2,q=2)$y)  
+# 
+# # Figure correlations croisees
+# ccf(Prop_glb,Pluvio_15J, main = "Corrélation croisée entre le signal de floraison de S.globulifera et la pluie cumulée tous les 15 jours")
+# ccf(Prop_glb,Pluvio_15J, main = "Corrélation croisée entre le signal de floraison de S.globulifera et la pluie cumulée tous les 30 jours")
+# 
 
 
 ## SYMPHONIA SP1 ##
@@ -2831,38 +2824,122 @@ cor.test(Flo_climat_sp1_acp$prop, Flo_climat_sp1_acp$Hr_15J, method = "pearson")
 cor.test(Flo_climat_sp1_acp$prop, Flo_climat_sp1_acp$ETP_15J, method = "pearson")# Non significatif
 cor.test(Flo_climat_sp1_acp$prop, Flo_climat_sp1_acp$Temp_15J, method = "pearson") # Non significatif
 
-
-## GLM ##
-
-# Models #
-GLM_glb_Hr <- glm(round(prop) ~ round(`Hr(55)`), data = Flo_climat, family = "poisson")
-summary(GLM_glb_Hr)
-anova(GLM_glb_Hr, test = "Chi")
-
-# Representations graphiques #
-
-Flo_climat$predictions_HR <- predict(GLM_glb_Hr, type = "response")
-
-ggplot(Flo_climat, aes(x = round(`Hr(55)`), y = round(prop))) +
-  geom_point() +  # Points des données observées
-  geom_line(aes(y = predictions_HR), color = "blue") +  # Ligne des prédictions du modèle
-  labs(title = "GLM Poisson: signal_globu ~ Humidité relative",
-       x = "Humidité relative",
-       y = "signal_globu") +
-  theme_minimal()
+cor.test( Flo_climat_sp1_acp$Rain_30J,Flo_climat_sp1_acp$VWC_30J, method = "pearson") 
+cor.test( Flo_climat_sp1_acp$Rain_15J,Flo_climat_sp1_acp$VWC_15J, method = "pearson") 
 
 
-Flo_pluvio$predictions_30J <- predict(GLM_glb_30J, type = "response")
+## VOUACAPOUA AMERICANA ##
 
-ggplot(Flo_pluvio, aes(x = Cumule_30J, y = prop)) +
-  geom_point() +  # Points des données observées
-  geom_line(aes(y = predictions_30J), color = "purple") +  # Ligne des prédictions du modèle
-  labs(title = "GLM Poisson: signal_globu ~ Cumule_30J",
-       x = "Cumule_30J",
-       y = "signal_globu") +
-  theme_minimal()
+dataB_resume
+
+# Toutes les dates
+all_dates_climat_am <- seq(min(data_signal_am$date, climat$date), max(data_signal_am$date, climat$date), by = "day")
+
+# Compléter les tibbles avec les dates manquantes
+data_signal_am %>%
+  right_join(tibble(date = all_dates_climat_am), by = "date") %>% 
+  print() ->
+  Floraison_am
+
+climat %>%
+  right_join(tibble(date = all_dates_climat_am), by = "date") %>% 
+  print() ->
+  climat_am
 
 
+Floraison_am %>% 
+  select(date, prop) %>% 
+  left_join(climat_am, by = "date") %>% 
+  filter(!is.na(prop)) %>%
+  filter(!is.na(Rain_15J)) %>% 
+  filter(!is.na(Rain_30J)) %>% 
+  filter(!is.na(Hr_15J)) %>% 
+  filter(!is.na(Hr_30J)) %>% 
+  filter(!is.na(Rg_15J)) %>% 
+  filter(!is.na(Rg_30J)) %>% 
+  filter(!is.na(ETP_15J)) %>% 
+  filter(!is.na(ETP_30J)) %>% 
+  filter(!is.na(Temp_15J)) %>% 
+  filter(!is.na(Temp_30J)) %>% 
+  filter(!is.na(VWC_15J)) %>% 
+  filter(!is.na(VWC_30J)) %>% 
+  print() ->
+  Flo_climat_am
+
+Flo_climat_am %>%
+  select(-date, -Year, -Day, -Month) %>% 
+  scale() ->
+  Flo_climat_am_acp
+
+Flo_climat_am_acp <- as.data.frame(Flo_climat_am_acp)
+
+## ACP ##
+
+# Visualisation des variables et de leurs relations
+pairs.panels(Flo_climat_am_acp, 
+             method = "pearson", # correlation method
+             hist.col = "#00AFBB",
+             density = TRUE,  # show density plots
+             ellipses = FALSE # show correlation ellipses
+)
+
+ACP_am <- dudi.pca(Flo_climat_am_acp,scale = T, center = T, scannf = F, nf = 2 )
+
+# Calcul des % de chaque axe
+pc_am <- round(ACP_am$eig/sum(ACP_am$eig)*100, 2)
+
+# % cumules
+cumsum(pc_am)
+
+# BarPlot des % d'inertie #
+
+# Definir le min et max de l'axe des y
+ylim <- c(0, 1.2*max(pc_am))
+
+# Barplot
+xx <- barplot(pc_am, xaxt = 'n', xlab = '', width = 0.85, ylim = ylim, ylab = "% d'inertie")
+
+# Ajout des valeurs de % en dessus des barres
+text(x = xx, y = pc_am, label = pc_am, pos = 3, cex = 0.8, col = "black")
+
+# Ajout des labels sur l'axe des x (ie. numero des axes factoriels)
+axis(1, at = xx, labels = c(1:length(pc_am)), tick = FALSE, las = 1, line = -0.5, cex.axis = 0.8)
+
+
+# cercle des correlations (pour une ACP normee) #
+s.corcircle(ACP_am$co)
+
+# Valeurs des coefficients de correlation de Pearson # 
+cor(Flo_climat_am_acp)
+
+# representation sur les deux premiers axes #
+s.label(ACP_am$li[,1:2], clabel = 0.5) 
+
+# Calcul de la somme des cos2 des individus
+cont_am <- inertia.dudi(ACP_am, row.inertia = TRUE)
+cont_am
+
+# Calcul des cos2 :
+cos2_am <- abs(cont_am$row.rel)/10000
+
+# Representation 
+fviz_cos2(ACP_am, choice = "ind", axe=1:2)
+fviz_pca_biplot(ACP_am, col.ind = "cos2", gradient.cols=c("red","yellow","green"),repel = TRUE) 
+
+# Tests de correlations #
+cor.test(Flo_climat_am_acp$prop, Flo_climat_am_acp$Rg_30J, method = "pearson")# Non significatif
+cor.test(Flo_climat_am_acp$prop, Flo_climat_am_acp$Rain_30J, method = "pearson")# Non significatif
+cor.test(Flo_climat_am_acp$prop, Flo_climat_am_acp$VWC_30J, method = "pearson")# Non significatif
+cor.test(Flo_climat_am_acp$prop, Flo_climat_am_acp$Hr_30J, method = "pearson") # Non significatif
+cor.test(Flo_climat_am_acp$prop, Flo_climat_am_acp$ETP_30J, method = "pearson") # Non significatif
+cor.test(Flo_climat_am_acp$prop, Flo_climat_am_acp$Temp_30J, method = "pearson")# Non significatif
+
+cor.test(Flo_climat_am_acp$prop, Flo_climat_am_acp$Rg_15J, method = "pearson") # Non significatif
+cor.test(Flo_climat_am_acp$prop, Flo_climat_am_acp$Rain_15J, method = "pearson") # Non significatif
+cor.test(Flo_climat_am_acp$prop, Flo_climat_am_acp$VWC_15J, method = "pearson") # Non significatif
+cor.test(Flo_climat_am_acp$prop, Flo_climat_am_acp$Hr_15J, method = "pearson") # Non significatif
+cor.test(Flo_climat_am_acp$prop, Flo_climat_am_acp$ETP_15J, method = "pearson")# Non significatif
+cor.test(Flo_climat_am_acp$prop, Flo_climat_am_acp$Temp_15J, method = "pearson") # Non significatif
 
 
 
