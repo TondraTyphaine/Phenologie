@@ -2635,16 +2635,28 @@ inertia.dudi(ACP_glb, col.inertia = T)
 
 
 
-# ## GLM ##
-# 
-# # Visualisation de la proportion d'individu en fleur
-# hist(Flo_climat_acp$prop)
-# boxplot(Flo_climat_acp$prop)
-# qqnorm(Flo_climat_acp$prop)
-# qqline(Flo_climat_acp$prop)
-# shapiro.test(Flo_climat_acp$prop) # pas de normalité
-# 
-# 
+## GLM ##
+
+# Visualisation de la proportion d'individu en fleur
+hist(Flo_climat$prop)
+boxplot(Flo_climat$prop)
+qqnorm(Flo_climat$prop)
+qqline(Flo_climat$prop)
+shapiro.test(Flo_climat$prop) # pas de normalité
+
+glm_pluvio_glb <- glm(round(prop) ~ round(Rain_15J), data = Flo_climat, family = "poisson")
+summary(glm_pluvio_glb)
+anova(glm_pluvio_glb)
+par(mfrow = c(2,2))
+plot(glm_pluvio_glb)
+
+glm_pluvio_glb_res <- residuals(glm_pluvio_glb)
+shapiro.test(glm_pluvio_glb_res) # Non normalite des residuso
+dwtest(glm_pluvio_glb) # non indépendance des residus
+bptest(glm_pluvio_glb) # Heteroscedasticite des residus
+
+
+
 # glm_test <- glm(prop ~ Rain_15J+ Rg_15J+ VWC_15J+ Hr_15J+ ETP_15J+ Temp_15J, data = Flo_climat_acp, family = gaussian(link = "identity"))
 # 
 # glm(prop ~ Rain_15J+ Rg_15J+ VWC_15J+ Hr_15J+ ETP_15J+ Temp_15J, data = Flo_climat_acp, family = inverse.gaussian(link = "1/mu^2"))
@@ -2666,31 +2678,31 @@ inertia.dudi(ACP_glb, col.inertia = T)
 # anova(GLM_glb_VWC15J, test = "Chi")
 # 
 # plot(prop~VWC_15J, data = Flo_climat_acp)
-# 
-# # Representations graphiques #
-# 
-# Flo_pluvio$predictions_15J <- predict(GLM_glb_15J, type = "response")
-# 
-# ggplot(Flo_pluvio, aes(x = Cumule_15J, y = prop)) +
-#   geom_point() +  # Points des données observées
-#   geom_line(aes(y = predictions_15J), color = "blue") +  # Ligne des prédictions du modèle
-#   labs(title = "GLM Poisson: signal_globu ~ Pluvio_15",
-#        x = "Cumule_15J",
-#        y = "signal_globu") +
-#   theme_minimal()
-# 
-# 
-# Flo_pluvio$predictions_30J <- predict(GLM_glb_30J, type = "response")
-# 
-# ggplot(Flo_pluvio, aes(x = Cumule_30J, y = prop)) +
-#   geom_point() +  # Points des données observées
-#   geom_line(aes(y = predictions_30J), color = "purple") +  # Ligne des prédictions du modèle
-#   labs(title = "GLM Poisson: signal_globu ~ Cumule_30J",
-#        x = "Cumule_30J",
-#        y = "signal_globu") +
-#   theme_minimal()
-# 
-# 
+
+# Representations graphiques #
+
+Flo_pluvio$predictions_15J <- predict(GLM_glb_15J, type = "response")
+
+ggplot(Flo_pluvio, aes(x = Cumule_15J, y = prop)) +
+  geom_point() +  # Points des données observées
+  geom_line(aes(y = predictions_15J), color = "blue") +  # Ligne des prédictions du modèle
+  labs(title = "GLM Poisson: signal_globu ~ Pluvio_15",
+       x = "Cumule_15J",
+       y = "signal_globu") +
+  theme_minimal()
+
+
+Flo_pluvio$predictions_30J <- predict(GLM_glb_30J, type = "response")
+
+ggplot(Flo_pluvio, aes(x = Cumule_30J, y = prop)) +
+  geom_point() +  # Points des données observées
+  geom_line(aes(y = predictions_30J), color = "purple") +  # Ligne des prédictions du modèle
+  labs(title = "GLM Poisson: signal_globu ~ Cumule_30J",
+       x = "Cumule_30J",
+       y = "signal_globu") +
+  theme_minimal()
+
+
 # ## Correlation croisee ##
 # 
 # Flo_pluvio$date <- as.Date(Flo_pluvio$date)
