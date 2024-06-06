@@ -3056,9 +3056,121 @@ cor.test(Flo_climat_gui_acp$prop, Flo_climat_gui_acp$ETP_15J, method = "pearson"
 cor.test(Flo_climat_gui_acp$prop, Flo_climat_gui_acp$Temp_15J, method = "pearson") # Non significatif
 
 
+## Moronobea coccinea ##
+
+dataB_resume
+
+# Toutes les dates
+all_dates_climat_cocci <- seq(min(data_signal_cocci$date, climat$date), max(data_signal_cocci$date, climat$date), by = "day")
+
+# Compléter les tibbles avec les dates manquantes
+data_signal_cocci %>%
+  right_join(tibble(date = all_dates_climat_cocci), by = "date") %>% 
+  print() ->
+  Floraison_cocci
+
+climat %>%
+  right_join(tibble(date = all_dates_climat_cocci), by = "date") %>% 
+  print() ->
+  climat_cocci
 
 
+Floraison_cocci %>% 
+  select(date, prop) %>% 
+  left_join(climat_cocci, by = "date") %>% 
+  filter(!is.na(prop)) %>%
+  filter(!is.na(Rain_15J)) %>% 
+  filter(!is.na(Rain_30J)) %>% 
+  filter(!is.na(Hr_15J)) %>% 
+  filter(!is.na(Hr_30J)) %>% 
+  filter(!is.na(Rg_15J)) %>% 
+  filter(!is.na(Rg_30J)) %>% 
+  filter(!is.na(ETP_15J)) %>% 
+  filter(!is.na(ETP_30J)) %>% 
+  filter(!is.na(Temp_15J)) %>% 
+  filter(!is.na(Temp_30J)) %>% 
+  filter(!is.na(VWC_15J)) %>% 
+  filter(!is.na(VWC_30J)) %>% 
+  print() ->
+  Flo_climat_cocci
+
+Flo_climat_cocci %>%
+  select(-date, -Year, -Day, -Month) %>% 
+  scale() ->
+  Flo_climat_cocci_acp
+
+Flo_climat_cocci_acp <- as.data.frame(Flo_climat_cocci_acp)
+
+## ACP ##
+
+# Visualisation des variables et de leurs relations
+pairs.panels(Flo_climat_cocci_acp, 
+             method = "pearson", # correlation method
+             hist.col = "#00AFBB",
+             density = TRUE,  # show density plots
+             ellipses = FALSE # show correlation ellipses
+)
+
+ACP_cocci <- dudi.pca(Flo_climat_cocci_acp,scale = T, center = T, scannf = F, nf = 2 )
+
+# Calcul des % de chaque axe
+pc_cocci <- round(ACP_cocci$eig/sum(ACP_cocci$eig)*100, 2)
+
+# % cumules
+cumsum(pc_cocci)
+
+# BarPlot des % d'inertie #
+
+# Definir le min et max de l'axe des y
+ylim <- c(0, 1.2*max(pc_cocci))
+
+# Barplot
+xx <- barplot(pc_cocci, xaxt = 'n', xlab = '', width = 0.85, ylim = ylim, ylab = "% d'inertie")
+
+# Ajout des valeurs de % en dessus des barres
+text(x = xx, y = pc_cocci, label = pc_cocci, pos = 3, cex = 0.8, col = "black")
+
+# Ajout des labels sur l'axe des x (ie. numero des axes factoriels)
+axis(1, at = xx, labels = c(1:length(pc_cocci)), tick = FALSE, las = 1, line = -0.5, cex.axis = 0.8)
 
 
+# cercle des correlations (pour une ACP normee) #
+s.corcircle(ACP_cocci$co)
 
+# Valeurs des coefficients de correlation de Pearson # 
+cor(Flo_climat_cocci_acp)
+
+# representation sur les deux premiers axes #
+s.label(ACP_cocci$li[,1:2], clabel = 0.5) 
+
+# Calcul de la somme des cos2 des individus
+cont_cocci <- inertia.dudi(ACP_cocci, row.inertia = TRUE)
+cont_cocci
+
+# Calcul des cos2 :
+cos2_cocci <- abs(cont_cocci$row.rel)/10000
+
+# Representation 
+fviz_cos2(ACP_cocci, choice = "ind", axe=1:2)
+fviz_pca_biplot(ACP_cocci, col.ind = "cos2", gradient.cols=c("red","yellow","green"),repel = TRUE) 
+
+# Tests de correlations #
+cor.test(Flo_climat_cocci_acp$prop, Flo_climat_cocci_acp$Rg_30J, method = "pearson")
+cor.test(Flo_climat_cocci_acp$prop, Flo_climat_cocci_acp$Rain_30J, method = "pearson")# Non significatif
+cor.test(Flo_climat_cocci_acp$prop, Flo_climat_cocci_acp$VWC_30J, method = "pearson")# Non significatif
+cor.test(Flo_climat_cocci_acp$prop, Flo_climat_cocci_acp$Hr_30J, method = "pearson") 
+cor.test(Flo_climat_cocci_acp$prop, Flo_climat_cocci_acp$ETP_30J, method = "pearson") # Non significatif
+cor.test(Flo_climat_cocci_acp$prop, Flo_climat_cocci_acp$Temp_30J, method = "pearson")# Non significatif
+
+cor.test(Flo_climat_cocci_acp$prop, Flo_climat_cocci_acp$Rg_15J, method = "pearson")
+cor.test(Flo_climat_cocci_acp$prop, Flo_climat_cocci_acp$Rain_15J, method = "pearson") # Non significatif
+cor.test(Flo_climat_cocci_acp$prop, Flo_climat_cocci_acp$VWC_15J, method = "pearson") # Non significatif
+cor.test(Flo_climat_cocci_acp$prop, Flo_climat_cocci_acp$Hr_15J, method = "pearson") 
+cor.test(Flo_climat_cocci_acp$prop, Flo_climat_cocci_acp$ETP_15J, method = "pearson")# Non significatif
+cor.test(Flo_climat_cocci_acp$prop, Flo_climat_cocci_acp$Temp_15J, method = "pearson") # Non significatif
+
+cor.test(Flo_climat_cocci_acp$Rain_30J,Flo_climat_cocci_acp$Rg_30J, method = "pearson")
+cor.test(Flo_climat_cocci_acp$Rain_15J,Flo_climat_cocci_acp$Rg_15J, method = "pearson")
+cor.test(Flo_climat_cocci_acp$Rain_30J,Flo_climat_cocci_acp$Hr_30J, method = "pearson")
+cor.test(Flo_climat_cocci_acp$Rain_15J,Flo_climat_cocci_acp$Hr_15J, method = "pearson")
 
