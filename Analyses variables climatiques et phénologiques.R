@@ -2942,6 +2942,118 @@ cor.test(Flo_climat_am_acp$prop, Flo_climat_am_acp$ETP_15J, method = "pearson")#
 cor.test(Flo_climat_am_acp$prop, Flo_climat_am_acp$Temp_15J, method = "pearson") # Non significatif
 
 
+## COUMA GUIANENSIS ##
+
+dataB_resume
+
+# Toutes les dates
+all_dates_climat_gui <- seq(min(data_signal_gui$date, climat$date), max(data_signal_gui$date, climat$date), by = "day")
+
+# Compléter les tibbles avec les dates manquantes
+data_signal_gui %>%
+  right_join(tibble(date = all_dates_climat_gui), by = "date") %>% 
+  print() ->
+  Floraison_gui
+
+climat %>%
+  right_join(tibble(date = all_dates_climat_gui), by = "date") %>% 
+  print() ->
+  climat_gui
+
+
+Floraison_gui %>% 
+  select(date, prop) %>% 
+  left_join(climat_gui, by = "date") %>% 
+  filter(!is.na(prop)) %>%
+  filter(!is.na(Rain_15J)) %>% 
+  filter(!is.na(Rain_30J)) %>% 
+  filter(!is.na(Hr_15J)) %>% 
+  filter(!is.na(Hr_30J)) %>% 
+  filter(!is.na(Rg_15J)) %>% 
+  filter(!is.na(Rg_30J)) %>% 
+  filter(!is.na(ETP_15J)) %>% 
+  filter(!is.na(ETP_30J)) %>% 
+  filter(!is.na(Temp_15J)) %>% 
+  filter(!is.na(Temp_30J)) %>% 
+  filter(!is.na(VWC_15J)) %>% 
+  filter(!is.na(VWC_30J)) %>% 
+  print() ->
+  Flo_climat_gui
+
+Flo_climat_gui %>%
+  select(-date, -Year, -Day, -Month) %>% 
+  scale() ->
+  Flo_climat_gui_acp
+
+Flo_climat_gui_acp <- as.data.frame(Flo_climat_gui_acp)
+
+## ACP ##
+
+# Visualisation des variables et de leurs relations
+pairs.panels(Flo_climat_gui_acp, 
+             method = "pearson", # correlation method
+             hist.col = "#00AFBB",
+             density = TRUE,  # show density plots
+             ellipses = FALSE # show correlation ellipses
+)
+
+ACP_gui <- dudi.pca(Flo_climat_gui_acp,scale = T, center = T, scannf = F, nf = 2 )
+
+# Calcul des % de chaque axe
+pc_gui <- round(ACP_gui$eig/sum(ACP_gui$eig)*100, 2)
+
+# % cumules
+cumsum(pc_gui)
+
+# BarPlot des % d'inertie #
+
+# Definir le min et max de l'axe des y
+ylim <- c(0, 1.2*max(pc_gui))
+
+# Barplot
+xx <- barplot(pc_gui, xaxt = 'n', xlab = '', width = 0.85, ylim = ylim, ylab = "% d'inertie")
+
+# Ajout des valeurs de % en dessus des barres
+text(x = xx, y = pc_gui, label = pc_gui, pos = 3, cex = 0.8, col = "black")
+
+# Ajout des labels sur l'axe des x (ie. numero des axes factoriels)
+axis(1, at = xx, labels = c(1:length(pc_gui)), tick = FALSE, las = 1, line = -0.5, cex.axis = 0.8)
+
+
+# cercle des correlations (pour une ACP normee) #
+s.corcircle(ACP_gui$co)
+
+# Valeurs des coefficients de correlation de Pearson # 
+cor(Flo_climat_gui_acp)
+
+# representation sur les deux premiers axes #
+s.label(ACP_gui$li[,1:2], clabel = 0.5) 
+
+# Calcul de la somme des cos2 des individus
+cont_gui <- inertia.dudi(ACP_gui, row.inertia = TRUE)
+cont_gui
+
+# Calcul des cos2 :
+cos2_gui <- abs(cont_gui$row.rel)/10000
+
+# Representation 
+fviz_cos2(ACP_gui, choice = "ind", axe=1:2)
+fviz_pca_biplot(ACP_gui, col.ind = "cos2", gradient.cols=c("red","yellow","green"),repel = TRUE) 
+
+# Tests de correlations #
+cor.test(Flo_climat_gui_acp$prop, Flo_climat_gui_acp$Rg_30J, method = "pearson")# Non significatif
+cor.test(Flo_climat_gui_acp$prop, Flo_climat_gui_acp$Rain_30J, method = "pearson")# Non significatif
+cor.test(Flo_climat_gui_acp$prop, Flo_climat_gui_acp$VWC_30J, method = "pearson")
+cor.test(Flo_climat_gui_acp$prop, Flo_climat_gui_acp$Hr_30J, method = "pearson") # Non significatif
+cor.test(Flo_climat_gui_acp$prop, Flo_climat_gui_acp$ETP_30J, method = "pearson") # Non significatif
+cor.test(Flo_climat_gui_acp$prop, Flo_climat_gui_acp$Temp_30J, method = "pearson")# Non significatif
+
+cor.test(Flo_climat_gui_acp$prop, Flo_climat_gui_acp$Rg_15J, method = "pearson") # Non significatif
+cor.test(Flo_climat_gui_acp$prop, Flo_climat_gui_acp$Rain_15J, method = "pearson") # Non significatif
+cor.test(Flo_climat_gui_acp$prop, Flo_climat_gui_acp$VWC_15J, method = "pearson") 
+cor.test(Flo_climat_gui_acp$prop, Flo_climat_gui_acp$Hr_15J, method = "pearson") # Non significatif
+cor.test(Flo_climat_gui_acp$prop, Flo_climat_gui_acp$ETP_15J, method = "pearson")# Non significatif
+cor.test(Flo_climat_gui_acp$prop, Flo_climat_gui_acp$Temp_15J, method = "pearson") # Non significatif
 
 
 
