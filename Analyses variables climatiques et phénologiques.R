@@ -41,17 +41,34 @@ pheno2 %>%
 dataB <- read_csv2("data/GX-METEO-2020 - 2024E - AK.csv")
 
 ## Reduction deu jeu de donnees
-dataB %>% 
-  group_by(Year, Month, Day,`J/N`) %>% 
-  summarise(`Temp(55)` = mean(`Temp(55)`),
-            `Hr(55)`= mean(`Hr(55)`),
-            Rg = mean(Rg),
-            vpd55= mean(vpd55),
-            Rain= sum(Rain),
-            ETP = sum(ETP),
-            VWC_10cm = mean(VWC_10cm),
-            T_10cm = mean(T_10cm)) %>% 
-  print( ) ->
+# dataB %>% 
+#   group_by(Year, Month, Day,`J/N`) %>% 
+#   summarise(`Temp(55)` = mean(`Temp(55)`),
+#             `Hr(55)`= mean(`Hr(55)`),
+#             Rg = mean(Rg),
+#             vpd55= mean(vpd55),
+#             Rain= sum(Rain),
+#             ETP = sum(ETP),
+#             VWC_10cm = mean(VWC_10cm),
+#             T_10cm = mean(T_10cm)) %>% 
+#   print( ) ->
+#   dataB
+
+dataB %>%
+  group_by(Year, Month, Day) %>%
+  summarise(
+    `Temp(55)` = mean(`Temp(55)`, na.rm = TRUE),
+    `Hr(55)` = mean(`Hr(55)`, na.rm = TRUE),
+    Rg = mean(Rg, na.rm = TRUE),
+    vpd55 = mean(vpd55, na.rm = TRUE),
+    Rain = sum(Rain, na.rm = TRUE),
+    ETP = sum(ETP, na.rm = TRUE),
+    VWC_10cm = mean(VWC_10cm, na.rm = TRUE),
+    T_10cm = mean(T_10cm, na.rm = TRUE)
+  ) %>%
+  ungroup() %>%
+  mutate(dates = as.Date(Day - 1, origin = paste0(Year, "-01-01"))) %>% 
+  print() ->
   dataB
 
 
@@ -60,160 +77,41 @@ dataB %>%
 # Pour 2020
 dataB %>% 
   filter(Year == 2020) %>% 
-  mutate(date = ymd("2020-01-01") + days(Day - 1)) %>% 
   print() ->
   dataB2020
 
 # Pour 2021
 dataB %>% 
   filter(Year == 2021) %>% 
-  mutate(date = ymd("2021-01-01") + days(Day - 1)) %>%
   print() ->
   dataB2021
 
 # Pour 2022
 dataB %>% 
   filter(Year == 2022) %>% 
-  mutate(date = ymd("2022-01-01") + days(Day - 1)) %>%
   print() ->
   dataB2022
 
 # Pour 2023
 dataB %>% 
   filter(Year == 2023) %>% 
-  mutate(date = ymd("2023-01-01") + days(Day - 1)) %>%
   print() ->
   dataB2023
 
 # Pour 2024
 dataB %>% 
   filter(Year == 2024) %>% 
-  mutate(date = ymd("2024-01-01") + days(Day - 1)) %>%
   print() ->
   dataB2024
 
 ## Empilement 
-bind_rows(dataB2020) %>% 
-  bind_rows(dataB2021) %>% 
-  bind_rows(dataB2022) %>% 
-  bind_rows(dataB2023) %>% 
-  bind_rows(dataB2024) %>% 
-  print ->
-  dataB_resume
-
-
-#### RELATION ENTRE LES VARIABLES CLIMATIQUES #### 
-
-dataB_resume %>% 
-  filter(!is.na(`Temp(55)`)) %>%
-  filter(!is.na(`Hr(55)`)) %>%
-  filter(!is.na(Rg)) %>%
-  filter(!is.na(vpd55)) %>%
-  filter(!is.na(Rain)) %>%
-  filter(!is.na(ETP)) %>%
-  filter(!is.na(VWC_10cm)) %>%
-  group_by(Year, Month, Day, date) %>% 
-  summarise(`Temp(55)` = mean(`Temp(55)`),`Hr(55)` = mean(`Hr(55)`), Rg = mean(Rg), vpd55 = mean(vpd55), 
-            Rain = sum(Rain),ETP = sum(ETP), VWC_10cm = mean(VWC_10cm)) %>% 
-  print() ->
-  climat
-
-# # Visualisation des variables et de leurs relations (variables non transformees)
-# pairs.panels(climat[,5:11], 
-#              method = "pearson", # correlation method
-#              hist.col = "#00AFBB",
-#              density = TRUE,  # show density plots
-#              ellipses = FALSE # show correlation ellipses
-# )
-
-# Transformation des données de la variable Rain pour obtenir une distribution plus proche de la normalité
-# climat$Rain <- log(sqrt(climat$Rain)+1)
-
-# Standardisation des variables climatiques
-climat[,5:11]%>% 
-  scale() %>% 
-  print ->
-  climat_scaled
-
-climat_scaled <- as.data.frame(climat_scaled)
-
-
-# Visualisation des variables et de leurs relations (variables transformees et centree-reduites)
-pairs.panels(climat_scaled, 
-             method = "spearman", # correlation method
-             hist.col = "#00AFBB",
-             density = TRUE,  # show density plots
-             ellipses = FALSE # show correlation ellipses
-)
-
-# Transformation des colonnes en rang
-Ranking <- function(DataBrut){
-  DataBrut = as.data.frame(DataBrut)
-  DataRang = DataBrut
-  NombreCol = length(ls(DataBrut))
-  for (col in 1:NombreCol) {
-    NomCol = ls(DataBrut)[col]
-    DataRang[,col] = rank(DataBrut[,col])
-    
-  }
-  return(DataRang)
-}
-
-Ranking(climat_scaled)
-
-
-
-## ACP non parametrique ##
-
-# Modele
-acp_climat <- dudi.pca(climat_scaled, scale = T, center = T, scannf = F, nf = 4)
-
-# Calcul des % de chaque axe
-pc <- round(acp_climat$eig/sum(acp_climat$eig)*100, 2)
-
-# % cumules
-cumsum(pc)
-
-# BarPlot des % d'inertie #
-
-# Definir le min et max de l'axe des y
-ylim <- c(0, 1.2*max(pc))
-
-# Barplot
-xx <- barplot(pc, xaxt = 'n', xlab = '', width = 0.85, ylim = ylim, ylab = "% d'inertie")
-
-# Ajout des valeurs de % en dessus des barres
-text(x = xx, y = pc, label = pc, pos = 3, cex = 0.8, col = "black")
-
-# Ajout des labels sur l'axe des x (ie. numero des axes factoriels)
-axis(1, at = xx, labels = c(1:length(pc)), tick = FALSE, las = 1, line = -0.5, cex.axis = 0.8)
-
-
-# cercle des correlations (pour une ACP normee) #
-s.corcircle(acp_climat$co)
-
-# Valeurs des coefficients de correlation de Pearson # 
-cor(climat_scaled)
-
-# representation sur les deux premiers axes #
-s.label(acp_climat$li[,1:2], clabel = 0.5) 
-
-# Coordonnees des individus sur l'axe 1 (axe des x) en fonction de leur valeur pour chaque variable (axe des y) : 
-score(acp_climat)
-
-# Calcul de la somme des cos2 des individus
-cont <- inertia.dudi(acp_climat, row.inertia = TRUE)
-cont
-
-# Calcul des cos2 :
-cos2 <- abs(cont$row.rel)/10000
-
-# Autre representation :
-fviz_cos2(acp_climat, choice = "ind", axe=1:2)
-fviz_pca_biplot(acp_climat, col.ind = "cos2", gradient.cols=c("red","yellow","green"),repel = TRUE) 
-
-
-
+# bind_rows(dataB2020) %>% 
+#   bind_rows(dataB2021) %>% 
+#   bind_rows(dataB2022) %>% 
+#   bind_rows(dataB2023) %>% 
+#   bind_rows(dataB2024) %>% 
+#   print ->
+#   dataB_resume
 
 
 #### VISUALISATION FLORAISON ET PLUVIOMETRIE ####
@@ -271,15 +169,13 @@ amplitude_real_globu = signal_globu[dates_max_globu]
 # Pluviometrie cumulee #
 
 # Full data pour chaque jour du suivi
-dataB_resume %>% 
+dataB %>%
   filter(!is.na(Rain)) %>% 
   mutate(`Temp(55)` = if_else(is.na(`Temp(55)`), 26,`Temp(55)`)) %>% 
-  group_by(Year, Month, date) %>% 
+  group_by(Year, Month, dates) %>% 
   summarise(Rain = sum(Rain), `Temp(55)`= mean(`Temp(55)`)) %>%
   print() ->
   Rain
-
-sum(is.na(Rain$Rain))
 
 # Calcul du cumule de pluviometrie tous les 15 j
 
@@ -491,7 +387,7 @@ amplitude_peaks_sp1 = findpeaks(moyenne_mobile_sp1,minpeakheight  = 10,nups = 1)
 amplitude_real_sp1 = signal_sp1[dates_max_sp1]
 
 
-
+# Graphique pluviometrie cumulee tous les 15 jours et pourcentage de floraison #
 ggplot() + 
   geom_line(data = data_signal_sp1, aes(x = date, y = prop, color = "Signal de floraison réel"), linewidth = 0.7) +
   geom_line(data = data_signal_sp1, aes(x = date, y = moyenne_mobile_sp1, color = "Signal de floraison traité"), linewidth = 0.5) +
@@ -530,7 +426,7 @@ ggplot() +
   )
 
 
-# Graphique pluviometrie cumulee 30J et pourcentage floraison #
+# Graphique pluviometrie cumulee tous les 30 jours et pourcentage floraison #
 
 ggplot() + 
   geom_line(data = data_signal_sp1, aes(x = date, y = signal_sp1, color = "Signal de floraison réel"), linewidth = 0.7) +
@@ -1103,8 +999,8 @@ ggplot() +
 # Symphonia globulifera #
 
 # Full data pour chaque jour du suivi
-climat %>% 
-  select(Year, Month, date, vpd55) %>% 
+dataB %>% 
+  select(Year, Month, dates, vpd55) %>% 
   filter(!is.na(vpd55)) %>% 
   mutate(vpd55 = vpd55*100) %>% # Multiplication par 100 pour mieux voir les variations
   print() ->
@@ -1676,8 +1572,8 @@ ggplot() +
 #### VISUALISATION FLORAISON ET HUMIDITE DU SOL ####
 
 # Full data pour chaque jour du suivi
-climat %>% 
-  select(Year, Month, date, VWC_10cm) %>% 
+dataB %>% 
+  select(Year, Month, dates, VWC_10cm) %>% 
   filter(!is.na(VWC_10cm)) %>% 
   mutate(VWC_10cm = VWC_10cm*100) %>% # Multiplication par 100 pour mieux voir les variations
   print() ->
@@ -2240,8 +2136,8 @@ ggplot() +
 #### VISUALISATION FLORAISON ET RAYONNEMENT GLOBAL ####
 
 # Full data pour chaque jour du suivi
-climat %>% 
-  select(Year, Month, date, Rg) %>% 
+dataB %>% 
+  select(Year, Month, dates, Rg) %>% 
   filter(!is.na(Rg)) %>% 
   #mutate(Rg = Rg*100) %>% # Multiplication par 100 pour mieux voir les variations
   print() ->
@@ -2482,7 +2378,7 @@ ggplot() +
 #### RELATION ENTRE FLORAISON ET VARIABLES CLIMATIQUES ####
 
 # Data variables climatiques #
-dataB_resume %>% 
+dataB %>% 
   filter(!is.na(`Temp(55)`)) %>%
   filter(!is.na(`Hr(55)`)) %>%
   filter(!is.na(Rg)) %>%
@@ -2490,7 +2386,7 @@ dataB_resume %>%
   filter(!is.na(Rain)) %>%
   filter(!is.na(ETP)) %>%
   filter(!is.na(VWC_10cm)) %>%
-  group_by(Year, Month, Day, date) %>% 
+  group_by(Year, Month, Day, dates) %>% 
   summarise(`Temp(55)` = mean(`Temp(55)`),`Hr(55)` = mean(`Hr(55)`), Rg = mean(Rg), vpd55 = mean(vpd55), 
             Rain = sum(Rain),ETP = sum(ETP), VWC_10cm = mean(VWC_10cm)) %>% 
   print() ->
@@ -2529,7 +2425,7 @@ climat %>%
   mutate(VWC_15J = if_else(is.na(VWC_15J), 0, VWC_15J)) %>% 
   mutate(VWC_30J = if_else(is.na(VWC_30J), 0, VWC_30J)) %>% 
   select(Rain_15J, Rain_30J, Hr_15J, Hr_30J, Rg_15J, Rg_30J, 
-         ETP_15J, ETP_30J, Temp_15J, Temp_30J, VWC_15J, VWC_30J, date) %>% 
+         ETP_15J, ETP_30J, Temp_15J, Temp_30J, VWC_15J, VWC_30J, dates) %>% 
   print() ->
   climat
 
@@ -2543,7 +2439,7 @@ climat %>%
 data_signal_globu
 
 # Assemblement des dates floraison et dates des variables climatiques
-all_dates_glb_ACP <- seq(min(data_signal_globu$date, climat$date), max(data_signal_globu$date, climat$date), by = "day")
+all_dates_glb_ACP <- seq(min(data_signal_globu$date, climat$datess), max(data_signal_globu$date, climat$datess), by = "day")
 
 # Ajout de toutes les dates aux objets
 data_signal_globu %>%
@@ -2675,7 +2571,7 @@ pheno2 %>%
   Sympho_glb
 
 # Toutes les dates pour la GLM
-all_dates_glb_GLM <- seq(min(Sympho_glb$date, climat$date), max(Sympho_glb$date, climat$date), by = "day")
+all_dates_glb_GLM <- seq(min(Sympho_glb$date, climat$dates), max(Sympho_glb$date, climat$dates), by = "day")
 
 # Compléter les tibbles avec les dates manquantes
 Sympho_glb %>%
@@ -2745,23 +2641,98 @@ anova(glm_glb)
 #   theme_minimal()
 
 
+
 ## Correlation croisee ##
 
-Flo_climat$date <- as.Date(Flo_climat$date)
+# Régulation des donnees de floraison a une donnee par jour avec une interpolation lineraire
+seq_flo_glb_regule <- Regul_timeserie(as.data.table(data_signal_globu),Var = "prop",TypeFill = "linear")
 
-# Series temporelles
-Prop_glb <- zoo(Flo_climat$prop, order.by = Flo_climat$date)
-Pluvio_15J <- zoo(Flo_climat$Rain_15J, order.by = Flo_climat$date)
-Pluvio_30J <- zoo(Flo_climat$Rain_30J, order.by = Flo_climat$date)
 
-# Lissage des series temporelles pour moins d'irregularites
-Prop_glb = moving_average(Prop_glb ,filter = fpoids(n=2,p=2,q=2)$y)
-Pluvio_15J = moving_average(Pluvio_15J ,filter = fpoids(n=2,p=2,q=2)$y)
-Pluvio_30J = moving_average(Pluvio_30J ,filter = fpoids(n=2,p=2,q=2)$y)
+# Definition des series temporelles sur la meme periode temporelle #
+# Date de debut de la serie temporelle de la floraison
+seq_flo_glb_regule %>% 
+  arrange(date) %>% 
+  slice_head(n=1) %>%
+  pull(date) ->
+  date_debut_glb
 
-# Figure correlations croisees
-ccf(Prop_glb,Pluvio_15J, main = "Corrélation croisée entre le signal de floraison de S.globulifera et la pluie cumulée tous les 15 jours")
-ccf(Prop_glb,Pluvio_15J, main = "Corrélation croisée entre le signal de floraison de S.globulifera et la pluie cumulée tous les 30 jours")
+# Date de fin de la serie temporelle de la floraison
+seq_flo_glb_regule %>% 
+  arrange(date) %>% 
+  slice_tail(n=1) %>% 
+  pull(date) ->
+  date_fin_glb
+
+#Extraction des sequences sur la meme duree #
+seq_flo_glb_regule %>% 
+  pull(prop_filled) ->
+  flo_glb
+
+# Pluviometrie journaliere et cumulee
+dataB %>% 
+  filter(dates >= date_debut_glb, dates <= date_fin_glb) %>%
+  pull(Rain) ->
+  Rain
+
+sum(is.na(Rain))
+
+climat %>% 
+  filter(date >= date_debut_glb, date <= date_fin_glb) %>% 
+  pull(Rain_15J) ->
+  Rain_15
+
+climat %>% 
+  filter(date >= date_debut_glb, date <= date_fin_glb) %>% 
+  pull(Rain_30J) ->
+  Rain_30
+
+# Humidite du sol
+dataB %>% 
+  filter(!is.na(VWC_10cm)) %>% 
+  filter(dates >= date_debut_glb, dates <= date_fin_glb) %>%
+  pull(VWC_10cm) ->
+  VWC
+
+climat %>% 
+  filter(dates >= date_debut_glb, dates <= date_fin_glb) %>% 
+  pull(VWC_15J) ->
+  VWC_15
+
+climat %>% 
+  filter(dates >= date_debut_glb, dates <= date_fin_glb) %>% 
+  pull(VWC_30J) ->
+  VWC_30
+
+dates = seq_flo_glb_regule %>% pull(date)
+
+# Correlation croisee avec les cumules de pluie
+ccf(flo_glb,Rain,lag.max = 1500)
+ccf(flo_glb,Rain_15,lag.max = 1500)
+ccf(flo_glb,Rain_30,lag.max = 1500)
+
+# Correlation croisee avec l'humidite du sol
+ccf(flo_glb,VWC, lag.max = 1500)
+ccf(flo_glb,VWC_15,lag.max = 1500)
+ccf(flo_glb,VWC_30,lag.max = 1500)
+
+
+# Flo_climat$dates <- as.Date(Flo_climat$dates)
+# 
+# # Series temporelles
+# Prop_glb <- zoo(Flo_climat$prop, order.by = Flo_climat$dates)
+# Pluvio_15J <- zoo(Flo_climat$Rain_15J, order.by = Flo_climat$dates)
+# Pluvio_30J <- zoo(Flo_climat$Rain_30J, order.by = Flo_climat$dates)
+# 
+# # Lissage des series temporelles pour moins d'irregularites
+# Prop_glb = moving_average(Prop_glb ,filter = fpoids(n=2,p=2,q=2)$y)
+# Pluvio_15J = moving_average(Pluvio_15J ,filter = fpoids(n=2,p=2,q=2)$y)
+# Pluvio_30J = moving_average(Pluvio_30J ,filter = fpoids(n=2,p=2,q=2)$y)
+# 
+# # Figure correlations croisees
+# ccf(Prop_glb,Pluvio_15J, main = "Corrélation croisée entre le signal de floraison de S.globulifera et la pluie cumulée tous les 15 jours")
+# ccf(Prop_glb,Pluvio_15J, main = "Corrélation croisée entre le signal de floraison de S.globulifera et la pluie cumulée tous les 30 jours")
+
+
 
 
 
@@ -2773,7 +2744,7 @@ ccf(Prop_glb,Pluvio_15J, main = "Corrélation croisée entre le signal de florai
 data_signal_sp1
 
 # Assemblement des dates floraison et dates des variables climatiques
-all_dates_sp1_ACP <- seq(min(data_signal_sp1$date, climat$date), max(data_signal_sp1$date, climat$date), by = "day")
+all_dates_sp1_ACP <- seq(min(data_signal_sp1$date, climat$dates), max(data_signal_sp1$date, climat$dates), by = "day")
 
 # Ajout de toutes les dates aux objets
 data_signal_sp1 %>%
@@ -2904,7 +2875,7 @@ pheno2 %>%
 
 
 # Toutes les dates pour la GLM
-all_dates_sp1_GLM <- seq(min(Sympho_sp1$date, climat$date), max(Sympho_sp1$date, climat$date), by = "day")
+all_dates_sp1_GLM <- seq(min(Sympho_sp1$date, climat$dates), max(Sympho_sp1$date, climat$dates), by = "day")
 
 # Compléter les tibbles avec les dates manquantes
 Sympho_sp1 %>%
@@ -2951,7 +2922,54 @@ summary(glm_sp1)
 anova(glm_sp1)
 
 
+## Correlation croisee ##
 
+# Régulation des donnees de floraison a une donnee par jour avec une interpolation lineraire
+seq_flo_sp1_regule <- Regul_timeserie(as.data.table(data_signal_sp1),Var = "prop",TypeFill = "linear")
+
+
+# Definition des series temporelles sur la meme periode temporelle #
+# Date de debut de la serie temporelle de la floraison
+seq_flo_sp1_regule %>% 
+  arrange(date) %>% 
+  slice_head(n=1) %>%
+  pull(date) ->
+  date_debut_sp1
+
+# Date de fin de la serie temporelle de la floraison
+seq_flo_sp1_regule %>% 
+  arrange(date) %>% 
+  slice_tail(n=1) %>% 
+  pull(date) ->
+  date_fin_sp1
+
+#Extraction des sequences sur la meme duree #
+seq_flo_sp1_regule %>% 
+  pull(prop_filled) ->
+  flo_sp1
+
+# Pluviometrie journaliere et cumulee
+dataB %>% 
+  filter(dates >= date_debut_sp1, dates <= date_fin_sp1) %>%
+  pull(Rain) ->
+  Rain
+
+sum(is.na(Rain))
+
+climat %>% 
+  filter(dates >= date_debut_sp1, dates <= date_fin_sp1) %>% 
+  pull(Rain_15J) ->
+  Rain_15
+
+climat %>% 
+  filter(dates >= date_debut_sp1, dates <= date_fin_sp1) %>% 
+  pull(Rain_30J) ->
+  Rain_30
+
+# Correlation croisee avec les cumules de pluie
+ccf(flo_sp1,Rain,lag.max = 1500)
+ccf(flo_sp1,Rain_15,lag.max = 1500)
+ccf(flo_sp1,Rain_30,lag.max = 1500)
 
 
 ### VOUACAPOUA AMERICANA ###
@@ -2963,7 +2981,7 @@ data_signal_am
 
 
 # Assemblement des dates floraison et dates des variables climatiques
-all_dates_am_ACP <- seq(min(data_signal_am$date, climat$date), max(data_signal_am$date, climat$date), by = "day")
+all_dates_am_ACP <- seq(min(data_signal_am$date, climat$dates), max(data_signal_am$date, climat$dates), by = "day")
 
 # Ajout de toutes les dates aux objets
 data_signal_am %>%
@@ -3104,7 +3122,7 @@ pheno2 %>%
   V_am
 
 # Toutes les dates pour la GLM
-all_dates_am_GLM <- seq(min(V_am$date, climat$date), max(V_am$date, climat$date), by = "day")
+all_dates_am_GLM <- seq(min(V_am$date, climat$dates), max(V_am$date, climat$dates), by = "day")
 
 # Compléter les tibbles avec les dates manquantes
 V_am %>%
@@ -3156,6 +3174,56 @@ anova(glm_am)
 
 
 
+## Correlation croisee ##
+
+# Régulation des donnees de floraison a une donnee par jour avec une interpolation lineraire
+seq_flo_am_regule <- Regul_timeserie(as.data.table(data_signal_am),Var = "prop",TypeFill = "linear")
+
+
+# Definition des series temporelles sur la meme periode temporelle #
+# Date de debut de la serie temporelle de la floraison
+seq_flo_am_regule %>% 
+  arrange(date) %>% 
+  slice_head(n=1) %>%
+  pull(date) ->
+  date_debut_am
+
+# Date de fin de la serie temporelle de la floraison
+seq_flo_am_regule %>% 
+  arrange(date) %>% 
+  slice_tail(n=1) %>% 
+  pull(date) ->
+  date_fin_am
+
+#Extraction des sequences sur la meme duree #
+seq_flo_am_regule %>% 
+  pull(prop_filled) ->
+  flo_am
+
+# Pluviometrie journaliere et cumulee
+dataB %>% 
+  filter(dates >= date_debut_am, dates <= date_fin_am) %>%
+  pull(Rain) ->
+  Rain
+
+sum(is.na(Rain))
+
+climat %>% 
+  filter(dates >= date_debut_am, dates <= date_fin_am) %>% 
+  pull(Rain_15J) ->
+  Rain_15
+
+climat %>% 
+  filter(dates >= date_debut_am, dates <= date_fin_am) %>% 
+  pull(Rain_30J) ->
+  Rain_30
+
+# Correlation croisee avec les cumules de pluie
+ccf(flo_am,Rain,lag.max = 1500)
+ccf(flo_am,Rain_15,lag.max = 1500)
+ccf(flo_am,Rain_30,lag.max = 1500)
+
+
 ### COUMA GUIANENSIS ###
 
 ## ACP ##
@@ -3164,7 +3232,7 @@ anova(glm_am)
 data_signal_gui
 
 # Assemblement des dates floraison et dates des variables climatiques
-all_dates_gui_ACP <- seq(min(data_signal_gui$date, climat$date), max(data_signal_gui$date, climat$date), by = "day")
+all_dates_gui_ACP <- seq(min(data_signal_gui$date, climat$dates), max(data_signal_gui$date, climat$dates), by = "day")
 
 # Ajout de toutes les dates aux objets
 data_signal_gui %>%
@@ -3293,7 +3361,7 @@ pheno2 %>%
   C_gui
 
 # Toutes les dates pour la GLM
-all_dates_gui_GLM <- seq(min(C_gui$date, climat$date), max(C_gui$date, climat$date), by = "day")
+all_dates_gui_GLM <- seq(min(C_gui$date, climat$dates), max(C_gui$date, climat$dates), by = "day")
 
 # Compléter les tibbles avec les dates manquantes
 C_gui %>%
@@ -3339,6 +3407,56 @@ summary(glm_gui)
 anova(glm_gui)
 
 
+## Correlation croisee ##
+
+# Régulation des donnees de floraison a une donnee par jour avec une interpolation lineraire
+seq_flo_gui_regule <- Regul_timeserie(as.data.table(data_signal_gui),Var = "prop",TypeFill = "linear")
+
+
+# Definition des series temporelles sur la meme periode temporelle #
+# Date de debut de la serie temporelle de la floraison
+seq_flo_gui_regule %>% 
+  arrange(date) %>% 
+  slice_head(n=1) %>%
+  pull(date) ->
+  date_debut_gui
+
+# Date de fin de la serie temporelle de la floraison
+seq_flo_gui_regule %>% 
+  arrange(date) %>% 
+  slice_tail(n=1) %>% 
+  pull(date) ->
+  date_fin_gui
+
+#Extraction des sequences sur la meme duree #
+seq_flo_gui_regule %>% 
+  pull(prop_filled) ->
+  flo_gui
+
+# Pluviometrie journaliere et cumulee
+dataB %>% 
+  filter(dates >= date_debut_gui, dates <= date_fin_gui) %>%
+  pull(Rain) ->
+  Rain
+
+sum(is.na(Rain))
+
+climat %>% 
+  filter(dates >= date_debut_gui, dates <= date_fin_gui) %>% 
+  pull(Rain_15J) ->
+  Rain_15
+
+climat %>% 
+  filter(dates >= date_debut_gui, dates <= date_fin_gui) %>% 
+  pull(Rain_30J) ->
+  Rain_30
+
+# Correlation croisee avec les cumules de pluie
+ccf(flo_gui,Rain,lag.max = 1500)
+ccf(flo_gui,Rain_15,lag.max = 1500)
+ccf(flo_gui,Rain_30,lag.max = 1500)
+
+
 
 ### Moronobea coccinea ###
 
@@ -3348,7 +3466,7 @@ anova(glm_gui)
 data_signal_cocci
 
 # Assemblement des dates floraison et dates des variables climatiques
-all_dates_cocci_ACP <- seq(min(data_signal_cocci$date, climat$date), max(data_signal_cocci$date, climat$date), by = "day")
+all_dates_cocci_ACP <- seq(min(data_signal_cocci$date, climat$dates), max(data_signal_cocci$date, climat$dates), by = "day")
 
 # Ajout de toutes les dates aux objets
 data_signal_cocci %>%
@@ -3475,7 +3593,7 @@ pheno2 %>%
   M_cocci
 
 # Toutes les dates pour la GLM
-all_dates_cocci_GLM <- seq(min(M_cocci$date, climat$date), max(M_cocci$date, climat$date), by = "day")
+all_dates_cocci_GLM <- seq(min(M_cocci$date, climat$dates), max(M_cocci$date, climat$dates), by = "day")
 
 # Compléter les tibbles avec les dates manquantes
 M_cocci %>%
@@ -3521,6 +3639,57 @@ summary(glm_cocci)
 anova(glm_cocci)
 
 
+## Correlation croisee ##
+
+# Régulation des donnees de floraison a une donnee par jour avec une interpolation lineraire
+seq_flo_cocci_regule <- Regul_timeserie(as.data.table(data_signal_cocci),Var = "prop",TypeFill = "linear")
+
+
+# Definition des series temporelles sur la meme periode temporelle #
+# Date de debut de la serie temporelle de la floraison
+seq_flo_cocci_regule %>% 
+  arrange(date) %>% 
+  slice_head(n=1) %>%
+  pull(date) ->
+  date_debut_cocci
+
+# Date de fin de la serie temporelle de la floraison
+seq_flo_cocci_regule %>% 
+  arrange(date) %>% 
+  slice_tail(n=1) %>% 
+  pull(date) ->
+  date_fin_cocci
+
+#Extraction des sequences sur la meme duree #
+seq_flo_cocci_regule %>% 
+  pull(prop_filled) ->
+  flo_cocci
+
+# Pluviometrie journaliere et cumulee
+dataB %>% 
+  filter(dates >= date_debut_cocci, dates <= date_fin_cocci) %>%
+  pull(Rain) ->
+  Rain
+
+sum(is.na(Rain))
+
+climat %>% 
+  filter(dates >= date_debut_cocci, dates <= date_fin_cocci) %>% 
+  pull(Rain_15J) ->
+  Rain_15
+
+climat %>% 
+  filter(dates >= date_debut_cocci, dates <= date_fin_cocci) %>% 
+  pull(Rain_30J) ->
+  Rain_30
+
+# Correlation croisee avec les cumules de pluie
+ccf(flo_cocci,Rain,lag.max = 1500)
+ccf(flo_cocci,Rain_15,lag.max = 1500)
+ccf(flo_cocci,Rain_30,lag.max = 1500)
+
+
+
 ### Platonia insignis ###
 
 ## ACP ##
@@ -3529,7 +3698,7 @@ anova(glm_cocci)
 data_signal_ins
 
 # Assemblement des dates floraison et dates des variables climatiques
-all_dates_ins_ACP <- seq(min(data_signal_ins$date, climat$date), max(data_signal_ins$date, climat$date), by = "day")
+all_dates_ins_ACP <- seq(min(data_signal_ins$date, climat$dates), max(data_signal_ins$date, climat$dates), by = "day")
 
 # Ajout de toutes les dates aux objets
 data_signal_ins %>%
@@ -3657,7 +3826,7 @@ pheno2 %>%
   P_ins
 
 # Toutes les dates pour la GLM
-all_dates_ins_GLM <- seq(min(P_ins$date, climat$date), max(P_ins$date, climat$date), by = "day")
+all_dates_ins_GLM <- seq(min(P_ins$date, climat$dates), max(P_ins$date, climat$dates), by = "day")
 
 # Compléter les tibbles avec les dates manquantes
 P_ins %>%
@@ -3703,6 +3872,54 @@ summary(glm_ins)
 anova(glm_ins)
 
 
+## Correlation croisee ##
+
+# Régulation des donnees de floraison a une donnee par jour avec une interpolation lineraire
+seq_flo_ins_regule <- Regul_timeserie(as.data.table(data_signal_ins),Var = "prop",TypeFill = "linear")
+
+
+# Definition des series temporelles sur la meme periode temporelle #
+# Date de debut de la serie temporelle de la floraison
+seq_flo_ins_regule %>% 
+  arrange(date) %>% 
+  slice_head(n=1) %>%
+  pull(date) ->
+  date_debut_ins
+
+# Date de fin de la serie temporelle de la floraison
+seq_flo_ins_regule %>% 
+  arrange(date) %>% 
+  slice_tail(n=1) %>% 
+  pull(date) ->
+  date_fin_ins
+
+#Extraction des sequences sur la meme duree #
+seq_flo_ins_regule %>% 
+  pull(prop_filled) ->
+  flo_ins
+
+# Pluviometrie journaliere et cumulee
+dataB %>% 
+  filter(dates >= date_debut_ins, dates <= date_fin_ins) %>%
+  pull(Rain) ->
+  Rain
+
+sum(is.na(Rain))
+
+climat %>% 
+  filter(dates >= date_debut_ins, dates <= date_fin_ins) %>% 
+  pull(Rain_15J) ->
+  Rain_15
+
+climat %>% 
+  filter(dates >= date_debut_ins, dates <= date_fin_ins) %>% 
+  pull(Rain_30J) ->
+  Rain_30
+
+# Correlation croisee avec les cumules de pluie
+ccf(flo_ins,Rain,lag.max = 1500)
+ccf(flo_ins,Rain_15,lag.max = 1500)
+ccf(flo_ins,Rain_30,lag.max = 1500)
 
 
 
