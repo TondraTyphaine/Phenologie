@@ -2481,9 +2481,22 @@ ggplot() +
 
 #### RELATION ENTRE FLORAISON ET VARIABLES CLIMATIQUES ####
 
-### SYMPHONIA GLOBULIFERA ###
+# Data variables climatiques #
+dataB_resume %>% 
+  filter(!is.na(`Temp(55)`)) %>%
+  filter(!is.na(`Hr(55)`)) %>%
+  filter(!is.na(Rg)) %>%
+  filter(!is.na(vpd55)) %>%
+  filter(!is.na(Rain)) %>%
+  filter(!is.na(ETP)) %>%
+  filter(!is.na(VWC_10cm)) %>%
+  group_by(Year, Month, Day, date) %>% 
+  summarise(`Temp(55)` = mean(`Temp(55)`),`Hr(55)` = mean(`Hr(55)`), Rg = mean(Rg), vpd55 = mean(vpd55), 
+            Rain = sum(Rain),ETP = sum(ETP), VWC_10cm = mean(VWC_10cm)) %>% 
+  print() ->
+  climat
 
-# Data climat
+# Variables climatiques cumulees tous les 15 jours et tous les mois
 climat$Rain_15J <- rollapply(climat$Rain, width = 15, FUN = sum, fill = NA, align = "right")
 climat$Rain_30J <- rollapply(climat$Rain, width = 30, FUN = sum, fill = NA, align = "right")
 
@@ -2515,29 +2528,40 @@ climat %>%
   mutate(Temp_30J = if_else(is.na(Temp_30J), 0, Temp_30J)) %>% 
   mutate(VWC_15J = if_else(is.na(VWC_15J), 0, VWC_15J)) %>% 
   mutate(VWC_30J = if_else(is.na(VWC_30J), 0, VWC_30J)) %>% 
-  select(-Rain, -Rg, -ETP, -VWC_10cm, -`Temp(55)`, -`Hr(55)`, -vpd55) %>% 
+  select(Rain_15J, Rain_30J, Hr_15J, Hr_30J, Rg_15J, Rg_30J, 
+         ETP_15J, ETP_30J, Temp_15J, Temp_30J, VWC_15J, VWC_30J, date) %>% 
   print() ->
   climat
 
-# Toutes les dates
-all_dates <- seq(min(data_signal_globu$date, climat$date), max(data_signal_globu$date, climat$date), by = "day")
 
-# Compléter les tibbles avec les dates manquantes
+
+### SYMPHONIA GLOBULIFERA ###
+
+## ACP  ##
+
+# Data proportion d'individus en fleur
+data_signal_globu
+
+# Assemblement des dates floraison et dates des variables climatiques
+all_dates_glb_ACP <- seq(min(data_signal_globu$date, climat$date), max(data_signal_globu$date, climat$date), by = "day")
+
+# Ajout de toutes les dates aux objets
 data_signal_globu %>%
-  right_join(tibble(date = all_dates), by = "date") %>% 
+  right_join(tibble(date = all_dates_glb_ACP), by = "date") %>% 
   print() ->
   Floraison_glb
 
 climat %>%
-  right_join(tibble(date = all_dates), by = "date") %>% 
+  right_join(tibble(date = all_dates_glb_ACP), by = "date") %>% 
   print() ->
-  climat
+  climat_glb_ACP
 
-
+# Assemblement des donnees de floraison et des donnees climatiques
 Floraison_glb %>% 
+  arrange(date) %>% 
   select(date, prop) %>% 
-  left_join(climat, by = "date") %>% 
-  filter(!is.na(prop)) %>%
+  left_join(climat_glb_ACP, by = "date") %>% 
+  filter(!is.na(prop)) %>% 
   filter(!is.na(Rain_15J)) %>% 
   filter(!is.na(Rain_30J)) %>% 
   filter(!is.na(Hr_15J)) %>% 
@@ -2551,45 +2575,52 @@ Floraison_glb %>%
   filter(!is.na(VWC_15J)) %>% 
   filter(!is.na(VWC_30J)) %>% 
   print() ->
-  Flo_climat
+  Flo_climat_glb_ACP
 
-Flo_climat %>%
-  select(-date, -Year, -Day, -Month) %>% 
-  scale() ->
-  Flo_climat_acp
-
-Flo_climat_acp <- as.data.frame(Flo_climat_acp)
-
-# Tests de correlation
-cor.test(Flo_climat_acp$prop, Flo_climat_acp$Rg_30J, method = "pearson")
-cor.test(Flo_climat_acp$prop, Flo_climat_acp$Rain_30J, method = "pearson")
-cor.test(Flo_climat_acp$prop, Flo_climat_acp$VWC_30J, method = "pearson")
-cor.test(Flo_climat_acp$prop, Flo_climat_acp$Hr_30J, method = "pearson") # Non significatif
-cor.test(Flo_climat_acp$prop, Flo_climat_acp$ETP_30J, method = "pearson")
-cor.test(Flo_climat_acp$prop, Flo_climat_acp$Temp_30J, method = "pearson")
-
-cor.test(Flo_climat_acp$prop, Flo_climat_acp$Rg_15J, method = "pearson")
-cor.test(Flo_climat_acp$prop, Flo_climat_acp$Rain_15J, method = "pearson")
-cor.test(Flo_climat_acp$prop, Flo_climat_acp$VWC_15J, method = "pearson")
-cor.test(Flo_climat_acp$prop, Flo_climat_acp$Hr_15J, method = "pearson") # Non significatif
-cor.test(Flo_climat_acp$prop, Flo_climat_acp$ETP_15J, method = "pearson")
-cor.test(Flo_climat_acp$prop, Flo_climat_acp$Temp_15J, method = "pearson")
+# Centrage et reduction des variables climatiques
+Flo_climat_glb_ACP %>%
+  mutate(across(c(Rain_15J, Rain_30J, Hr_15J, Hr_30J, Rg_15J, Rg_30J, 
+                  ETP_15J, ETP_30J, Temp_15J, Temp_30J, VWC_15J, VWC_30J), 
+                scale)) %>% 
+  select(prop, Rain_15J, Rain_30J, Hr_15J, Hr_30J, Rg_15J, Rg_30J, 
+         ETP_15J, ETP_30J, Temp_15J, Temp_30J, VWC_15J, VWC_30J) %>%
+  print() ->
+  Flo_climat_glb_ACP
 
 
-## ACP ##
+
+# Tests de correlation entre la proportion d'individus en fleur et les variables climatiques
+cor.test(Flo_climat_glb_ACP$prop, Flo_climat_glb_ACP$Rg_30J, method = "pearson")
+cor.test(Flo_climat_glb_ACP$prop, Flo_climat_glb_ACP$Rain_30J, method = "pearson")
+cor.test(Flo_climat_glb_ACP$prop, Flo_climat_glb_ACP$VWC_30J, method = "pearson")
+cor.test(Flo_climat_glb_ACP$prop, Flo_climat_glb_ACP$Hr_30J, method = "pearson") # Significatif mais limite (0.49)
+cor.test(Flo_climat_glb_ACP$prop, Flo_climat_glb_ACP$ETP_30J, method = "pearson")
+cor.test(Flo_climat_glb_ACP$prop, Flo_climat_glb_ACP$Temp_30J, method = "pearson")
+
+cor.test(Flo_climat_glb_ACP$prop, Flo_climat_glb_ACP$Rg_15J, method = "pearson")
+cor.test(Flo_climat_glb_ACP$prop, Flo_climat_glb_ACP$Rain_15J, method = "pearson")
+cor.test(Flo_climat_glb_ACP$prop, Flo_climat_glb_ACP$VWC_15J, method = "pearson")
+cor.test(Flo_climat_glb_ACP$prop, Flo_climat_glb_ACP$Hr_15J, method = "pearson") # Non significatif
+cor.test(Flo_climat_glb_ACP$prop, Flo_climat_glb_ACP$ETP_15J, method = "pearson")
+cor.test(Flo_climat_glb_ACP$prop, Flo_climat_glb_ACP$Temp_15J, method = "pearson")
+
 
 # Visualisation des variables et de leurs relations
-pairs.panels(Flo_climat_acp, 
+pairs.panels(Flo_climat_glb_ACP[c("Rain_15J","Rain_30J", "VWC_15J", "VWC_30J", "Rg_15J",
+                                  "Rg_30J", "Temp_15J","Temp_30J", "Hr_15J", "Hr_30J",
+                                  "ETP_15J", "ETP_30J")], 
              method = "pearson", # correlation method
              hist.col = "#00AFBB",
              density = TRUE,  # show density plots
              ellipses = FALSE # show correlation ellipses
 )
 
-ACP_glb <- dudi.pca(Flo_climat_acp,scale = T, center = T, scannf = F, nf = 4 )
+
+# Model
+ACP_glb <- dudi.pca(Flo_climat_glb_ACP[c("prop","Rain_15J","Rain_30J", "VWC_15J", "VWC_30J","Temp_15J","Temp_30J", "Hr_15J", "Hr_30J")], scale = T, center = T, scannf = F, nf = 4 )
 
 # Calcul des % de chaque axe
-pc_glb <- round(ACP_glb$eig/sum(ACP_glb$eig)*100, 2)
+pc_glb<- round(ACP_glb$eig/sum(ACP_glb$eig)*100, 2)
 
 # % cumules
 cumsum(pc_glb)
@@ -2613,11 +2644,6 @@ axis(1, at = xx, labels = c(1:length(pc_glb)), tick = FALSE, las = 1, line = -0.
 # cercle des correlations (pour une ACP normee) #
 s.corcircle(ACP_glb$co)
 
-# Valeurs des coefficients de correlation de Pearson # 
-cor(Flo_climat_acp)
-
-# representation sur les deux premiers axes #
-s.label(ACP_glb$li[,1:2], clabel = 0.5) 
 
 # Calcul de la somme des cos2 des individus
 cont_glb <- inertia.dudi(ACP_glb, row.inertia = TRUE)
@@ -2635,117 +2661,38 @@ inertia.dudi(ACP_glb, col.inertia = T)
 
 
 
-## GLM ##
-
-# Visualisation de la proportion d'individu en fleur
-hist(Flo_climat$prop)
-boxplot(Flo_climat$prop)
-qqnorm(Flo_climat$prop)
-qqline(Flo_climat$prop)
-shapiro.test(Flo_climat$prop) # pas de normalité
-
-glm_pluvio_glb <- glm(round(prop) ~ round(Rain_15J), data = Flo_climat, family = "poisson")
-summary(glm_pluvio_glb)
-anova(glm_pluvio_glb)
-par(mfrow = c(2,2))
-plot(glm_pluvio_glb)
-
-glm_pluvio_glb_res <- residuals(glm_pluvio_glb)
-shapiro.test(glm_pluvio_glb_res) # Non normalite des residuso
-dwtest(glm_pluvio_glb) # non indépendance des residus
-bptest(glm_pluvio_glb) # Heteroscedasticite des residus
 
 
+## GLM (probabilite d'etre en fleur selon les variables climatiques) ##
 
-# glm_test <- glm(prop ~ Rain_15J+ Rg_15J+ VWC_15J+ Hr_15J+ ETP_15J+ Temp_15J, data = Flo_climat_acp, family = gaussian(link = "identity"))
-# 
-# glm(prop ~ Rain_15J+ Rg_15J+ VWC_15J+ Hr_15J+ ETP_15J+ Temp_15J, data = Flo_climat_acp, family = inverse.gaussian(link = "1/mu^2"))
-# 
-# 
-# summary(glm_test)
-# 
-# # Models #
-# GLM_glb_15J <- glm(round(prop) ~ round(Rain_15J), data = Flo_climat_acp, family = "poisson")
-# summary(GLM_glb_15J)
-# anova(GLM_glb_15J, test = "Chi")
-# 
-# GLM_glb_30J <- glm(round(prop) ~ round(Rain_30J), data = Flo_climat_acp, family = "poisson")
-# summary(GLM_glb_30J)
-# anova(GLM_glb_30J, test = "Chi")
-# 
-# GLM_glb_VWC15J <- glm(prop ~ VWC_15J, data = Flo_climat_acp, family = "exponential")
-# summary(GLM_glb_VWC15J)
-# anova(GLM_glb_VWC15J, test = "Chi")
-# 
-# plot(prop~VWC_15J, data = Flo_climat_acp)
+# Data binaire pour Symphonia globulifera (1 pour un evenement de floraion, 0 sinon) #
+pheno2 %>% 
+  filter(Genus_Spec == "Symphonia_globulifera") %>% 
+  select(date, PPFlo, CrownID) %>% 
+  mutate(PPFlo = if_else(is.na(PPFlo), "not_Fl", PPFlo)) %>% 
+  mutate(Flo = ifelse(PPFlo == "Fl", 1, 0)) %>% 
+  print() ->
+  Sympho_glb
 
-# Representations graphiques #
-
-Flo_pluvio$predictions_15J <- predict(GLM_glb_15J, type = "response")
-
-ggplot(Flo_pluvio, aes(x = Cumule_15J, y = prop)) +
-  geom_point() +  # Points des données observées
-  geom_line(aes(y = predictions_15J), color = "blue") +  # Ligne des prédictions du modèle
-  labs(title = "GLM Poisson: signal_globu ~ Pluvio_15",
-       x = "Cumule_15J",
-       y = "signal_globu") +
-  theme_minimal()
-
-
-Flo_pluvio$predictions_30J <- predict(GLM_glb_30J, type = "response")
-
-ggplot(Flo_pluvio, aes(x = Cumule_30J, y = prop)) +
-  geom_point() +  # Points des données observées
-  geom_line(aes(y = predictions_30J), color = "purple") +  # Ligne des prédictions du modèle
-  labs(title = "GLM Poisson: signal_globu ~ Cumule_30J",
-       x = "Cumule_30J",
-       y = "signal_globu") +
-  theme_minimal()
-
-
-# ## Correlation croisee ##
-# 
-# Flo_pluvio$date <- as.Date(Flo_pluvio$date)
-# 
-# # Series temporelles
-# Prop_glb <- zoo(Flo_pluvio$prop, order.by = Flo_pluvio$date)
-# Pluvio_15J <- zoo(Flo_pluvio$Cumule_15J, order.by = Flo_pluvio$date)
-# Pluvio_30J <- zoo(Flo_pluvio$Cumule_30J, order.by = Flo_pluvio$date)
-# 
-# # Lissage des series temporelles pour moins d'irregularites
-# Prop_glb = moving_average(Prop_glb ,filter = fpoids(n=2,p=2,q=2)$y) 
-# Pluvio_15J = moving_average(Pluvio_15J ,filter = fpoids(n=2,p=2,q=2)$y) 
-# Pluvio_30J = moving_average(Pluvio_30J ,filter = fpoids(n=2,p=2,q=2)$y)  
-# 
-# # Figure correlations croisees
-# ccf(Prop_glb,Pluvio_15J, main = "Corrélation croisée entre le signal de floraison de S.globulifera et la pluie cumulée tous les 15 jours")
-# ccf(Prop_glb,Pluvio_15J, main = "Corrélation croisée entre le signal de floraison de S.globulifera et la pluie cumulée tous les 30 jours")
-# 
-
-
-## SYMPHONIA SP1 ##
-
-dataB_resume
-
-# Toutes les dates
-all_dates_climat_sp1 <- seq(min(data_signal_sp1$date, climat$date), max(data_signal_sp1$date, climat$date), by = "day")
+# Toutes les dates pour la GLM
+all_dates_glb_GLM <- seq(min(Sympho_glb$date, climat$date), max(Sympho_glb$date, climat$date), by = "day")
 
 # Compléter les tibbles avec les dates manquantes
-data_signal_sp1 %>%
-  right_join(tibble(date = all_dates_climat_sp1), by = "date") %>% 
+Sympho_glb %>%
+  right_join(tibble(date = all_dates_glb_GLM), by = "date") %>% 
   print() ->
-  Floraison_sp1
+  Sympho_glb
 
 climat %>%
-  right_join(tibble(date = all_dates_climat_sp1), by = "date") %>% 
+  right_join(tibble(date = all_dates_glb_GLM), by = "date") %>% 
   print() ->
-  climat_sp1
+  climat_glb_GLM
 
-
-Floraison_sp1 %>% 
-  select(date, prop) %>% 
-  left_join(climat_sp1, by = "date") %>% 
-  filter(!is.na(prop)) %>%
+Sympho_glb %>% 
+  arrange(date) %>% 
+  select(date, Flo, CrownID) %>% 
+  left_join(climat_glb_GLM, by = "date") %>% 
+  filter(!is.na(Flo)) %>% 
   filter(!is.na(Rain_15J)) %>% 
   filter(!is.na(Rain_30J)) %>% 
   filter(!is.na(Hr_15J)) %>% 
@@ -2759,26 +2706,147 @@ Floraison_sp1 %>%
   filter(!is.na(VWC_15J)) %>% 
   filter(!is.na(VWC_30J)) %>% 
   print() ->
-  Flo_climat_sp1
+  Flo_climat_glb_GLM
 
-Flo_climat_sp1 %>%
-  select(-date, -Year, -Day, -Month) %>% 
-  scale() ->
-  Flo_climat_sp1_acp
+# Centrage et reduction des variables climatiques
+scaled_vars <- scale(Flo_climat_glb_GLM[,c("Rain_15J", "Rain_30J", "Hr_15J", "Hr_30J", "Rg_15J", "Rg_30J", 
+                                           "ETP_15J", "ETP_30J", "Temp_15J", "Temp_30J", "VWC_15J", "VWC_30J")])
 
-Flo_climat_sp1_acp <- as.data.frame(Flo_climat_sp1_acp)
+Flo_climat_glb_GLM <- cbind(Flo_climat_glb_GLM[,"Flo"], as.data.frame(scaled_vars))
+
+
+# Model
+glm_glb <- glm(Flo ~ Rain_15J+ Rain_30J+ Hr_15J+ Hr_30J+ Rg_15J+ Rg_30J+ 
+               ETP_15J+ ETP_30J+ Temp_15J+ Temp_30J+ VWC_15J+ VWC_30J, data = Flo_climat_glb_GLM, family = "binomial")
+summary(glm_glb)
+anova(glm_glb)
+
+
+# # Graphique 15J #
+# Flo_climat$predictions_Rain15J <- predict(glm_pluvio_15_glb, type = "response")
+# 
+# ggplot(Flo_climat, aes(x = Rain_15J, y = Flo)) +
+#   geom_point() +  # Points des données observées
+#   geom_line(aes(y = predictions_Rain15J), color = "blue") +  # Ligne des prédictions du modèle
+#   labs(title = "GLM binomiale: Floraison  ~ Rain_15J",
+#        x = "Rain_15J",
+#        y = "Floraison") +
+#   theme_minimal()
+# 
+# 
+# Flo_climat$predictions_Rain30J <- predict(glm_pluvio_30_glb, type = "response")
+# 
+# ggplot(Flo_climat, aes(x = Rain_30J, y = Flo)) +
+#   geom_point() +  # Points des données observées
+#   geom_line(aes(y = predictions_Rain30J), color = "purple") +  # Ligne des prédictions du modèle
+#   labs(title = "GLM binomiale: Floraison  ~ Rain_30J",
+#        x = "Rain_30J",
+#        y = "Floraison") +
+#   theme_minimal()
+
+
+## Correlation croisee ##
+
+Flo_climat$date <- as.Date(Flo_climat$date)
+
+# Series temporelles
+Prop_glb <- zoo(Flo_climat$prop, order.by = Flo_climat$date)
+Pluvio_15J <- zoo(Flo_climat$Rain_15J, order.by = Flo_climat$date)
+Pluvio_30J <- zoo(Flo_climat$Rain_30J, order.by = Flo_climat$date)
+
+# Lissage des series temporelles pour moins d'irregularites
+Prop_glb = moving_average(Prop_glb ,filter = fpoids(n=2,p=2,q=2)$y)
+Pluvio_15J = moving_average(Pluvio_15J ,filter = fpoids(n=2,p=2,q=2)$y)
+Pluvio_30J = moving_average(Pluvio_30J ,filter = fpoids(n=2,p=2,q=2)$y)
+
+# Figure correlations croisees
+ccf(Prop_glb,Pluvio_15J, main = "Corrélation croisée entre le signal de floraison de S.globulifera et la pluie cumulée tous les 15 jours")
+ccf(Prop_glb,Pluvio_15J, main = "Corrélation croisée entre le signal de floraison de S.globulifera et la pluie cumulée tous les 30 jours")
+
+
+
+### SYMPHONIA SP1 ###
 
 ## ACP ##
 
+# Data proportion d'individus en fleur
+data_signal_sp1
+
+# Assemblement des dates floraison et dates des variables climatiques
+all_dates_sp1_ACP <- seq(min(data_signal_sp1$date, climat$date), max(data_signal_sp1$date, climat$date), by = "day")
+
+# Ajout de toutes les dates aux objets
+data_signal_sp1 %>%
+  right_join(tibble(date = all_dates_sp1_ACP), by = "date") %>% 
+  print() ->
+  Floraison_sp1
+
+climat %>%
+  right_join(tibble(date = all_dates_sp1_ACP), by = "date") %>% 
+  print() ->
+  climat_sp1_ACP
+
+# Assemblement des donnees de floraison et des donnees climatiques
+Floraison_sp1 %>% 
+  arrange(date) %>% 
+  select(date, prop) %>% 
+  left_join(climat_sp1_ACP, by = "date") %>% 
+  filter(!is.na(prop)) %>% 
+  filter(!is.na(Rain_15J)) %>% 
+  filter(!is.na(Rain_30J)) %>% 
+  filter(!is.na(Hr_15J)) %>% 
+  filter(!is.na(Hr_30J)) %>% 
+  filter(!is.na(Rg_15J)) %>% 
+  filter(!is.na(Rg_30J)) %>% 
+  filter(!is.na(ETP_15J)) %>% 
+  filter(!is.na(ETP_30J)) %>% 
+  filter(!is.na(Temp_15J)) %>% 
+  filter(!is.na(Temp_30J)) %>% 
+  filter(!is.na(VWC_15J)) %>% 
+  filter(!is.na(VWC_30J)) %>% 
+  print() ->
+  Flo_climat_sp1_ACP
+
+# Centrage et reduction des variables climatiques
+Flo_climat_sp1_ACP %>%
+  mutate(across(c(Rain_15J, Rain_30J, Hr_15J, Hr_30J, Rg_15J, Rg_30J, 
+                  ETP_15J, ETP_30J, Temp_15J, Temp_30J, VWC_15J, VWC_30J), 
+                scale)) %>% 
+  select(prop, Rain_15J, Rain_30J, Hr_15J, Hr_30J, Rg_15J, Rg_30J, 
+         ETP_15J, ETP_30J, Temp_15J, Temp_30J, VWC_15J, VWC_30J) %>%
+  print() ->
+  Flo_climat_sp1_ACP
+
+
+
+# Tests de correlation entre la proportion d'individus en fleur et les variables climatiques
+cor.test(Flo_climat_sp1_ACP$prop, Flo_climat_sp1_ACP$Rg_30J, method = "pearson") # Non significatif
+cor.test(Flo_climat_sp1_ACP$prop, Flo_climat_sp1_ACP$Rain_30J, method = "pearson") # Non significatif
+cor.test(Flo_climat_sp1_ACP$prop, Flo_climat_sp1_ACP$VWC_30J, method = "pearson")
+cor.test(Flo_climat_sp1_ACP$prop, Flo_climat_sp1_ACP$Hr_30J, method = "pearson") # Significatif mais limite (0.49)
+cor.test(Flo_climat_sp1_ACP$prop, Flo_climat_sp1_ACP$ETP_30J, method = "pearson") # Non significatif
+cor.test(Flo_climat_sp1_ACP$prop, Flo_climat_sp1_ACP$Temp_30J, method = "pearson") # Non significatif
+
+cor.test(Flo_climat_sp1_ACP$prop, Flo_climat_sp1_ACP$Rg_15J, method = "pearson")
+cor.test(Flo_climat_sp1_ACP$prop, Flo_climat_sp1_ACP$Rain_15J, method = "pearson") # Non significatif
+cor.test(Flo_climat_sp1_ACP$prop, Flo_climat_sp1_ACP$VWC_15J, method = "pearson")
+cor.test(Flo_climat_sp1_ACP$prop, Flo_climat_sp1_ACP$Hr_15J, method = "pearson") # Non significatif
+cor.test(Flo_climat_sp1_ACP$prop, Flo_climat_sp1_ACP$ETP_15J, method = "pearson") # Non significatif
+cor.test(Flo_climat_sp1_ACP$prop, Flo_climat_sp1_ACP$Temp_15J, method = "pearson") # Non significatif
+
+
 # Visualisation des variables et de leurs relations
-pairs.panels(Flo_climat_sp1_acp, 
+pairs.panels(Flo_climat_sp1_ACP, 
              method = "pearson", # correlation method
              hist.col = "#00AFBB",
              density = TRUE,  # show density plots
              ellipses = FALSE # show correlation ellipses
 )
 
-ACP_sp1 <- dudi.pca(Flo_climat_sp1_acp,scale = T, center = T, scannf = F, nf = 2 )
+
+# Model ACP
+ACP_sp1 <- dudi.pca(Flo_climat_sp1_ACP[,c("prop","Rain_15J", "Rain_30J", "Hr_15J", "Hr_30J", "Rg_15J", "Rg_30J", 
+                                          "ETP_15J", "ETP_30J", "Temp_15J", "Temp_30J", "VWC_15J", "VWC_30J")],scale = T, center = T, scannf = F, nf = 2 )
 
 # Calcul des % de chaque axe
 pc_sp1 <- round(ACP_sp1$eig/sum(ACP_sp1$eig)*100, 2)
@@ -2805,7 +2873,7 @@ axis(1, at = xx, labels = c(1:length(pc_sp1)), tick = FALSE, las = 1, line = -0.
 s.corcircle(ACP_sp1$co)
 
 # Valeurs des coefficients de correlation de Pearson # 
-cor(Flo_climat_sp1_acp)
+cor(Flo_climat_sp1_ACP)
 
 # representation sur les deux premiers axes #
 s.label(ACP_sp1$li[,1:2], clabel = 0.5) 
@@ -2821,48 +2889,39 @@ cos2_sp1 <- abs(cont_sp1$row.rel)/10000
 fviz_cos2(ACP_sp1, choice = "ind", axe=1:2)
 fviz_pca_biplot(ACP_sp1, col.ind = "cos2", gradient.cols=c("red","yellow","green"),repel = TRUE) 
 
-# Tests de correlations #
-cor.test(Flo_climat_sp1_acp$prop, Flo_climat_sp1_acp$Rg_30J, method = "pearson")# Non significatif
-cor.test(Flo_climat_sp1_acp$prop, Flo_climat_sp1_acp$Rain_30J, method = "pearson")# Non significatif
-cor.test(Flo_climat_sp1_acp$prop, Flo_climat_sp1_acp$VWC_30J, method = "pearson")
-cor.test(Flo_climat_sp1_acp$prop, Flo_climat_sp1_acp$Hr_30J, method = "pearson") # Non significatif
-cor.test(Flo_climat_sp1_acp$prop, Flo_climat_sp1_acp$ETP_30J, method = "pearson") # Non significatif
-cor.test(Flo_climat_sp1_acp$prop, Flo_climat_sp1_acp$Temp_30J, method = "pearson")# Non significatif
-
-cor.test(Flo_climat_sp1_acp$prop, Flo_climat_sp1_acp$Rg_15J, method = "pearson")
-cor.test(Flo_climat_sp1_acp$prop, Flo_climat_sp1_acp$Rain_15J, method = "pearson") # Non significatif
-cor.test(Flo_climat_sp1_acp$prop, Flo_climat_sp1_acp$VWC_15J, method = "pearson") 
-cor.test(Flo_climat_sp1_acp$prop, Flo_climat_sp1_acp$Hr_15J, method = "pearson") # Non significatif
-cor.test(Flo_climat_sp1_acp$prop, Flo_climat_sp1_acp$ETP_15J, method = "pearson")# Non significatif
-cor.test(Flo_climat_sp1_acp$prop, Flo_climat_sp1_acp$Temp_15J, method = "pearson") # Non significatif
-
-cor.test( Flo_climat_sp1_acp$Rain_30J,Flo_climat_sp1_acp$VWC_30J, method = "pearson") 
-cor.test( Flo_climat_sp1_acp$Rain_15J,Flo_climat_sp1_acp$VWC_15J, method = "pearson") 
 
 
-## VOUACAPOUA AMERICANA ##
+## GLM ##
 
-dataB_resume
+# Data binaire (1 pour un evenement de floraion, 0 sinon) #
+pheno2 %>% 
+  filter(Genus_Spec == "Symphonia_sp.1") %>% 
+  select(date, PPFlo, CrownID) %>% 
+  mutate(PPFlo = if_else(is.na(PPFlo), "not_Fl", PPFlo)) %>% 
+  mutate(Flo = ifelse(PPFlo == "Fl", 1, 0)) %>% 
+  print() ->
+  Sympho_sp1
 
-# Toutes les dates
-all_dates_climat_am <- seq(min(data_signal_am$date, climat$date), max(data_signal_am$date, climat$date), by = "day")
+
+# Toutes les dates pour la GLM
+all_dates_sp1_GLM <- seq(min(Sympho_sp1$date, climat$date), max(Sympho_sp1$date, climat$date), by = "day")
 
 # Compléter les tibbles avec les dates manquantes
-data_signal_am %>%
-  right_join(tibble(date = all_dates_climat_am), by = "date") %>% 
+Sympho_sp1 %>%
+  right_join(tibble(date = all_dates_sp1_GLM), by = "date") %>% 
   print() ->
-  Floraison_am
+  Sympho_sp1
 
 climat %>%
-  right_join(tibble(date = all_dates_climat_am), by = "date") %>% 
+  right_join(tibble(date = all_dates_sp1_GLM), by = "date") %>% 
   print() ->
-  climat_am
+  climat_sp1_GLM
 
-
-Floraison_am %>% 
-  select(date, prop) %>% 
-  left_join(climat_am, by = "date") %>% 
-  filter(!is.na(prop)) %>%
+Sympho_sp1 %>% 
+  arrange(date) %>% 
+  select(date, Flo, CrownID) %>% 
+  left_join(climat_sp1_GLM, by = "date") %>% 
+  filter(!is.na(Flo)) %>% 
   filter(!is.na(Rain_15J)) %>% 
   filter(!is.na(Rain_30J)) %>% 
   filter(!is.na(Hr_15J)) %>% 
@@ -2876,16 +2935,93 @@ Floraison_am %>%
   filter(!is.na(VWC_15J)) %>% 
   filter(!is.na(VWC_30J)) %>% 
   print() ->
-  Flo_climat_am
+  Flo_climat_sp1_GLM
 
-Flo_climat_am %>%
-  select(-date, -Year, -Day, -Month) %>% 
-  scale() ->
-  Flo_climat_am_acp
+# Centrage et reduction des variables climatiques
+scaled_vars <- scale(Flo_climat_sp1_GLM[,c("Rain_15J", "Rain_30J", "Hr_15J", "Hr_30J", "Rg_15J", "Rg_30J", 
+                                           "ETP_15J", "ETP_30J", "Temp_15J", "Temp_30J", "VWC_15J", "VWC_30J")])
 
-Flo_climat_am_acp <- as.data.frame(Flo_climat_am_acp)
+Flo_climat_sp1_GLM <- cbind(Flo_climat_sp1_GLM[,"Flo"], as.data.frame(scaled_vars))
+
+
+# Model
+glm_sp1 <- glm(Flo ~ Rain_15J+ Rain_30J+ Hr_15J+ Hr_30J+ Rg_15J+ Rg_30J+ 
+                 ETP_15J+ ETP_30J+ Temp_15J+ Temp_30J+ VWC_15J+ VWC_30J, data = Flo_climat_sp1_GLM, family = "binomial")
+summary(glm_sp1)
+anova(glm_sp1)
+
+
+
+
+
+### VOUACAPOUA AMERICANA ###
 
 ## ACP ##
+
+# Data proportion d'individus en fleur  #
+data_signal_am
+
+
+# Assemblement des dates floraison et dates des variables climatiques
+all_dates_am_ACP <- seq(min(data_signal_am$date, climat$date), max(data_signal_am$date, climat$date), by = "day")
+
+# Ajout de toutes les dates aux objets
+data_signal_am %>%
+  right_join(tibble(date = all_dates_am_ACP), by = "date") %>% 
+  print() ->
+  Floraison_am
+
+climat %>%
+  right_join(tibble(date = all_dates_am_ACP), by = "date") %>% 
+  print() ->
+  climat_am_ACP
+
+# Assemblement des donnees de floraison et des donnees climatiques
+Floraison_am %>% 
+  arrange(date) %>% 
+  select(date, prop) %>% 
+  left_join(climat_am_ACP, by = "date") %>% 
+  filter(!is.na(prop)) %>% 
+  filter(!is.na(Rain_15J)) %>% 
+  filter(!is.na(Rain_30J)) %>% 
+  filter(!is.na(Hr_15J)) %>% 
+  filter(!is.na(Hr_30J)) %>% 
+  filter(!is.na(Rg_15J)) %>% 
+  filter(!is.na(Rg_30J)) %>% 
+  filter(!is.na(ETP_15J)) %>% 
+  filter(!is.na(ETP_30J)) %>% 
+  filter(!is.na(Temp_15J)) %>% 
+  filter(!is.na(Temp_30J)) %>% 
+  filter(!is.na(VWC_15J)) %>% 
+  filter(!is.na(VWC_30J)) %>% 
+  print() ->
+  Flo_climat_am_ACP
+
+# Centrage et reduction des variables climatiques
+Flo_climat_am_ACP %>%
+  mutate(across(c(Rain_15J, Rain_30J, Hr_15J, Hr_30J, Rg_15J, Rg_30J, 
+                  ETP_15J, ETP_30J, Temp_15J, Temp_30J, VWC_15J, VWC_30J), 
+                scale)) %>% 
+  select(prop, Rain_15J, Rain_30J, Hr_15J, Hr_30J, Rg_15J, Rg_30J, 
+         ETP_15J, ETP_30J, Temp_15J, Temp_30J, VWC_15J, VWC_30J) %>%
+  print() ->
+  Flo_climat_am_ACP
+
+
+# Tests de correlation entre la proportion d'individus en fleur et les variables climatiques
+cor.test(Flo_climat_am_ACP$prop, Flo_climat_am_ACP$Rg_30J, method = "pearson") # Non significatif
+cor.test(Flo_climat_am_ACP$prop, Flo_climat_am_ACP$Rain_30J, method = "pearson") # Non significatif
+cor.test(Flo_climat_am_ACP$prop, Flo_climat_am_ACP$VWC_30J, method = "pearson") # Non significatif
+cor.test(Flo_climat_am_ACP$prop, Flo_climat_am_ACP$Hr_30J, method = "pearson") # Non significatif
+cor.test(Flo_climat_am_ACP$prop, Flo_climat_am_ACP$ETP_30J, method = "pearson") # Non significatif
+cor.test(Flo_climat_am_ACP$prop, Flo_climat_am_ACP$Temp_30J, method = "pearson") # Non significatif
+
+cor.test(Flo_climat_am_ACP$prop, Flo_climat_am_ACP$Rg_15J, method = "pearson") # Non significatif
+cor.test(Flo_climat_am_ACP$prop, Flo_climat_am_ACP$Rain_15J, method = "pearson") # Non significatif
+cor.test(Flo_climat_am_ACP$prop, Flo_climat_am_ACP$VWC_15J, method = "pearson") # Non significatif
+cor.test(Flo_climat_am_ACP$prop, Flo_climat_am_ACP$Hr_15J, method = "pearson") # Non significatif
+cor.test(Flo_climat_am_ACP$prop, Flo_climat_am_ACP$ETP_15J, method = "pearson") # Non significatif
+cor.test(Flo_climat_am_ACP$prop, Flo_climat_am_ACP$Temp_15J, method = "pearson") # Non significatif
 
 # Visualisation des variables et de leurs relations
 pairs.panels(Flo_climat_am_acp, 
@@ -2895,7 +3031,9 @@ pairs.panels(Flo_climat_am_acp,
              ellipses = FALSE # show correlation ellipses
 )
 
-ACP_am <- dudi.pca(Flo_climat_am_acp,scale = T, center = T, scannf = F, nf = 2 )
+# Model
+ACP_am <- dudi.pca(Flo_climat_am_acp[,c("prop","Rain_15J", "Rain_30J", "Hr_15J", "Hr_30J", "Rg_15J", "Rg_30J", 
+                                        "ETP_15J", "ETP_30J", "Temp_15J", "Temp_30J", "VWC_15J", "VWC_30J")],scale = T, center = T, scannf = F, nf = 2 )
 
 # Calcul des % de chaque axe
 pc_am <- round(ACP_am$eig/sum(ACP_am$eig)*100, 2)
@@ -2954,29 +3092,36 @@ cor.test(Flo_climat_am_acp$prop, Flo_climat_am_acp$ETP_15J, method = "pearson")#
 cor.test(Flo_climat_am_acp$prop, Flo_climat_am_acp$Temp_15J, method = "pearson") # Non significatif
 
 
-## COUMA GUIANENSIS ##
+## GLM ##
 
-dataB_resume
+# Data binaire (1 pour un evenement de floraion, 0 sinon) #
+pheno2 %>% 
+  filter(Genus_Spec == "Vouacapoua_americana") %>% 
+  select(date, PPFlo, CrownID) %>% 
+  mutate(PPFlo = if_else(is.na(PPFlo), "not_Fl", PPFlo)) %>% 
+  mutate(Flo = ifelse(PPFlo == "Fl", 1, 0)) %>% 
+  print() ->
+  V_am
 
-# Toutes les dates
-all_dates_climat_gui <- seq(min(data_signal_gui$date, climat$date), max(data_signal_gui$date, climat$date), by = "day")
+# Toutes les dates pour la GLM
+all_dates_am_GLM <- seq(min(V_am$date, climat$date), max(V_am$date, climat$date), by = "day")
 
 # Compléter les tibbles avec les dates manquantes
-data_signal_gui %>%
-  right_join(tibble(date = all_dates_climat_gui), by = "date") %>% 
+V_am %>%
+  right_join(tibble(date = all_dates_am_GLM), by = "date") %>% 
   print() ->
-  Floraison_gui
+  V_am
 
 climat %>%
-  right_join(tibble(date = all_dates_climat_gui), by = "date") %>% 
+  right_join(tibble(date = all_dates_am_GLM), by = "date") %>% 
   print() ->
-  climat_gui
+  climat_am_GLM
 
-
-Floraison_gui %>% 
-  select(date, prop) %>% 
-  left_join(climat_gui, by = "date") %>% 
-  filter(!is.na(prop)) %>%
+V_am %>% 
+  arrange(date) %>% 
+  select(date, Flo, CrownID) %>% 
+  left_join(climat_am_GLM, by = "date") %>% 
+  filter(!is.na(Flo)) %>% 
   filter(!is.na(Rain_15J)) %>% 
   filter(!is.na(Rain_30J)) %>% 
   filter(!is.na(Hr_15J)) %>% 
@@ -2990,26 +3135,109 @@ Floraison_gui %>%
   filter(!is.na(VWC_15J)) %>% 
   filter(!is.na(VWC_30J)) %>% 
   print() ->
-  Flo_climat_gui
+  Flo_climat_am_GLM
 
-Flo_climat_gui %>%
-  select(-date, -Year, -Day, -Month) %>% 
-  scale() ->
-  Flo_climat_gui_acp
+# Centrage et reduction des variables climatiques
+scaled_vars <- scale(Flo_climat_am_GLM[,c("Rain_15J", "Rain_30J", "Hr_15J", "Hr_30J", "Rg_15J", "Rg_30J", 
+                                           "ETP_15J", "ETP_30J", "Temp_15J", "Temp_30J", "VWC_15J", "VWC_30J")])
 
-Flo_climat_gui_acp <- as.data.frame(Flo_climat_gui_acp)
+Flo_climat_am_GLM <- cbind(Flo_climat_am_GLM[,"Flo"], as.data.frame(scaled_vars))
+
+
+# Model
+install.packages("brglm")
+library(brglm)
+glm_am <- brglm(Flo ~ Rain_15J+ Rain_30J+ Hr_15J+ Hr_30J+ Rg_15J+ Rg_30J+ 
+                  ETP_15J+ ETP_30J+ Temp_15J+ Temp_30J+ VWC_15J+ VWC_30J, 
+                data = Flo_climat_am_GLM, 
+                family = "binomial")
+summary(glm_am)
+anova(glm_am)
+
+
+
+### COUMA GUIANENSIS ###
 
 ## ACP ##
 
+# Data proportion d'individus en fleur  #
+data_signal_gui
+
+# Assemblement des dates floraison et dates des variables climatiques
+all_dates_gui_ACP <- seq(min(data_signal_gui$date, climat$date), max(data_signal_gui$date, climat$date), by = "day")
+
+# Ajout de toutes les dates aux objets
+data_signal_gui %>%
+  right_join(tibble(date = all_dates_gui_ACP), by = "date") %>% 
+  print() ->
+  Floraison_gui
+
+climat %>%
+  right_join(tibble(date = all_dates_gui_ACP), by = "date") %>% 
+  print() ->
+  climat_gui_ACP
+
+# Assemblement des donnees de floraison et des donnees climatiques
+Floraison_gui %>% 
+  arrange(date) %>% 
+  select(date, prop) %>% 
+  left_join(climat_gui_ACP, by = "date") %>% 
+  filter(!is.na(prop)) %>% 
+  filter(!is.na(Rain_15J)) %>% 
+  filter(!is.na(Rain_30J)) %>% 
+  filter(!is.na(Hr_15J)) %>% 
+  filter(!is.na(Hr_30J)) %>% 
+  filter(!is.na(Rg_15J)) %>% 
+  filter(!is.na(Rg_30J)) %>% 
+  filter(!is.na(ETP_15J)) %>% 
+  filter(!is.na(ETP_30J)) %>% 
+  filter(!is.na(Temp_15J)) %>% 
+  filter(!is.na(Temp_30J)) %>% 
+  filter(!is.na(VWC_15J)) %>% 
+  filter(!is.na(VWC_30J)) %>% 
+  print() ->
+  Flo_climat_gui_ACP
+
+# Centrage et reduction des variables climatiques
+Flo_climat_gui_ACP %>%
+  mutate(across(c(Rain_15J, Rain_30J, Hr_15J, Hr_30J, Rg_15J, Rg_30J, 
+                  ETP_15J, ETP_30J, Temp_15J, Temp_30J, VWC_15J, VWC_30J), 
+                scale)) %>% 
+  select(prop, Rain_15J, Rain_30J, Hr_15J, Hr_30J, Rg_15J, Rg_30J, 
+         ETP_15J, ETP_30J, Temp_15J, Temp_30J, VWC_15J, VWC_30J) %>%
+  print() ->
+  Flo_climat_gui_ACP
+
+
+# Tests de correlation entre la proportion d'individus en fleur et les variables climatiques
+cor.test(Flo_climat_gui_ACP$prop, Flo_climat_gui_ACP$Rg_30J, method = "pearson") # Non significatif
+cor.test(Flo_climat_gui_ACP$prop, Flo_climat_gui_ACP$Rain_30J, method = "pearson") # Non significatif
+cor.test(Flo_climat_gui_ACP$prop, Flo_climat_gui_ACP$VWC_30J, method = "pearson") 
+cor.test(Flo_climat_gui_ACP$prop, Flo_climat_gui_ACP$Hr_30J, method = "pearson") # Non significatif
+cor.test(Flo_climat_gui_ACP$prop, Flo_climat_gui_ACP$ETP_30J, method = "pearson") # Non significatif
+cor.test(Flo_climat_gui_ACP$prop, Flo_climat_gui_ACP$Temp_30J, method = "pearson") # Non significatif
+
+cor.test(Flo_climat_gui_ACP$prop, Flo_climat_gui_ACP$Rg_15J, method = "pearson") # Non significatif
+cor.test(Flo_climat_gui_ACP$prop, Flo_climat_gui_ACP$Rain_15J, method = "pearson") # Non significatif
+cor.test(Flo_climat_gui_ACP$prop, Flo_climat_gui_ACP$VWC_15J, method = "pearson")
+cor.test(Flo_climat_gui_ACP$prop, Flo_climat_gui_ACP$Hr_15J, method = "pearson") # Non significatif
+cor.test(Flo_climat_gui_ACP$prop, Flo_climat_gui_ACP$ETP_15J, method = "pearson") # Non significatif
+cor.test(Flo_climat_gui_ACP$prop, Flo_climat_gui_ACP$Temp_15J, method = "pearson") # Non significatif
+
+
+
 # Visualisation des variables et de leurs relations
-pairs.panels(Flo_climat_gui_acp, 
+pairs.panels(Flo_climat_gui_acp[,c("prop","Rain_15J", "Rain_30J", "Hr_15J", "Hr_30J", "Rg_15J", "Rg_30J", 
+                                   "ETP_15J", "ETP_30J", "Temp_15J", "Temp_30J", "VWC_15J", "VWC_30J")], 
              method = "pearson", # correlation method
              hist.col = "#00AFBB",
              density = TRUE,  # show density plots
              ellipses = FALSE # show correlation ellipses
 )
 
-ACP_gui <- dudi.pca(Flo_climat_gui_acp,scale = T, center = T, scannf = F, nf = 2 )
+# Model
+ACP_gui <- dudi.pca(Flo_climat_gui_acp[,c("prop","Rain_15J", "Rain_30J", "Hr_15J", "Hr_30J", "Rg_15J", "Rg_30J", 
+                                          "ETP_15J", "ETP_30J", "Temp_15J", "Temp_30J", "VWC_15J", "VWC_30J")],scale = T, center = T, scannf = F, nf = 2 )
 
 # Calcul des % de chaque axe
 pc_gui <- round(ACP_gui$eig/sum(ACP_gui$eig)*100, 2)
@@ -3052,45 +3280,37 @@ cos2_gui <- abs(cont_gui$row.rel)/10000
 fviz_cos2(ACP_gui, choice = "ind", axe=1:2)
 fviz_pca_biplot(ACP_gui, col.ind = "cos2", gradient.cols=c("red","yellow","green"),repel = TRUE) 
 
-# Tests de correlations #
-cor.test(Flo_climat_gui_acp$prop, Flo_climat_gui_acp$Rg_30J, method = "pearson")# Non significatif
-cor.test(Flo_climat_gui_acp$prop, Flo_climat_gui_acp$Rain_30J, method = "pearson")# Non significatif
-cor.test(Flo_climat_gui_acp$prop, Flo_climat_gui_acp$VWC_30J, method = "pearson")
-cor.test(Flo_climat_gui_acp$prop, Flo_climat_gui_acp$Hr_30J, method = "pearson") # Non significatif
-cor.test(Flo_climat_gui_acp$prop, Flo_climat_gui_acp$ETP_30J, method = "pearson") # Non significatif
-cor.test(Flo_climat_gui_acp$prop, Flo_climat_gui_acp$Temp_30J, method = "pearson")# Non significatif
 
-cor.test(Flo_climat_gui_acp$prop, Flo_climat_gui_acp$Rg_15J, method = "pearson") # Non significatif
-cor.test(Flo_climat_gui_acp$prop, Flo_climat_gui_acp$Rain_15J, method = "pearson") # Non significatif
-cor.test(Flo_climat_gui_acp$prop, Flo_climat_gui_acp$VWC_15J, method = "pearson") 
-cor.test(Flo_climat_gui_acp$prop, Flo_climat_gui_acp$Hr_15J, method = "pearson") # Non significatif
-cor.test(Flo_climat_gui_acp$prop, Flo_climat_gui_acp$ETP_15J, method = "pearson")# Non significatif
-cor.test(Flo_climat_gui_acp$prop, Flo_climat_gui_acp$Temp_15J, method = "pearson") # Non significatif
+## GLM ##
 
+# Data binaire (1 pour un evenement de floraion, 0 sinon) #
+pheno2 %>% 
+  filter(Genus_Spec == "Couma_guianensis") %>% 
+  select(date, PPFlo, CrownID) %>% 
+  mutate(PPFlo = if_else(is.na(PPFlo), "not_Fl", PPFlo)) %>% 
+  mutate(Flo = ifelse(PPFlo == "Fl", 1, 0)) %>% 
+  print() ->
+  C_gui
 
-## Moronobea coccinea ##
-
-dataB_resume
-
-# Toutes les dates
-all_dates_climat_cocci <- seq(min(data_signal_cocci$date, climat$date), max(data_signal_cocci$date, climat$date), by = "day")
+# Toutes les dates pour la GLM
+all_dates_gui_GLM <- seq(min(C_gui$date, climat$date), max(C_gui$date, climat$date), by = "day")
 
 # Compléter les tibbles avec les dates manquantes
-data_signal_cocci %>%
-  right_join(tibble(date = all_dates_climat_cocci), by = "date") %>% 
+C_gui %>%
+  right_join(tibble(date = all_dates_gui_GLM), by = "date") %>% 
   print() ->
-  Floraison_cocci
+  C_gui
 
 climat %>%
-  right_join(tibble(date = all_dates_climat_cocci), by = "date") %>% 
+  right_join(tibble(date = all_dates_gui_GLM), by = "date") %>% 
   print() ->
-  climat_cocci
+  climat_gui_GLM
 
-
-Floraison_cocci %>% 
-  select(date, prop) %>% 
-  left_join(climat_cocci, by = "date") %>% 
-  filter(!is.na(prop)) %>%
+C_gui %>% 
+  arrange(date) %>% 
+  select(date, Flo, CrownID) %>% 
+  left_join(climat_gui_GLM, by = "date") %>% 
+  filter(!is.na(Flo)) %>% 
   filter(!is.na(Rain_15J)) %>% 
   filter(!is.na(Rain_30J)) %>% 
   filter(!is.na(Hr_15J)) %>% 
@@ -3104,26 +3324,103 @@ Floraison_cocci %>%
   filter(!is.na(VWC_15J)) %>% 
   filter(!is.na(VWC_30J)) %>% 
   print() ->
-  Flo_climat_cocci
+  Flo_climat_gui_GLM
 
-Flo_climat_cocci %>%
-  select(-date, -Year, -Day, -Month) %>% 
-  scale() ->
-  Flo_climat_cocci_acp
+# Centrage et reduction des variables climatiques
+scaled_vars <- scale(Flo_climat_gui_GLM[,c("Rain_15J", "Rain_30J", "Hr_15J", "Hr_30J", "Rg_15J", "Rg_30J", 
+                                           "ETP_15J", "ETP_30J", "Temp_15J", "Temp_30J", "VWC_15J", "VWC_30J")])
 
-Flo_climat_cocci_acp <- as.data.frame(Flo_climat_cocci_acp)
+Flo_climat_gui_GLM <- cbind(Flo_climat_gui_GLM[,"Flo"], as.data.frame(scaled_vars))
+
+# Model
+glm_gui <- glm(Flo ~ Rain_15J+ Rain_30J+ Hr_15J+ Hr_30J+ Rg_15J+ Rg_30J+ 
+                 ETP_15J+ ETP_30J+ Temp_15J+ Temp_30J+ VWC_15J+ VWC_30J, data = Flo_climat_gui_GLM, family = "binomial")
+summary(glm_gui)
+anova(glm_gui)
+
+
+
+### Moronobea coccinea ###
 
 ## ACP ##
 
+# Data proportion d'individus en fleur  #
+data_signal_cocci
+
+# Assemblement des dates floraison et dates des variables climatiques
+all_dates_cocci_ACP <- seq(min(data_signal_cocci$date, climat$date), max(data_signal_cocci$date, climat$date), by = "day")
+
+# Ajout de toutes les dates aux objets
+data_signal_cocci %>%
+  right_join(tibble(date = all_dates_cocci_ACP), by = "date") %>% 
+  print() ->
+  Floraison_cocci
+
+climat %>%
+  right_join(tibble(date = all_dates_cocci_ACP), by = "date") %>% 
+  print() ->
+  climat_cocci_ACP
+
+# Assemblement des donnees de floraison et des donnees climatiques
+Floraison_cocci %>% 
+  arrange(date) %>% 
+  select(date, prop) %>% 
+  left_join(climat_cocci_ACP, by = "date") %>% 
+  filter(!is.na(prop)) %>% 
+  filter(!is.na(Rain_15J)) %>% 
+  filter(!is.na(Rain_30J)) %>% 
+  filter(!is.na(Hr_15J)) %>% 
+  filter(!is.na(Hr_30J)) %>% 
+  filter(!is.na(Rg_15J)) %>% 
+  filter(!is.na(Rg_30J)) %>% 
+  filter(!is.na(ETP_15J)) %>% 
+  filter(!is.na(ETP_30J)) %>% 
+  filter(!is.na(Temp_15J)) %>% 
+  filter(!is.na(Temp_30J)) %>% 
+  filter(!is.na(VWC_15J)) %>% 
+  filter(!is.na(VWC_30J)) %>% 
+  print() ->
+  Flo_climat_cocci_ACP
+
+# Centrage et reduction des variables climatiques
+Flo_climat_cocci_ACP %>%
+  mutate(across(c(Rain_15J, Rain_30J, Hr_15J, Hr_30J, Rg_15J, Rg_30J, 
+                  ETP_15J, ETP_30J, Temp_15J, Temp_30J, VWC_15J, VWC_30J), 
+                scale)) %>% 
+  select(prop, Rain_15J, Rain_30J, Hr_15J, Hr_30J, Rg_15J, Rg_30J, 
+         ETP_15J, ETP_30J, Temp_15J, Temp_30J, VWC_15J, VWC_30J) %>%
+  print() ->
+  Flo_climat_cocci_ACP
+
+
+# Tests de correlation entre la proportion d'individus en fleur et les variables climatiques
+cor.test(Flo_climat_cocci_ACP$prop, Flo_climat_cocci_ACP$Rg_30J, method = "pearson") 
+cor.test(Flo_climat_cocci_ACP$prop, Flo_climat_cocci_ACP$Rain_30J, method = "pearson") # Non significatif
+cor.test(Flo_climat_cocci_ACP$prop, Flo_climat_cocci_ACP$VWC_30J, method = "pearson") # Non significatif 
+cor.test(Flo_climat_cocci_ACP$prop, Flo_climat_cocci_ACP$Hr_30J, method = "pearson") 
+cor.test(Flo_climat_cocci_ACP$prop, Flo_climat_cocci_ACP$ETP_30J, method = "pearson") # Non significatif
+cor.test(Flo_climat_cocci_ACP$prop, Flo_climat_cocci_ACP$Temp_30J, method = "pearson") # Non significatif
+
+cor.test(Flo_climat_cocci_ACP$prop, Flo_climat_cocci_ACP$Rg_15J, method = "pearson") 
+cor.test(Flo_climat_cocci_ACP$prop, Flo_climat_cocci_ACP$Rain_15J, method = "pearson") # Non significatif
+cor.test(Flo_climat_cocci_ACP$prop, Flo_climat_cocci_ACP$VWC_15J, method = "pearson") # Non significatif
+cor.test(Flo_climat_cocci_ACP$prop, Flo_climat_cocci_ACP$Hr_15J, method = "pearson") # Non significatif
+cor.test(Flo_climat_cocci_ACP$prop, Flo_climat_cocci_ACP$ETP_15J, method = "pearson") # Non significatif
+cor.test(Flo_climat_cocci_ACP$prop, Flo_climat_cocci_ACP$Temp_15J, method = "pearson") # Non significatif
+
+
 # Visualisation des variables et de leurs relations
-pairs.panels(Flo_climat_cocci_acp, 
+pairs.panels(Flo_climat_cocci_acp[,c("prop","Rain_15J", "Rain_30J", "Hr_15J", "Hr_30J", "Rg_15J", "Rg_30J", 
+                                     "ETP_15J", "ETP_30J", "Temp_15J", "Temp_30J", "VWC_15J", "VWC_30J")], 
              method = "pearson", # correlation method
              hist.col = "#00AFBB",
              density = TRUE,  # show density plots
              ellipses = FALSE # show correlation ellipses
 )
 
-ACP_cocci <- dudi.pca(Flo_climat_cocci_acp,scale = T, center = T, scannf = F, nf = 2 )
+# Model
+ACP_cocci <- dudi.pca(Flo_climat_cocci_acp[,c("prop","Rain_15J", "Rain_30J", "Hr_15J", "Hr_30J", "Rg_15J", "Rg_30J", 
+                                              "ETP_15J", "ETP_30J", "Temp_15J", "Temp_30J", "VWC_15J", "VWC_30J")],scale = T, center = T, scannf = F, nf = 2 )
 
 # Calcul des % de chaque axe
 pc_cocci <- round(ACP_cocci$eig/sum(ACP_cocci$eig)*100, 2)
@@ -3166,51 +3463,36 @@ cos2_cocci <- abs(cont_cocci$row.rel)/10000
 fviz_cos2(ACP_cocci, choice = "ind", axe=1:2)
 fviz_pca_biplot(ACP_cocci, col.ind = "cos2", gradient.cols=c("red","yellow","green"),repel = TRUE) 
 
-# Tests de correlations #
-cor.test(Flo_climat_cocci_acp$prop, Flo_climat_cocci_acp$Rg_30J, method = "pearson")
-cor.test(Flo_climat_cocci_acp$prop, Flo_climat_cocci_acp$Rain_30J, method = "pearson")# Non significatif
-cor.test(Flo_climat_cocci_acp$prop, Flo_climat_cocci_acp$VWC_30J, method = "pearson")# Non significatif
-cor.test(Flo_climat_cocci_acp$prop, Flo_climat_cocci_acp$Hr_30J, method = "pearson") 
-cor.test(Flo_climat_cocci_acp$prop, Flo_climat_cocci_acp$ETP_30J, method = "pearson") # Non significatif
-cor.test(Flo_climat_cocci_acp$prop, Flo_climat_cocci_acp$Temp_30J, method = "pearson")# Non significatif
+## GLM ## 
 
-cor.test(Flo_climat_cocci_acp$prop, Flo_climat_cocci_acp$Rg_15J, method = "pearson")
-cor.test(Flo_climat_cocci_acp$prop, Flo_climat_cocci_acp$Rain_15J, method = "pearson") # Non significatif
-cor.test(Flo_climat_cocci_acp$prop, Flo_climat_cocci_acp$VWC_15J, method = "pearson") # Non significatif
-cor.test(Flo_climat_cocci_acp$prop, Flo_climat_cocci_acp$Hr_15J, method = "pearson") 
-cor.test(Flo_climat_cocci_acp$prop, Flo_climat_cocci_acp$ETP_15J, method = "pearson")# Non significatif
-cor.test(Flo_climat_cocci_acp$prop, Flo_climat_cocci_acp$Temp_15J, method = "pearson") # Non significatif
+# Data binaire (1 pour un evenement de floraion, 0 sinon) #
+pheno2 %>% 
+  filter(Genus_Spec == "Moronobea_coccinea") %>% 
+  select(date, PPFlo, CrownID) %>% 
+  mutate(PPFlo = if_else(is.na(PPFlo), "not_Fl", PPFlo)) %>% 
+  mutate(Flo = ifelse(PPFlo == "Fl", 1, 0)) %>% 
+  print() ->
+  M_cocci
 
-cor.test(Flo_climat_cocci_acp$Rain_30J,Flo_climat_cocci_acp$Rg_30J, method = "pearson")
-cor.test(Flo_climat_cocci_acp$Rain_15J,Flo_climat_cocci_acp$Rg_15J, method = "pearson")
-cor.test(Flo_climat_cocci_acp$Rain_30J,Flo_climat_cocci_acp$Hr_30J, method = "pearson")
-cor.test(Flo_climat_cocci_acp$Rain_15J,Flo_climat_cocci_acp$Hr_15J, method = "pearson")
-
-
-
-### Platonia insignis ###
-
-dataB_resume
-
-# Toutes les dates
-all_dates_climat_ins <- seq(min(data_signal_ins$date, climat$date), max(data_signal_ins$date, climat$date), by = "day")
+# Toutes les dates pour la GLM
+all_dates_cocci_GLM <- seq(min(M_cocci$date, climat$date), max(M_cocci$date, climat$date), by = "day")
 
 # Compléter les tibbles avec les dates manquantes
-data_signal_ins %>%
-  right_join(tibble(date = all_dates_climat_ins), by = "date") %>% 
+M_cocci %>%
+  right_join(tibble(date = all_dates_cocci_GLM), by = "date") %>% 
   print() ->
-  Floraison_ins
+  M_cocci
 
 climat %>%
-  right_join(tibble(date = all_dates_climat_ins), by = "date") %>% 
+  right_join(tibble(date = all_dates_cocci_GLM), by = "date") %>% 
   print() ->
-  climat_ins
+  climat_cocci_GLM
 
-
-Floraison_ins %>% 
-  select(date, prop) %>% 
-  left_join(climat_ins, by = "date") %>% 
-  filter(!is.na(prop)) %>%
+M_cocci %>% 
+  arrange(date) %>% 
+  select(date, Flo, CrownID) %>% 
+  left_join(climat_cocci_GLM, by = "date") %>% 
+  filter(!is.na(Flo)) %>% 
   filter(!is.na(Rain_15J)) %>% 
   filter(!is.na(Rain_30J)) %>% 
   filter(!is.na(Hr_15J)) %>% 
@@ -3224,26 +3506,102 @@ Floraison_ins %>%
   filter(!is.na(VWC_15J)) %>% 
   filter(!is.na(VWC_30J)) %>% 
   print() ->
-  Flo_climat_ins
+  Flo_climat_cocci_GLM
 
-Flo_climat_ins %>%
-  select(-date, -Year, -Day, -Month) %>% 
-  scale() ->
-  Flo_climat_ins_acp
+# Centrage et reduction des variables climatiques
+scaled_vars <- scale(Flo_climat_cocci_GLM[,c("Rain_15J", "Rain_30J", "Hr_15J", "Hr_30J", "Rg_15J", "Rg_30J", 
+                                           "ETP_15J", "ETP_30J", "Temp_15J", "Temp_30J", "VWC_15J", "VWC_30J")])
 
-Flo_climat_ins_acp <- as.data.frame(Flo_climat_ins_acp)
+Flo_climat_cocci_GLM <- cbind(Flo_climat_cocci_GLM[,"Flo"], as.data.frame(scaled_vars))
+
+# Model
+glm_cocci <- glm(Flo ~ Rain_15J+ Rain_30J+ Hr_15J+ Hr_30J+ Rg_15J+ Rg_30J+ 
+                 ETP_15J+ ETP_30J+ Temp_15J+ Temp_30J+ VWC_15J+ VWC_30J, data = Flo_climat_cocci_GLM, family = "binomial")
+summary(glm_cocci)
+anova(glm_cocci)
+
+
+### Platonia insignis ###
 
 ## ACP ##
 
+# Data proportion d'individus en fleur  #
+data_signal_ins
+
+# Assemblement des dates floraison et dates des variables climatiques
+all_dates_ins_ACP <- seq(min(data_signal_ins$date, climat$date), max(data_signal_ins$date, climat$date), by = "day")
+
+# Ajout de toutes les dates aux objets
+data_signal_ins %>%
+  right_join(tibble(date = all_dates_ins_ACP), by = "date") %>% 
+  print() ->
+  Floraison_ins
+
+climat %>%
+  right_join(tibble(date = all_dates_ins_ACP), by = "date") %>% 
+  print() ->
+  climat_ins_ACP
+
+# Assemblement des donnees de floraison et des donnees climatiques
+Floraison_ins %>% 
+  arrange(date) %>% 
+  select(date, prop) %>% 
+  left_join(climat_ins_ACP, by = "date") %>% 
+  filter(!is.na(prop)) %>% 
+  filter(!is.na(Rain_15J)) %>% 
+  filter(!is.na(Rain_30J)) %>% 
+  filter(!is.na(Hr_15J)) %>% 
+  filter(!is.na(Hr_30J)) %>% 
+  filter(!is.na(Rg_15J)) %>% 
+  filter(!is.na(Rg_30J)) %>% 
+  filter(!is.na(ETP_15J)) %>% 
+  filter(!is.na(ETP_30J)) %>% 
+  filter(!is.na(Temp_15J)) %>% 
+  filter(!is.na(Temp_30J)) %>% 
+  filter(!is.na(VWC_15J)) %>% 
+  filter(!is.na(VWC_30J)) %>% 
+  print() ->
+  Flo_climat_ins_ACP
+
+# Centrage et reduction des variables climatiques
+Flo_climat_ins_ACP %>%
+  mutate(across(c(Rain_15J, Rain_30J, Hr_15J, Hr_30J, Rg_15J, Rg_30J, 
+                  ETP_15J, ETP_30J, Temp_15J, Temp_30J, VWC_15J, VWC_30J), 
+                scale)) %>% 
+  select(prop, Rain_15J, Rain_30J, Hr_15J, Hr_30J, Rg_15J, Rg_30J, 
+         ETP_15J, ETP_30J, Temp_15J, Temp_30J, VWC_15J, VWC_30J) %>%
+  print() ->
+  Flo_climat_ins_ACP
+
+
+# Tests de correlation entre la proportion d'individus en fleur et les variables climatiques
+cor.test(Flo_climat_ins_ACP$prop, Flo_climat_ins_ACP$Rg_30J, method = "pearson") 
+cor.test(Flo_climat_ins_ACP$prop, Flo_climat_ins_ACP$Rain_30J, method = "pearson")
+cor.test(Flo_climat_ins_ACP$prop, Flo_climat_ins_ACP$VWC_30J, method = "pearson")  
+cor.test(Flo_climat_ins_ACP$prop, Flo_climat_ins_ACP$Hr_30J, method = "pearson") 
+cor.test(Flo_climat_ins_ACP$prop, Flo_climat_ins_ACP$ETP_30J, method = "pearson") 
+cor.test(Flo_climat_ins_ACP$prop, Flo_climat_ins_ACP$Temp_30J, method = "pearson")
+
+cor.test(Flo_climat_ins_ACP$prop, Flo_climat_ins_ACP$Rg_15J, method = "pearson") # Significatif mais très proche du seuil de 0.05
+cor.test(Flo_climat_ins_ACP$prop, Flo_climat_ins_ACP$Rain_15J, method = "pearson")
+cor.test(Flo_climat_ins_ACP$prop, Flo_climat_ins_ACP$VWC_15J, method = "pearson") 
+cor.test(Flo_climat_ins_ACP$prop, Flo_climat_ins_ACP$Hr_15J, method = "pearson") 
+cor.test(Flo_climat_ins_ACP$prop, Flo_climat_ins_ACP$ETP_15J, method = "pearson") 
+cor.test(Flo_climat_ins_ACP$prop, Flo_climat_ins_ACP$Temp_15J, method = "pearson") 
+
+
 # Visualisation des variables et de leurs relations
-pairs.panels(Flo_climat_ins_acp, 
+pairs.panels(Flo_climat_ins_ACP, 
              method = "pearson", # correlation method
              hist.col = "#00AFBB",
              density = TRUE,  # show density plots
              ellipses = FALSE # show correlation ellipses
 )
 
-ACP_ins <- dudi.pca(Flo_climat_ins_acp,scale = T, center = T, scannf = F, nf = 2 )
+# Model
+ACP_ins <- dudi.pca(Flo_climat_ins_acp[,c("prop","Rain_15J", "Rain_30J", "Hr_15J", "Hr_30J", "Rg_15J", "Rg_30J", 
+                                          "ETP_15J", "ETP_30J", "Temp_15J", "Temp_30J", "VWC_15J", "VWC_30J")],scale = T, center = T, scannf = F, nf = 2 )
+
 
 # Calcul des % de chaque axe
 pc_ins <- round(ACP_ins$eig/sum(ACP_ins$eig)*100, 2)
@@ -3286,20 +3644,73 @@ cos2_ins <- abs(cont_ins$row.rel)/10000
 fviz_cos2(ACP_ins, choice = "ind", axe=1:2)
 fviz_pca_biplot(ACP_ins, col.ind = "cos2", gradient.cols=c("red","yellow","green"),repel = TRUE) 
 
-# Tests de correlations #
-cor.test(Flo_climat_ins_acp$prop, Flo_climat_ins_acp$Rg_30J, method = "pearson")
-cor.test(Flo_climat_ins_acp$prop, Flo_climat_ins_acp$Rain_30J, method = "pearson")
-cor.test(Flo_climat_ins_acp$prop, Flo_climat_ins_acp$VWC_30J, method = "pearson")
-cor.test(Flo_climat_ins_acp$prop, Flo_climat_ins_acp$Hr_30J, method = "pearson") 
-cor.test(Flo_climat_ins_acp$prop, Flo_climat_ins_acp$ETP_30J, method = "pearson") 
-cor.test(Flo_climat_ins_acp$prop, Flo_climat_ins_acp$Temp_30J, method = "pearson")
 
-cor.test(Flo_climat_ins_acp$prop, Flo_climat_ins_acp$Rg_15J, method = "pearson")
-cor.test(Flo_climat_ins_acp$prop, Flo_climat_ins_acp$Rain_15J, method = "pearson") 
-cor.test(Flo_climat_ins_acp$prop, Flo_climat_ins_acp$VWC_15J, method = "pearson") 
-cor.test(Flo_climat_ins_acp$prop, Flo_climat_ins_acp$Hr_15J, method = "pearson") 
-cor.test(Flo_climat_ins_acp$prop, Flo_climat_ins_acp$ETP_15J, method = "pearson")
-cor.test(Flo_climat_ins_acp$prop, Flo_climat_ins_acp$Temp_15J, method = "pearson") 
+## GLM ##
+
+# Data binaire (1 pour un evenement de floraion, 0 sinon) #
+pheno2 %>% 
+  filter(Genus_Spec == "Platonia_insignis") %>% 
+  select(date, PPFlo, CrownID) %>% 
+  mutate(PPFlo = if_else(is.na(PPFlo), "not_Fl", PPFlo)) %>% 
+  mutate(Flo = ifelse(PPFlo == "Fl", 1, 0)) %>% 
+  print() ->
+  P_ins
+
+# Toutes les dates pour la GLM
+all_dates_ins_GLM <- seq(min(P_ins$date, climat$date), max(P_ins$date, climat$date), by = "day")
+
+# Compléter les tibbles avec les dates manquantes
+P_ins %>%
+  right_join(tibble(date = all_dates_ins_GLM), by = "date") %>% 
+  print() ->
+  P_ins
+
+climat %>%
+  right_join(tibble(date = all_dates_ins_GLM), by = "date") %>% 
+  print() ->
+  climat_ins_GLM
+
+P_ins %>% 
+  arrange(date) %>% 
+  select(date, Flo, CrownID) %>% 
+  left_join(climat_ins_GLM, by = "date") %>% 
+  filter(!is.na(Flo)) %>% 
+  filter(!is.na(Rain_15J)) %>% 
+  filter(!is.na(Rain_30J)) %>% 
+  filter(!is.na(Hr_15J)) %>% 
+  filter(!is.na(Hr_30J)) %>% 
+  filter(!is.na(Rg_15J)) %>% 
+  filter(!is.na(Rg_30J)) %>% 
+  filter(!is.na(ETP_15J)) %>% 
+  filter(!is.na(ETP_30J)) %>% 
+  filter(!is.na(Temp_15J)) %>% 
+  filter(!is.na(Temp_30J)) %>% 
+  filter(!is.na(VWC_15J)) %>% 
+  filter(!is.na(VWC_30J)) %>% 
+  print() ->
+  Flo_climat_ins_GLM
+
+# Centrage et reduction des variables climatiques
+scaled_vars <- scale(Flo_climat_ins_GLM[,c("Rain_15J", "Rain_30J", "Hr_15J", "Hr_30J", "Rg_15J", "Rg_30J", 
+                                           "ETP_15J", "ETP_30J", "Temp_15J", "Temp_30J", "VWC_15J", "VWC_30J")])
+
+Flo_climat_ins_GLM <- cbind(Flo_climat_ins_GLM[,"Flo"], as.data.frame(scaled_vars))
+
+# Model
+glm_ins <- glm(Flo ~ Rain_15J+ Rain_30J+ Hr_15J+ Hr_30J+ Rg_15J+ Rg_30J+ 
+                 ETP_15J+ ETP_30J+ Temp_15J+ Temp_30J+ VWC_15J+ VWC_30J, data = Flo_climat_ins_GLM, family = "binomial")
+summary(glm_ins)
+anova(glm_ins)
+
+
+
+
+
+
+
+
+
+
 
 
 
