@@ -57,7 +57,7 @@ dataB %>%
     T_10cm = mean(T_10cm, na.rm = TRUE)
   ) %>%
   ungroup() %>%
-  mutate(dates = as.Date(Day - 1, origin = paste0(Year, "-01-01"))) %>% 
+  mutate(date = as.Date(Day - 1, origin = paste0(Year, "-01-01"))) %>% 
   print() ->
   dataB
 
@@ -143,7 +143,7 @@ climat %>%
   mutate(VWC_15J = if_else(is.na(VWC_15J), 0, VWC_15J)) %>% 
   mutate(VWC_30J = if_else(is.na(VWC_30J), 0, VWC_30J)) %>% 
   select(Rain_15J, Rain_30J, Hr_15J, Hr_30J, Rg_15J, Rg_30J, 
-         ETP_15J, ETP_30J, Temp_15J, Temp_30J, VWC_15J, VWC_30J, dates) %>% 
+         ETP_15J, ETP_30J, Temp_15J, Temp_30J, VWC_15J, VWC_30J, date) %>% 
   print() ->
   climat
 
@@ -2357,62 +2357,15 @@ ggplot() +
 #### RELATION ENTRE LES VARIABLES CLIMATIQUES ####
 
 # Data variables climatiques #
-dataB %>% 
-  filter(!is.na(`Temp(55)`)) %>%
-  filter(!is.na(`Hr(55)`)) %>%
-  filter(!is.na(Rg)) %>%
-  filter(!is.na(vpd55)) %>%
-  filter(!is.na(Rain)) %>%
-  filter(!is.na(ETP)) %>%
-  filter(!is.na(VWC_10cm)) %>%
-  group_by(Year, Month, Day, dates) %>% 
-  summarise(`Temp(55)` = mean(`Temp(55)`),`Hr(55)` = mean(`Hr(55)`), Rg = mean(Rg), vpd55 = mean(vpd55), 
-            Rain = sum(Rain),ETP = sum(ETP), VWC_10cm = mean(VWC_10cm)) %>% 
-  print() ->
-  climat
+climat
 
-# Variables climatiques cumulees ou moyennees tous les 15 jours et tous les mois
-climat$Rain_15J <- rollapply(climat$Rain, width = 15, FUN = sum, fill = NA, align = "right")
-climat$Rain_30J <- rollapply(climat$Rain, width = 30, FUN = sum, fill = NA, align = "right")
-
-climat$Rg_15J <- rollapply(climat$Rg, width = 15, FUN = mean, fill = NA, align = "right")
-climat$Rg_30J <- rollapply(climat$Rg, width = 30, FUN = mean, fill = NA, align = "right")
-
-climat$Hr_15J <- rollapply(climat$`Hr(55)`, width = 15, FUN = mean, fill = NA, align = "right")
-climat$Hr_30J <- rollapply(climat$`Hr(55)`, width = 30, FUN = mean, fill = NA, align = "right")
-
-climat$ETP_15J <- rollapply(climat$ETP, width = 15, FUN = mean, fill = NA, align = "right")
-climat$ETP_30J <- rollapply(climat$ETP, width = 30, FUN = mean, fill = NA, align = "right")
-
-climat$Temp_15J <- rollapply(climat$`Temp(55)`, width = 15, FUN = mean, fill = NA, align = "right")
-climat$Temp_30J <- rollapply(climat$`Temp(55)`, width = 30, FUN = mean, fill = NA, align = "right")
-
-climat$VWC_15J <- rollapply(climat$VWC_10cm, width = 15, FUN = mean, fill = NA, align = "right")
-climat$VWC_30J <- rollapply(climat$VWC_10cm, width = 30, FUN = mean, fill = NA, align = "right")
-
-climat %>% 
-  mutate(Rain_15J = if_else(is.na(Rain_15J), 0, Rain_15J)) %>% 
-  mutate(Rain_30J = if_else(is.na(Rain_30J), 0, Rain_30J)) %>% 
-  mutate(Hr_15J = if_else(is.na(Hr_15J), 0, Hr_15J)) %>% 
-  mutate(Hr_30J = if_else(is.na(Hr_30J), 0, Hr_30J)) %>% 
-  mutate(Rg_15J = if_else(is.na(Rg_15J), 0, Rg_15J)) %>% 
-  mutate(Rg_30J = if_else(is.na(Rg_30J), 0, Rg_30J)) %>% 
-  mutate(ETP_15J = if_else(is.na(ETP_15J), 0, ETP_15J)) %>% 
-  mutate(ETP_30J = if_else(is.na(ETP_30J), 0, ETP_30J)) %>% 
-  mutate(Temp_15J = if_else(is.na(Temp_15J), 0, Temp_15J)) %>% 
-  mutate(Temp_30J = if_else(is.na(Temp_30J), 0, Temp_30J)) %>% 
-  mutate(VWC_15J = if_else(is.na(VWC_15J), 0, VWC_15J)) %>% 
-  mutate(VWC_30J = if_else(is.na(VWC_30J), 0, VWC_30J)) %>% 
-  select(Rain_15J, Rain_30J, Hr_15J, Hr_30J, Rg_15J, Rg_30J, 
-         ETP_15J, ETP_30J, Temp_15J, Temp_30J, VWC_15J, VWC_30J, dates) %>% 
-  print() ->
-  climat
-
-
-sum(is.na(climat))
-
-# Centrage et reduction des donnees
-climat %>%
+# Reduction du nombre de valeurs nulles et centrage et reduction des donnees
+climat[-c(1:14),] %>%
+  mutate(Rain_30J = if_else(Rain_30J == 0, mean(Rain_30J), Rain_30J)) %>% 
+  mutate(Hr_30J = if_else(Hr_30J == 0, mean(Hr_30J), Hr_30J)) %>% 
+  mutate(Rg_30J = if_else(Rg_30J == 0, mean(Rg_30J), Rg_30J)) %>% 
+  mutate(ETP_30J = if_else(ETP_30J == 0, mean(ETP_30J), ETP_30J)) %>% 
+  mutate(VWC_30J = if_else(VWC_30J == 0, mean(VWC_30J), VWC_30J)) %>% 
   mutate(across(c(Rain_15J, Rain_30J, Hr_15J, Hr_30J, Rg_15J, Rg_30J, 
                   ETP_15J, ETP_30J, Temp_15J, Temp_30J, VWC_15J, VWC_30J), 
                 scale)) %>% 
@@ -2421,8 +2374,7 @@ climat %>%
   print() ->
   climat_ACP
 
-climat_ACP <- scale(climat[c("Rain_15J", "Rain_30J", "Hr_15J", "Hr_30J", "Rg_15J", "Rg_30J", 
-            "ETP_15J", "ETP_30J", "Temp_15J", "Temp_30J", "VWC_15J", "VWC_30J")])
+  
 
 ## ACP ##
 
@@ -2433,6 +2385,51 @@ pairs.panels(climat_ACP,
              ellipses = FALSE # show correlation ellipses
 )
 
+## ACP ##
+
+#Model
+ACP_climat <- dudi.pca(climat_ACP, scale = T, center = T, scannf = F, nf = 4 )
+
+
+# Calcul des % de chaque axe
+pc_clim<- round(ACP_climat$eig/sum(ACP_climat$eig)*100, 2)
+
+# % cumules
+cumsum(pc_clim)
+
+
+# BarPlot des % d'inertie #
+
+# Definir le min et max de l'axe des y
+ylim <- c(0, 1.2*max(pc_clim))
+
+# Barplot
+xx <- barplot(pc_clim, xaxt = 'n', xlab = '', width = 0.85, ylim = ylim, ylab = "% d'inertie")
+
+# Ajout des valeurs de % en dessus des barres
+text(x = xx, y = pc_clim, label = pc_clim, pos = 3, cex = 0.8, col = "black")
+
+# Ajout des labels sur l'axe des x (ie. numero des axes factoriels)
+axis(1, at = xx, labels = c(1:length(pc_clim)), tick = FALSE, las = 1, line = -0.5, cex.axis = 0.8)
+
+
+# cercle des correlations (pour une ACP normee) #
+s.corcircle(ACP_climat$co)
+
+
+# Calcul de la somme des cos2 des individus
+cont_clim <- inertia.dudi(ACP_climat, row.inertia = TRUE)
+cont_clim
+
+# Calcul des cos2 :
+cos2_glb <- abs(cont_clim$row.rel)/10000
+
+# Representation 
+fviz_cos2(ACP_climat, choice = "ind", axe=1:2)
+fviz_pca_biplot(ACP_climat, col.ind = "cos2", gradient.cols=c("red","yellow","green"),repel = TRUE) 
+
+# Contribution relative des variables aux axes
+inertia.dudi(ACP_climat, col.inertia = T)
 
 
 
@@ -2446,7 +2443,7 @@ pairs.panels(climat_ACP,
 data_signal_globu
 
 # Assemblement des dates floraison et dates des variables climatiques
-all_dates_glb_ACP <- seq(min(data_signal_globu$date, climat$datess), max(data_signal_globu$date, climat$datess), by = "day")
+all_dates_glb_ACP <- seq(min(data_signal_globu$date, climat$date), max(data_signal_globu$date, climat$date), by = "day")
 
 # Ajout de toutes les dates aux objets
 data_signal_globu %>%
@@ -2506,21 +2503,6 @@ cor.test(Flo_climat_glb_ACP$prop, Flo_climat_glb_ACP$VWC_15J, method = "pearson"
 cor.test(Flo_climat_glb_ACP$prop, Flo_climat_glb_ACP$Hr_15J, method = "pearson") # Non significatif
 cor.test(Flo_climat_glb_ACP$prop, Flo_climat_glb_ACP$ETP_15J, method = "pearson")
 cor.test(Flo_climat_glb_ACP$prop, Flo_climat_glb_ACP$Temp_15J, method = "pearson")
-
-
-# Visualisation des variables et de leurs relations
-pairs.panels(Flo_climat_glb_ACP[c("Rain_15J","Rain_30J", "VWC_15J", "VWC_30J", "Rg_15J",
-                                  "Rg_30J", "Temp_15J","Temp_30J", "Hr_15J", "Hr_30J",
-                                  "ETP_15J", "ETP_30J")], 
-             method = "pearson", # correlation method
-             hist.col = "#00AFBB",
-             density = TRUE,  # show density plots
-             ellipses = FALSE # show correlation ellipses
-)
-
-
-
-
 
 
 # Visualisation des variables et de leurs relations
