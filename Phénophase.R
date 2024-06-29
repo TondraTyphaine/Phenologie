@@ -196,6 +196,17 @@ PhenoPhase_Time(
   markers = "Residence_time"
 )[[2]]
 
+PhenoPhase_glb <- PhenoPhase_Time(
+  Data = pheno2,
+  Pattern = "Fl",
+  Spec = "Symphonia_globulifera",
+  Obs_Veg = "PPFlo",
+  markers = "Residence_time"
+)
+
+# Visualisation des temps de sejour pour chaque evenement de floraison pour S.globulifera
+view(PhenoPhase_glb[[2]][["data"]])
+
 # Temps de sejour de la floraison pour S.sp1
 PhenoPhase_Time(
   Data = pheno2,
@@ -204,6 +215,17 @@ PhenoPhase_Time(
   Obs_Veg = "PPFlo",
   markers = "Residence_time"
 )[[2]]
+
+PhenoPhase_sp1 <- PhenoPhase_Time(
+  Data = pheno2,
+  Pattern = "Fl",
+  Spec = "Symphonia_sp.1",
+  Obs_Veg = "PPFlo",
+  markers = "Residence_time"
+)
+
+# Visualisation des temps de sejour pour chaque evenement de floraison pour S.sp1
+view(PhenoPhase_sp1[[2]][["data"]])
 
 # Temps de sejour de la floraison pour V.americana
 PhenoPhase_Time(
@@ -214,6 +236,17 @@ PhenoPhase_Time(
   markers = "Residence_time"
 )[[2]]
 
+PhenoPhase_am <- PhenoPhase_Time(
+  Data = pheno2,
+  Pattern = "Fl",
+  Spec = "Vouacapoua_americana",
+  Obs_Veg = "PPFlo",
+  markers = "Residence_time"
+)
+
+# Visualisation des temps de sejour pour chaque evenement de floraison pour V.americana
+view(PhenoPhase_am[[2]][["data"]])
+
 # Temps de sejour de la floraison pour C.guianensis
 PhenoPhase_Time(
   Data = pheno2,
@@ -222,6 +255,17 @@ PhenoPhase_Time(
   Obs_Veg = "PPFlo",
   markers = "Residence_time"
 )[[2]]
+
+PhenoPhase_gui <- PhenoPhase_Time(
+  Data = pheno2,
+  Pattern = "Fl",
+  Spec = "Couma_guianensis",
+  Obs_Veg = "PPFlo",
+  markers = "Residence_time"
+)
+
+# Visualisation des temps de sejour pour chaque evenement de floraison pour C.guianensis
+view(PhenoPhase_gui[[2]][["data"]])
 
 # Temps de sejour de la floraison pour M.coccinea
 PhenoPhase_Time(
@@ -232,6 +276,17 @@ PhenoPhase_Time(
   markers = "Residence_time"
 )[[2]]
 
+PhenoPhase_cocci <- PhenoPhase_Time(
+  Data = pheno2,
+  Pattern = "Fl",
+  Spec = "Moronobea_coccinea",
+  Obs_Veg = "PPFlo",
+  markers = "Residence_time"
+)
+
+# Visualisation des temps de sejour pour chaque evenement de floraison pour M.coccinea
+view(PhenoPhase_cocci[[2]][["data"]])
+
 # Temps de sejour de la floraison pour P.insignis
 PhenoPhase_Time(
   Data = pheno2,
@@ -240,6 +295,17 @@ PhenoPhase_Time(
   Obs_Veg = "PPFlo",
   markers = "Residence_time"
 )[[2]]
+
+PhenoPhase_ins <- PhenoPhase_Time(
+  Data = pheno2,
+  Pattern = "Fl",
+  Spec = "Platonia_insignis",
+  Obs_Veg = "PPFlo",
+  markers = "Residence_time"
+)
+
+# Visualisation des temps de sejour pour chaque evenement de floraison pour P.insignis
+view(PhenoPhase_ins[[2]][["data"]])
 
 
 ## Temps de retour (temps entre la fin d'un evenement de floraison
@@ -831,16 +897,16 @@ dates_gui = data_signal_gui %>%
 # the maximum of pics
 # sort () permet de trier les elements d'un vecteur
 # findpeaks () premet de trouver les pics de floraison
-dates_max_gui = sort(findpeaks(moyenne_mobile_gui,minpeakheight  = 10,nups = 1)[,2])
+dates_max_gui = sort(findpeaks(signal_gui,minpeakheight  = 10,nups = 1)[,2])
 
 # When the pics begin
-dates_begin_gui = sort(findpeaks(moyenne_mobile_gui,minpeakheight  = 10,nups = 1)[,3])
+dates_begin_gui = sort(findpeaks(signal_gui,minpeakheight  = 10,nups = 1)[,3])
 
 # When the pics end
-dates_end_gui = sort(findpeaks(moyenne_mobile_gui,minpeakheight  = 10,nups = 1)[,4])
+dates_end_gui = sort(findpeaks(signal_gui,minpeakheight  = 10,nups = 1)[,4])
 
 # Percent of ind by peaks 
-amplitude_peaks_gui = findpeaks(moyenne_mobile_gui,minpeakheight  = 10,nups = 1)[,1]
+amplitude_peaks_gui = findpeaks(signal_gui,minpeakheight  = 10,nups = 1)[,1]
 
 # Compilation des amplitudes relles des pics du signal
 amplitude_real_gui = signal_gui[dates_max_gui]
@@ -850,8 +916,8 @@ Plot = ggplot(data_signal_gui,
               aes(x = date)) +
   geom_line(aes(y = prop, 
                 color = "original signal")) +
-  geom_line(aes(y = moyenne_mobile_gui, 
-                color = "processed signal"))+
+  # geom_line(aes(y = moyenne_mobile_gui, 
+  #               color = "processed signal"))+
   geom_point(aes(y = prop, 
                  color = "original signal")) +
   scale_color_manual(values = c("original signal" = "blue","processed signal" = "red"))+
