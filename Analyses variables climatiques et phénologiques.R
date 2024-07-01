@@ -104,7 +104,6 @@ dataB %>%
   filter(!is.na(Rg)) %>%
   filter(!is.na(vpd55)) %>%
   filter(!is.na(Rain)) %>%
-  filter(!is.na(ETP)) %>%
   filter(!is.na(VWC_10cm)) %>%
   print() ->
   climat
@@ -118,9 +117,6 @@ climat$Rg_30J <- rollapply(climat$Rg, width = 30, FUN = mean, fill = NA, align =
 
 climat$Hr_15J <- rollapply(climat$`Hr(55)`, width = 15, FUN = mean, fill = NA, align = "right")
 climat$Hr_30J <- rollapply(climat$`Hr(55)`, width = 30, FUN = mean, fill = NA, align = "right")
-
-climat$ETP_15J <- rollapply(climat$ETP, width = 15, FUN = mean, fill = NA, align = "right")
-climat$ETP_30J <- rollapply(climat$ETP, width = 30, FUN = mean, fill = NA, align = "right")
 
 climat$Temp_15J <- rollapply(climat$`Temp(55)`, width = 15, FUN = mean, fill = NA, align = "right")
 climat$Temp_30J <- rollapply(climat$`Temp(55)`, width = 30, FUN = mean, fill = NA, align = "right")
@@ -136,14 +132,12 @@ climat %>%
   mutate(Hr_30J = if_else(is.na(Hr_30J), 0, Hr_30J)) %>% 
   mutate(Rg_15J = if_else(is.na(Rg_15J), 0, Rg_15J)) %>% 
   mutate(Rg_30J = if_else(is.na(Rg_30J), 0, Rg_30J)) %>% 
-  mutate(ETP_15J = if_else(is.na(ETP_15J), 0, ETP_15J)) %>% 
-  mutate(ETP_30J = if_else(is.na(ETP_30J), 0, ETP_30J)) %>% 
   mutate(Temp_15J = if_else(is.na(Temp_15J), 26, Temp_15J)) %>% 
   mutate(Temp_30J = if_else(is.na(Temp_30J), 26, Temp_30J)) %>% 
   mutate(VWC_15J = if_else(is.na(VWC_15J), 0, VWC_15J)) %>% 
   mutate(VWC_30J = if_else(is.na(VWC_30J), 0, VWC_30J)) %>% 
   select(Rain_15J, Rain_30J, Hr_15J, Hr_30J, Rg_15J, Rg_30J, 
-         ETP_15J, ETP_30J, Temp_15J, Temp_30J, VWC_15J, VWC_30J, date) %>% 
+        Temp_15J, Temp_30J, VWC_15J, VWC_30J, date) %>% 
   print() ->
   climat
 
@@ -153,11 +147,10 @@ dataB %>%
   filter(!is.na(`Hr(55)`)) %>% 
   filter(!is.na(Rg)) %>% 
   filter(!is.na(Rain)) %>% 
-  filter(!is.na(ETP)) %>% 
   filter(!is.na(VWC_10cm)) %>% 
   group_by(Year, Month) %>% 
   summarise(`Temp(55)` = mean(`Temp(55)`),`Hr(55)` = mean(`Hr(55)`), Rg = mean(Rg),
-            Rain = sum(Rain), ETP = sum(ETP), VWC_10cm = mean(VWC_10cm)) %>% 
+            Rain = sum(Rain), VWC_10cm = mean(VWC_10cm)) %>% 
   mutate(date = floor_date(make_date(Year, Month, day = 1), unit = "month")) %>%
   mutate(Year = as.factor(format(date, "%Y"))) %>% 
   print() ->
@@ -387,7 +380,7 @@ ggplot() +
 ggplot() + 
   geom_line(data = data_signal_globu, aes(x = date, y = signal_globu, color = "Signal de floraison réel"), linewidth = 0.7) +
   geom_line(data = data_signal_globu, aes(x = date, y = moyenne_mobile_globu, color = "Signal de floraison traité"), linewidth = 0.5) +
-  geom_line(data = Rain, aes(x = date, y = moyenne_mobile_30J, color = "Pluviométrie cumulée 30J"), linewidth = 0.7) +
+  geom_line(data = climat, aes(x = date, y = moyenne_mobile_30J, color = "Pluviométrie cumulée 30J"), linewidth = 0.7) +
   
   # Debut/maximum/fin des pics de floraison
   geom_vline(xintercept = dates_globu[dates_max_globu],
@@ -1135,7 +1128,7 @@ brewer.pal(n = 3, name = "Set2")
 ggplot() + 
   geom_line(data = data_signal_globu, aes(x = date, y = signal_globu, color = "Signal de floraison réel"), linewidth = 0.7) +
   geom_line(data = data_signal_globu, aes(x = date, y = moyenne_mobile_globu, color = "Signal de floraison traité"), linewidth = 0.5) +
-  geom_line(data = climat, aes(x = dates, y = moyenne_mobile_Hr_15, color = "Hr 15J"), linewidth = 0.7) +
+  geom_line(data = climat, aes(x = date, y = moyenne_mobile_Hr_15, color = "Hr 15J"), linewidth = 0.7) +
   
   # Debut/maximum/fin des pics de floraison
   geom_vline(xintercept = dates_globu[dates_max_globu],
@@ -1256,7 +1249,7 @@ ggplot() +
 ggplot() + 
   geom_line(data = data_signal_sp1, aes(x = date, y = signal_sp1, color = "Signal de floraison réel"), linewidth = 0.7) +
   geom_line(data = data_signal_sp1, aes(x = date, y = moyenne_mobile_sp1, color = "Signal de floraison traité"), linewidth = 0.5) +
-  geom_line(data = climat, aes(x = dates, y = moyenne_mobile_Hr_30, color = "Hr 30J"), linewidth = 0.7) +
+  geom_line(data = climat, aes(x = date, y = moyenne_mobile_Hr_30, color = "Hr 30J"), linewidth = 0.7) +
   
   # Debut/maximum/fin des pics de floraison
   geom_vline(xintercept = dates_sp1[dates_max_sp1],
@@ -1299,7 +1292,7 @@ ggplot() +
 ggplot() + 
   geom_line(data = data_signal_am, aes(x = date, y = signal_am, color = "Signal de floraison réel"), linewidth = 0.7) +
   geom_line(data = data_signal_am, aes(x = date, y = moyenne_mobile_am, color = "Signal de floraison traité"), linewidth = 0.5) +
-  geom_line(data = climat, aes(x = dates, y = moyenne_mobile_Hr_15, color = "Hr 15J"), linewidth = 0.7) +
+  geom_line(data = climat, aes(x = date, y = moyenne_mobile_Hr_15, color = "Hr 15J"), linewidth = 0.7) +
   
   # Debut/maximum/fin des pics de floraison
   geom_vline(xintercept = dates_am[dates_max_am],
@@ -1339,7 +1332,7 @@ ggplot() +
 ggplot() + 
   geom_line(data = data_signal_am, aes(x = date, y = signal_am, color = "Signal de floraison réel"), linewidth = 0.7) +
   geom_line(data = data_signal_am, aes(x = date, y = moyenne_mobile_am, color = "Signal de floraison traité"), linewidth = 0.5) +
-  geom_line(data = climat, aes(x = dates, y = moyenne_mobile_Hr_30, color = "Hr 30J"), linewidth = 0.7) +
+  geom_line(data = climat, aes(x = date, y = moyenne_mobile_Hr_30, color = "Hr 30J"), linewidth = 0.7) +
   
   # Debut/maximum/fin des pics de floraison
   geom_vline(xintercept = dates_am[dates_max_am],
@@ -1382,7 +1375,7 @@ ggplot() +
 ggplot() + 
   geom_line(data = data_signal_gui, aes(x = date, y = signal_gui, color = "Signal de floraison réel"), linewidth = 0.7) +
   geom_line(data = data_signal_gui, aes(x = date, y = moyenne_mobile_gui, color = "Signal de floraison traité"), linewidth = 0.5) +
-  geom_line(data = climat, aes(x = dates, y = moyenne_mobile_Hr_15, color = "Hr moyen 15J"), linewidth = 0.7) +
+  geom_line(data = climat, aes(x = date, y = moyenne_mobile_Hr_15, color = "Hr moyen 15J"), linewidth = 0.7) +
   
   # Debut/maximum/fin des pics de floraison
   geom_vline(xintercept = dates_gui[dates_max_gui],
@@ -1422,7 +1415,7 @@ ggplot() +
 ggplot() + 
   geom_line(data = data_signal_gui, aes(x = date, y = signal_gui, color = "Signal de floraison réel"), linewidth = 0.7) +
   geom_line(data = data_signal_gui, aes(x = date, y = moyenne_mobile_gui, color = "Signal de floraison traité"), linewidth = 0.5) +
-  geom_line(data = climat, aes(x = dates, y = moyenne_mobile_Hr_30, color = "Hr moyen 30J"), linewidth = 0.7) +
+  geom_line(data = climat, aes(x = date, y = moyenne_mobile_Hr_30, color = "Hr moyen 30J"), linewidth = 0.7) +
   
   # Debut/maximum/fin des pics de floraison
   geom_vline(xintercept = dates_gui[dates_max_gui],
@@ -1464,7 +1457,7 @@ ggplot() +
 ggplot() + 
   geom_line(data = data_signal_cocci, aes(x = date, y = signal_cocci, color = "Signal de floraison réel"), linewidth = 0.7) +
   geom_line(data = data_signal_cocci, aes(x = date, y = moyenne_mobile_cocci, color = "Signal de floraison traité"), linewidth = 0.5) +
-  geom_line(data = climat, aes(x = dates, y = moyenne_mobile_Hr_15, color = "Hr moyen 15J"), linewidth = 0.7) +
+  geom_line(data = climat, aes(x = date, y = moyenne_mobile_Hr_15, color = "Hr moyen 15J"), linewidth = 0.7) +
   
   # Debut/maximum/fin des pics de floraison
   geom_vline(xintercept = dates_cocci[dates_max_cocci],
@@ -1504,7 +1497,7 @@ ggplot() +
 ggplot() + 
   geom_line(data = data_signal_cocci, aes(x = date, y = signal_cocci, color = "Signal de floraison réel"), linewidth = 0.7) +
   geom_line(data = data_signal_cocci, aes(x = date, y = moyenne_mobile_cocci, color = "Signal de floraison traité"), linewidth = 0.5) +
-  geom_line(data = climat, aes(x = dates, y = moyenne_mobile_Hr_30, color = "Hr moyen 30J"), linewidth = 0.7) +
+  geom_line(data = climat, aes(x = date, y = moyenne_mobile_Hr_30, color = "Hr moyen 30J"), linewidth = 0.7) +
   
   # Debut/maximum/fin des pics de floraison
   geom_vline(xintercept = dates_cocci[dates_max_cocci],
@@ -1547,7 +1540,7 @@ ggplot() +
 ggplot() + 
   geom_line(data = data_signal_ins, aes(x = date, y = signal_ins, color = "Signal de floraison réel"), linewidth = 0.7) +
   geom_line(data = data_signal_ins, aes(x = date, y = moyenne_mobile_ins, color = "Signal de floraison traité"), linewidth = 0.5) +
-  geom_line(data = climat, aes(x = dates, y = moyenne_mobile_Hr_15, color = "Hr moyen 15J"), linewidth = 0.7) +
+  geom_line(data = climat, aes(x = date, y = moyenne_mobile_Hr_15, color = "Hr moyen 15J"), linewidth = 0.7) +
   
   # Debut/maximum/fin des pics de floraison
   geom_vline(xintercept = dates_ins[dates_max_ins],
@@ -1587,7 +1580,7 @@ ggplot() +
 ggplot() + 
   geom_line(data = data_signal_ins, aes(x = date, y = signal_ins, color = "Signal de floraison réel"), linewidth = 0.7) +
   geom_line(data = data_signal_ins, aes(x = date, y = moyenne_mobile_ins, color = "Signal de floraison traité"), linewidth = 0.5) +
-  geom_line(data = climat, aes(x = dates, y = moyenne_mobile_Hr_30, color = "Hr moyen 30J"), linewidth = 0.7) +
+  geom_line(data = climat, aes(x = date, y = moyenne_mobile_Hr_30, color = "Hr moyen 30J"), linewidth = 0.7) +
   
   # Debut/maximum/fin des pics de floraison
   geom_vline(xintercept = dates_ins[dates_max_ins],
@@ -1628,7 +1621,7 @@ ggplot() +
 
 # Full data pour chaque jour du suivi
 dataB %>% 
-  select(Year, Month, dates, VWC_10cm) %>% 
+  select(Year, Month, date, VWC_10cm) %>% 
   filter(!is.na(VWC_10cm)) %>% 
   mutate(VWC_10cm = VWC_10cm*100) %>% # Multiplication par 100 pour mieux voir les variations
   print() ->
@@ -2233,8 +2226,8 @@ Rg %>%
   dates_Rg
 
 # Maximum des pics de Rg
-dates_max_Rg_15 <- sort(findpeaks(moyenne_mobile_Rg_15,minpeakheight  = 250, nups = 1)[,2])
-dates_max_Rg_15 <- dates_max_Rg_15[c(5, 6, 8, 16)]
+dates_max_Rg_15 <- sort(findpeaks(moyenne_mobile_Rg_15,minpeakheight  = 240, nups = 1)[,2])
+dates_max_Rg_15 <- dates_max_Rg_15[c(7,8,15,20)]
 
 # Valeurs relles des pics
 amplitude_real_Rg_15 = Rg_bis$Rg_15[dates_max_Rg_15]
@@ -2255,8 +2248,8 @@ moving_average(Rg_bis %>%
 dates_Rg
 
 # Maximum des pics de Rg
-dates_max_Rg_30J <- sort(findpeaks(moyenne_mobile_Rg_30,minpeakheight  = 30, nups = 1)[,2])
-dates_max_Rg_30J <- dates_max_Rg_30J[c(2, 7, 12, 20)]
+dates_max_Rg_30J <- sort(findpeaks(moyenne_mobile_Rg_30,minpeakheight  = 250, nups = 1)[,2])
+dates_max_Rg_30J <- dates_max_Rg_30J[c(4,6,7,9)]
 
 # Valeurs relles des pics
 amplitude_real_Rg_30 = Rg_bis$Rg_30[dates_max_Rg_30J]
@@ -2337,10 +2330,341 @@ ggplot() +
   scale_color_manual(values = c("Signal de floraison réel" = "#984EA3", "Signal de floraison traité" = "black" ,"Rg 30J" = "#FC8D62")) +
   theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust = 1, size = 8)) +
   labs(
-    title = "Rayonnement globale incident de la dernière trentaine de jour et pourcentage de floraison au cours du suivi phénologique de Platonia insignis",
+    title = "Rayonnement globale incident de la dernière trentaine de jour et pourcentage de floraison au cours du suivi phénologique de Symphonia globulifera",
     x = "Dates",
     color = "Légende"
   )
+
+
+
+# Symphonia sp1 #
+
+# Graphique Rg 15J et floraison #
+ggplot() + 
+  geom_line(data = data_signal_sp1, aes(x = date, y = signal_sp1, color = "Signal de floraison réel"), linewidth = 0.7) +
+  geom_line(data = data_signal_sp1, aes(x = date, y = moyenne_mobile_sp1, color = "Signal de floraison traité"), linewidth = 0.5) +
+  geom_line(data = Rg, aes(x = date, y = moyenne_mobile_Rg_15, color = "Rg 15J"), linewidth = 0.7) +
+  
+  # Debut/maximum/fin des pics de floraison
+  geom_vline(xintercept = dates_sp1[dates_max_sp1],
+             col = "#984EA3" , 
+             linetype = "dashed", linewidth = 0.7) + 
+  geom_vline(xintercept = dates_sp1[dates_begin_sp1],
+             col = "black", linetype = "dotdash", linewidth = 0.5) +
+  geom_vline(xintercept = dates_sp1[dates_end_sp1],
+             col = "black", linetype = "dotdash", linewidth = 0.5) +
+  annotate("text",x = dates_sp1[dates_max_sp1]+10, 
+           y= data_signal_sp1$prop[dates_max_sp1]+7,label = paste(round(amplitude_real_sp1,1),"%"),
+           col = "black") +
+  
+  # Maximums des pics de Rg
+  geom_vline(xintercept = dates_Rg[dates_max_Rg_15],
+             col = "#FC8D62" ,
+             linetype = "dashed", linewidth = 0.7) +
+  annotate("text",x = dates_Rg[dates_max_Rg_15],
+           y= moyenne_mobile_Rg_15[dates_max_Rg_15]+5,label = paste(round(amplitude_real_Rg_15,1)),
+           col = "black") +
+  
+  
+  # Mise en forme
+  x_date_4ans +
+  scale_y_continuous(name = "Pourcentage d'arbre en fleur", sec.axis = sec_axis(~., name = "Rg X100 (m³/m³)")) +
+  scale_color_manual(values = c("Signal de floraison réel" = "#984EA3", 
+                                "Signal de floraison traité" = "grey40" ,"Rg 15J" = "#FC8D62")) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust = 1, size = 8)) +
+  labs(
+    title = "Rayonnement globale incident moyen tous les 15 jours  et pourcentage de floraison au cours du suivi phénologique de Symphonia sp1",
+    x = "Dates",
+    color = "Légende"
+  )
+
+
+# Graphique Rg 30J et floraison #
+ggplot() + 
+  geom_line(data = data_signal_sp1, aes(x = date, y = signal_sp1, color = "Signal de floraison réel"), linewidth = 0.7) +
+  geom_line(data = data_signal_sp1, aes(x = date, y = moyenne_mobile_sp1, color = "Signal de floraison traité"), linewidth = 0.5) +
+  geom_line(data = Rg, aes(x = date, y = moyenne_mobile_Rg_30, color = "Rg 30J"), linewidth = 0.7) +
+  
+  # Debut/maximum/fin des pics de floraison
+  geom_vline(xintercept = dates_sp1[dates_max_sp1],
+             col = "#984EA3" , 
+             linetype = "dashed", linewidth = 0.7) + 
+  geom_vline(xintercept = dates_sp1[dates_begin_sp1],
+             col = "black", linetype = "dotdash", linewidth = 0.5) +
+  geom_vline(xintercept = dates_sp1[dates_end_sp1],
+             col = "black", linetype = "dotdash", linewidth = 0.5) +
+  annotate("text",x = dates_sp1[dates_max_sp1]+10, 
+           y= data_signal_sp1$prop[dates_max_sp1]+7,label = paste(round(amplitude_real_sp1,1),"%"),
+           col = "black") +
+  
+  # # Maximums des pics de Rg
+  geom_vline(xintercept = dates_Rg[dates_max_Rg_30J],
+             col = "#FC8D62" ,
+             linetype = "dashed", linewidth = 0.7) +
+  annotate("text",x = dates_Rg[dates_max_Rg_30J],
+           y= moyenne_mobile_Rg_30[dates_max_Rg_30J]+2,label = paste(round(amplitude_real_Rg_30,1)),
+           col = "black") +
+  
+  
+  # Mise en forme
+  x_date_4ans +
+  scale_y_continuous(name = "Pourcentage d'arbre en fleur", sec.axis = sec_axis(~., name = "Rg X100 (m³/m³)")) +
+  scale_color_manual(values = c("Signal de floraison réel" = "#984EA3", "Signal de floraison traité" = "black" ,"Rg 30J" = "#FC8D62")) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust = 1, size = 8)) +
+  labs(
+    title = "Rayonnement globale incident de la dernière trentaine de jour et pourcentage de floraison au cours du suivi phénologique de Symphonia sp1",
+    x = "Dates",
+    color = "Légende"
+  )
+
+
+
+
+# Vouacapoua americana #
+
+# Graphique Rg 15J et floraison #
+ggplot() + 
+  geom_line(data = data_signal_am, aes(x = date, y = signal_am, color = "Signal de floraison réel"), linewidth = 0.7) +
+  geom_line(data = data_signal_am, aes(x = date, y = moyenne_mobile_am, color = "Signal de floraison traité"), linewidth = 0.5) +
+  geom_line(data = Rg, aes(x = date, y = moyenne_mobile_Rg_15, color = "Rg 15J"), linewidth = 0.7) +
+  
+  # Debut/maximum/fin des pics de floraison
+  geom_vline(xintercept = dates_am[dates_max_am],
+             col = "#984EA3" , 
+             linetype = "dashed", linewidth = 0.7) + 
+  geom_vline(xintercept = dates_am[dates_begin_am],
+             col = "black", linetype = "dotdash", linewidth = 0.5) +
+  geom_vline(xintercept = dates_am[dates_end_am],
+             col = "black", linetype = "dotdash", linewidth = 0.5) +
+  annotate("text",x = dates_am[dates_max_am]+10, 
+           y= data_signal_am$prop[dates_max_am]+7,label = paste(round(amplitude_real_am,1),"%"),
+           col = "black") +
+  
+  # Maximums des pics de Rg
+  geom_vline(xintercept = dates_Rg[dates_max_Rg_15],
+             col = "#FC8D62" ,
+             linetype = "dashed", linewidth = 0.7) +
+  annotate("text",x = dates_Rg[dates_max_Rg_15],
+           y= moyenne_mobile_Rg_15[dates_max_Rg_15]+5,label = paste(round(amplitude_real_Rg_15,1)),
+           col = "black") +
+  
+  
+  # Mise en forme
+  x_date_4ans +
+  scale_y_continuous(name = "Pourcentage d'arbre en fleur", sec.axis = sec_axis(~., name = "Rg X100 (m³/m³)")) +
+  scale_color_manual(values = c("Signal de floraison réel" = "#984EA3", 
+                                "Signal de floraison traité" = "grey40" ,"Rg 15J" = "#FC8D62")) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust = 1, size = 8)) +
+  labs(
+    title = "Rayonnement globale incident moyen tous les 15 jours  et pourcentage de floraison au cours du suivi phénologique de Vouacapoua americana",
+    x = "Dates",
+    color = "Légende"
+  )
+
+
+# Graphique Rg 30J et floraison #
+ggplot() + 
+  geom_line(data = data_signal_am, aes(x = date, y = signal_am, color = "Signal de floraison réel"), linewidth = 0.7) +
+  geom_line(data = data_signal_am, aes(x = date, y = moyenne_mobile_am, color = "Signal de floraison traité"), linewidth = 0.5) +
+  geom_line(data = Rg, aes(x = date, y = moyenne_mobile_Rg_30, color = "Rg 30J"), linewidth = 0.7) +
+  
+  # Debut/maximum/fin des pics de floraison
+  geom_vline(xintercept = dates_am[dates_max_am],
+             col = "#984EA3" , 
+             linetype = "dashed", linewidth = 0.7) + 
+  geom_vline(xintercept = dates_am[dates_begin_am],
+             col = "black", linetype = "dotdash", linewidth = 0.5) +
+  geom_vline(xintercept = dates_am[dates_end_am],
+             col = "black", linetype = "dotdash", linewidth = 0.5) +
+  annotate("text",x = dates_am[dates_max_am]+10, 
+           y= data_signal_am$prop[dates_max_am]+7,label = paste(round(amplitude_real_am,1),"%"),
+           col = "black") +
+  
+  # # Maximums des pics de Rg
+  geom_vline(xintercept = dates_Rg[dates_max_Rg_30J],
+             col = "#FC8D62" ,
+             linetype = "dashed", linewidth = 0.7) +
+  annotate("text",x = dates_Rg[dates_max_Rg_30J],
+           y= moyenne_mobile_Rg_30[dates_max_Rg_30J]+2,label = paste(round(amplitude_real_Rg_30,1)),
+           col = "black") +
+  
+  
+  # Mise en forme
+  x_date_4ans +
+  scale_y_continuous(name = "Pourcentage d'arbre en fleur", sec.axis = sec_axis(~., name = "Rg X100 (m³/m³)")) +
+  scale_color_manual(values = c("Signal de floraison réel" = "#984EA3", "Signal de floraison traité" = "black" ,"Rg 30J" = "#FC8D62")) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust = 1, size = 8)) +
+  labs(
+    title = "Rayonnement globale incident de la dernière trentaine de jour et pourcentage de floraison au cours du suivi phénologique de Vouacapoua americana",
+    x = "Dates",
+    color = "Légende"
+  )
+
+
+
+# Couma guianensis #
+
+# Graphique Rg 15J et floraison #
+ggplot() + 
+  geom_line(data = data_signal_gui, aes(x = date, y = signal_gui, color = "Signal de floraison réel"), linewidth = 0.7) +
+  geom_line(data = data_signal_gui, aes(x = date, y = moyenne_mobile_gui, color = "Signal de floraison traité"), linewidth = 0.5) +
+  geom_line(data = Rg, aes(x = date, y = moyenne_mobile_Rg_15, color = "Rg 15J"), linewidth = 0.7) +
+  
+  # Debut/maximum/fin des pics de floraison
+  geom_vline(xintercept = dates_gui[dates_max_gui],
+             col = "#984EA3" , 
+             linetype = "dashed", linewidth = 0.7) + 
+  geom_vline(xintercept = dates_gui[dates_begin_gui],
+             col = "black", linetype = "dotdash", linewidth = 0.5) +
+  geom_vline(xintercept = dates_gui[dates_end_gui],
+             col = "black", linetype = "dotdash", linewidth = 0.5) +
+  annotate("text",x = dates_gui[dates_max_gui]+10, 
+           y= data_signal_gui$prop[dates_max_gui]+7,label = paste(round(amplitude_real_gui,1),"%"),
+           col = "black") +
+  
+  # Maximums des pics de Rg
+  geom_vline(xintercept = dates_Rg[dates_max_Rg_15],
+             col = "#FC8D62" ,
+             linetype = "dashed", linewidth = 0.7) +
+  annotate("text",x = dates_Rg[dates_max_Rg_15],
+           y= moyenne_mobile_Rg_15[dates_max_Rg_15]+5,label = paste(round(amplitude_real_Rg_15,1)),
+           col = "black") +
+  
+  
+  # Mise en forme
+  x_date_4ans +
+  scale_y_continuous(name = "Pourcentage d'arbre en fleur", sec.axis = sec_axis(~., name = "Rg X100 (m³/m³)")) +
+  scale_color_manual(values = c("Signal de floraison réel" = "#984EA3", 
+                                "Signal de floraison traité" = "grey40" ,"Rg 15J" = "#FC8D62")) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust = 1, size = 8)) +
+  labs(
+    title = "Rayonnement globale incident moyen tous les 15 jours  et pourcentage de floraison au cours du suivi phénologique de Couma guianensis",
+    x = "Dates",
+    color = "Légende"
+  )
+
+
+# Graphique Rg 30J et floraison #
+ggplot() + 
+  geom_line(data = data_signal_gui, aes(x = date, y = signal_gui, color = "Signal de floraison réel"), linewidth = 0.7) +
+  geom_line(data = data_signal_gui, aes(x = date, y = moyenne_mobile_gui, color = "Signal de floraison traité"), linewidth = 0.5) +
+  geom_line(data = Rg, aes(x = date, y = moyenne_mobile_Rg_30, color = "Rg 30J"), linewidth = 0.7) +
+  
+  # Debut/maximum/fin des pics de floraison
+  geom_vline(xintercept = dates_gui[dates_max_gui],
+             col = "#984EA3" , 
+             linetype = "dashed", linewidth = 0.7) + 
+  geom_vline(xintercept = dates_gui[dates_begin_gui],
+             col = "black", linetype = "dotdash", linewidth = 0.5) +
+  geom_vline(xintercept = dates_gui[dates_end_gui],
+             col = "black", linetype = "dotdash", linewidth = 0.5) +
+  annotate("text",x = dates_gui[dates_max_gui]+10, 
+           y= data_signal_gui$prop[dates_max_gui]+7,label = paste(round(amplitude_real_gui,1),"%"),
+           col = "black") +
+  
+  # # Maximums des pics de Rg
+  geom_vline(xintercept = dates_Rg[dates_max_Rg_30J],
+             col = "#FC8D62" ,
+             linetype = "dashed", linewidth = 0.7) +
+  annotate("text",x = dates_Rg[dates_max_Rg_30J],
+           y= moyenne_mobile_Rg_30[dates_max_Rg_30J]+2,label = paste(round(amplitude_real_Rg_30,1)),
+           col = "black") +
+  
+  
+  # Mise en forme
+  x_date_4ans +
+  scale_y_continuous(name = "Pourcentage d'arbre en fleur", sec.axis = sec_axis(~., name = "Rg X100 (m³/m³)")) +
+  scale_color_manual(values = c("Signal de floraison réel" = "#984EA3", "Signal de floraison traité" = "black" ,"Rg 30J" = "#FC8D62")) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust = 1, size = 8)) +
+  labs(
+    title = "Rayonnement globale incident de la dernière trentaine de jour et pourcentage de floraison au cours du suivi phénologique de Couma guianensis",
+    x = "Dates",
+    color = "Légende"
+  )
+
+
+
+# Moronobea coccinea #
+# Graphique Rg 15J et floraison #
+ggplot() + 
+  geom_line(data = data_signal_cocci, aes(x = date, y = signal_cocci, color = "Signal de floraison réel"), linewidth = 0.7) +
+  geom_line(data = data_signal_cocci, aes(x = date, y = moyenne_mobile_cocci, color = "Signal de floraison traité"), linewidth = 0.5) +
+  geom_line(data = Rg, aes(x = date, y = moyenne_mobile_Rg_15, color = "Rg 15J"), linewidth = 0.7) +
+  
+  # Debut/maximum/fin des pics de floraison
+  geom_vline(xintercept = dates_cocci[dates_max_cocci],
+             col = "#984EA3" , 
+             linetype = "dashed", linewidth = 0.7) + 
+  geom_vline(xintercept = dates_cocci[dates_begin_cocci],
+             col = "black", linetype = "dotdash", linewidth = 0.5) +
+  geom_vline(xintercept = dates_cocci[dates_end_cocci],
+             col = "black", linetype = "dotdash", linewidth = 0.5) +
+  annotate("text",x = dates_cocci[dates_max_cocci]+10, 
+           y= data_signal_cocci$prop[dates_max_cocci]+7,label = paste(round(amplitude_real_cocci,1),"%"),
+           col = "black") +
+  
+  # Maximums des pics de Rg
+  geom_vline(xintercept = dates_Rg[dates_max_Rg_15],
+             col = "#FC8D62" ,
+             linetype = "dashed", linewidth = 0.7) +
+  annotate("text",x = dates_Rg[dates_max_Rg_15],
+           y= moyenne_mobile_Rg_15[dates_max_Rg_15]+5,label = paste(round(amplitude_real_Rg_15,1)),
+           col = "black") +
+  
+  
+  # Mise en forme
+  x_date_4ans +
+  scale_y_continuous(name = "Pourcentage d'arbre en fleur", sec.axis = sec_axis(~., name = "Rg X100 (m³/m³)")) +
+  scale_color_manual(values = c("Signal de floraison réel" = "#984EA3", 
+                                "Signal de floraison traité" = "grey40" ,"Rg 15J" = "#FC8D62")) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust = 1, size = 8)) +
+  labs(
+    title = "Rayonnement globale incident moyen tous les 15 jours  et pourcentage de floraison au cours du suivi phénologique de Moronobea coccinea",
+    x = "Dates",
+    color = "Légende"
+  )
+
+
+# Graphique Rg 30J et floraison #
+ggplot() + 
+  geom_line(data = data_signal_cocci, aes(x = date, y = signal_cocci, color = "Signal de floraison réel"), linewidth = 0.7) +
+  geom_line(data = data_signal_cocci, aes(x = date, y = moyenne_mobile_cocci, color = "Signal de floraison traité"), linewidth = 0.5) +
+  geom_line(data = Rg, aes(x = date, y = moyenne_mobile_Rg_30, color = "Rg 30J"), linewidth = 0.7) +
+  
+  # Debut/maximum/fin des pics de floraison
+  geom_vline(xintercept = dates_cocci[dates_max_cocci],
+             col = "#984EA3" , 
+             linetype = "dashed", linewidth = 0.7) + 
+  geom_vline(xintercept = dates_cocci[dates_begin_cocci],
+             col = "black", linetype = "dotdash", linewidth = 0.5) +
+  geom_vline(xintercept = dates_cocci[dates_end_cocci],
+             col = "black", linetype = "dotdash", linewidth = 0.5) +
+  annotate("text",x = dates_cocci[dates_max_cocci]+10, 
+           y= data_signal_cocci$prop[dates_max_cocci]+7,label = paste(round(amplitude_real_cocci,1),"%"),
+           col = "black") +
+  
+  # # Maximums des pics de Rg
+  geom_vline(xintercept = dates_Rg[dates_max_Rg_30J],
+             col = "#FC8D62" ,
+             linetype = "dashed", linewidth = 0.7) +
+  annotate("text",x = dates_Rg[dates_max_Rg_30J],
+           y= moyenne_mobile_Rg_30[dates_max_Rg_30J]+2,label = paste(round(amplitude_real_Rg_30,1)),
+           col = "black") +
+  
+  
+  # Mise en forme
+  x_date_4ans +
+  scale_y_continuous(name = "Pourcentage d'arbre en fleur", sec.axis = sec_axis(~., name = "Rg X100 (m³/m³)")) +
+  scale_color_manual(values = c("Signal de floraison réel" = "#984EA3", "Signal de floraison traité" = "black" ,"Rg 30J" = "#FC8D62")) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust = 1, size = 8)) +
+  labs(
+    title = "Rayonnement globale incident de la dernière trentaine de jour et pourcentage de floraison au cours du suivi phénologique de Moronobea coccinea",
+    x = "Dates",
+    color = "Légende"
+  )
+
+
+
 
 # Platonia insignis #
 
@@ -2402,13 +2726,13 @@ ggplot() +
            y= data_signal_ins$prop[dates_max_ins]+7,label = paste(round(amplitude_real_ins,1),"%"),
            col = "black") +
   
-  # # # Maximums des pics de Rg
-  # geom_vline(xintercept = dates_Rg[dates_max_Rg_30J],
-  #            col = "#FC8D62" ,
-  #            linetype = "dashed", linewidth = 0.7) +
-  # annotate("text",x = dates_Rg[dates_max_Rg_30J],
-  #          y= moyenne_mobile_Rg_30[dates_max_Rg_30J]+2,label = paste(round(amplitude_real_Rg_30,1)),
-  #          col = "black") +
+  # # Maximums des pics de Rg
+  geom_vline(xintercept = dates_Rg[dates_max_Rg_30J],
+             col = "#FC8D62" ,
+             linetype = "dashed", linewidth = 0.7) +
+  annotate("text",x = dates_Rg[dates_max_Rg_30J],
+           y= moyenne_mobile_Rg_30[dates_max_Rg_30J]+2,label = paste(round(amplitude_real_Rg_30,1)),
+           col = "black") +
   
   
   # Mise en forme
@@ -3410,7 +3734,7 @@ cor.test(Flo_climat_gui_ACP$prop, Flo_climat_gui_ACP$Temp_15J, method = "pearson
 
 
 # Visualisation des variables et de leurs relations
-pairs.panels(Flo_climat_gui_acp[,c("prop","Rain_15J", "Rain_30J", "Hr_15J", "Hr_30J", "Rg_15J", "Rg_30J", 
+pairs.panels(Flo_climat_gui_ACP[,c("prop","Rain_15J", "Rain_30J", "Hr_15J", "Hr_30J", "Rg_15J", "Rg_30J", 
                                    "ETP_15J", "ETP_30J", "Temp_15J", "Temp_30J", "VWC_15J", "VWC_30J")], 
              method = "pearson", # correlation method
              hist.col = "#00AFBB",
@@ -3419,8 +3743,8 @@ pairs.panels(Flo_climat_gui_acp[,c("prop","Rain_15J", "Rain_30J", "Hr_15J", "Hr_
 )
 
 # Model
-ACP_gui <- dudi.pca(Flo_climat_gui_acp[,c("prop","Rain_15J", "Rain_30J", "Hr_15J", "Hr_30J", "Rg_15J", "Rg_30J", 
-                                          "ETP_15J", "ETP_30J", "Temp_15J", "Temp_30J", "VWC_15J", "VWC_30J")],scale = T, center = T, scannf = F, nf = 2 )
+ACP_gui <- dudi.pca(Flo_climat_gui_ACP[,c("prop","Rain_15J", "Rain_30J", "Hr_15J", "Hr_30J", "Rg_15J", "Rg_30J", 
+                                          "Temp_15J", "Temp_30J", "VWC_15J", "VWC_30J")],scale = T, center = T, scannf = F, nf = 2 )
 
 # Calcul des % de chaque axe
 pc_gui <- round(ACP_gui$eig/sum(ACP_gui$eig)*100, 2)
@@ -3476,7 +3800,7 @@ pheno2 %>%
   C_gui
 
 # Toutes les dates pour la GLM
-all_dates_gui_GLM <- seq(min(C_gui$date, climat$dates), max(C_gui$date, climat$dates), by = "day")
+all_dates_gui_GLM <- seq(min(C_gui$date, climat$date), max(C_gui$date, climat$date), by = "day")
 
 # Compléter les tibbles avec les dates manquantes
 C_gui %>%
@@ -3516,11 +3840,16 @@ scaled_vars <- scale(Flo_climat_gui_GLM[,c("Rain_15J", "Rain_30J", "Hr_15J", "Hr
 Flo_climat_gui_GLM <- cbind(Flo_climat_gui_GLM[,"Flo"], as.data.frame(scaled_vars))
 
 # Model
-glm_gui <- glm(Flo ~ Rain_15J+ Rain_30J+ Hr_15J+ Hr_30J+ Rg_15J+ Rg_30J+ 
-                 ETP_15J+ ETP_30J+ Temp_15J+ Temp_30J+ VWC_15J+ VWC_30J, data = Flo_climat_gui_GLM, family = "binomial")
+glm_gui <- glm(Flo ~Temp_15J+ Temp_30J+ VWC_15J+ VWC_30J, data = Flo_climat_gui_GLM, family = "binomial")
 summary(glm_gui)
 anova(glm_gui)
 
+glm_gui_full <- glm(Flo ~Temp_15J+ Temp_30J+ VWC_15J+ VWC_30J+ 
+                      Rain_15J+ Rain_30J+ Hr_15J+ Hr_30J+
+                      ETP_15J+ ETP_30J+ Rg_15J+ Rg_30J, 
+                    data = Flo_climat_gui_GLM, family = "binomial")
+summary(glm_gui_full)
+anova(glm_gui_full)
 
 ## Correlation croisee ##
 
@@ -3581,7 +3910,8 @@ ccf(flo_gui,Rain_30,lag.max = 1500)
 data_signal_cocci
 
 # Assemblement des dates floraison et dates des variables climatiques
-all_dates_cocci_ACP <- seq(min(data_signal_cocci$date, climat$dates), max(data_signal_cocci$date, climat$dates), by = "day")
+all_dates_cocci_ACP <- seq(min(data_signal_cocci$date, climat$date), 
+                           max(data_signal_cocci$date, climat$date), by = "day")
 
 # Ajout de toutes les dates aux objets
 data_signal_cocci %>%
@@ -3627,10 +3957,10 @@ Flo_climat_cocci_ACP %>%
 
 
 # Tests de correlation entre la proportion d'individus en fleur et les variables climatiques
-cor.test(Flo_climat_cocci_ACP$prop, Flo_climat_cocci_ACP$Rg_30J, method = "pearson") 
+cor.test(Flo_climat_cocci_ACP$prop, Flo_climat_cocci_ACP$Rg_30J, method = "pearson")  # Non significatif
 cor.test(Flo_climat_cocci_ACP$prop, Flo_climat_cocci_ACP$Rain_30J, method = "pearson") # Non significatif
 cor.test(Flo_climat_cocci_ACP$prop, Flo_climat_cocci_ACP$VWC_30J, method = "pearson") # Non significatif 
-cor.test(Flo_climat_cocci_ACP$prop, Flo_climat_cocci_ACP$Hr_30J, method = "pearson") 
+cor.test(Flo_climat_cocci_ACP$prop, Flo_climat_cocci_ACP$Hr_30J, method = "pearson") # Non significatif
 cor.test(Flo_climat_cocci_ACP$prop, Flo_climat_cocci_ACP$ETP_30J, method = "pearson") # Non significatif
 cor.test(Flo_climat_cocci_ACP$prop, Flo_climat_cocci_ACP$Temp_30J, method = "pearson") # Non significatif
 
@@ -3643,8 +3973,8 @@ cor.test(Flo_climat_cocci_ACP$prop, Flo_climat_cocci_ACP$Temp_15J, method = "pea
 
 
 # Visualisation des variables et de leurs relations
-pairs.panels(Flo_climat_cocci_acp[,c("prop","Rain_15J", "Rain_30J", "Hr_15J", "Hr_30J", "Rg_15J", "Rg_30J", 
-                                     "ETP_15J", "ETP_30J", "Temp_15J", "Temp_30J", "VWC_15J", "VWC_30J")], 
+pairs.panels(Flo_climat_cocci_ACP[,c("prop","Rain_15J", "Rain_30J", "Hr_15J", "Hr_30J", "Rg_15J", "Rg_30J", 
+                                     "Temp_15J", "Temp_30J", "VWC_15J", "VWC_30J")], 
              method = "pearson", # correlation method
              hist.col = "#00AFBB",
              density = TRUE,  # show density plots
@@ -3652,8 +3982,8 @@ pairs.panels(Flo_climat_cocci_acp[,c("prop","Rain_15J", "Rain_30J", "Hr_15J", "H
 )
 
 # Model
-ACP_cocci <- dudi.pca(Flo_climat_cocci_acp[,c("prop","Rain_15J", "Rain_30J", "Hr_15J", "Hr_30J", "Rg_15J", "Rg_30J", 
-                                              "ETP_15J", "ETP_30J", "Temp_15J", "Temp_30J", "VWC_15J", "VWC_30J")],scale = T, center = T, scannf = F, nf = 2 )
+ACP_cocci <- dudi.pca(Flo_climat_cocci_ACP[,c("prop","Rain_15J", "Rain_30J", "Hr_15J", "Hr_30J", "Rg_15J", "Rg_30J", 
+                                               "Temp_15J", "Temp_30J", "VWC_15J", "VWC_30J")],scale = T, center = T, scannf = F, nf = 2 )
 
 # Calcul des % de chaque axe
 pc_cocci <- round(ACP_cocci$eig/sum(ACP_cocci$eig)*100, 2)
@@ -3708,7 +4038,7 @@ pheno2 %>%
   M_cocci
 
 # Toutes les dates pour la GLM
-all_dates_cocci_GLM <- seq(min(M_cocci$date, climat$dates), max(M_cocci$date, climat$dates), by = "day")
+all_dates_cocci_GLM <- seq(min(M_cocci$date, climat$date), max(M_cocci$date, climat$date), by = "day")
 
 # Compléter les tibbles avec les dates manquantes
 M_cocci %>%
@@ -3748,12 +4078,12 @@ scaled_vars <- scale(Flo_climat_cocci_GLM[,c("Rain_15J", "Rain_30J", "Hr_15J", "
 Flo_climat_cocci_GLM <- cbind(Flo_climat_cocci_GLM[,"Flo"], as.data.frame(scaled_vars))
 
 # Model
-glm_cocci <- glm(Flo ~ Rain_15J+ Rain_30J+ Hr_15J+ Hr_30J+ Rg_15J+ Rg_30J+ 
-                 ETP_15J+ ETP_30J+ Temp_15J+ Temp_30J+ VWC_15J+ VWC_30J, data = Flo_climat_cocci_GLM, family = "binomial")
+glm_cocci <- glm(Flo ~  Rg_15J+ Rg_30J+Hr_30J+Hr_15J+ Rain_30J
+                  , data = Flo_climat_cocci_GLM, family = "binomial")
 summary(glm_cocci)
 anova(glm_cocci)
 
-
+Rain_15J+ Rain_30J+ Hr_15J+ Hr_30J+ETP_15J+ ETP_30J+Temp_15J+ Temp_30J+ VWC_15J+ VWC_30J
 ## Correlation croisee ##
 
 # Régulation des donnees de floraison a une donnee par jour avec une interpolation lineraire
@@ -3813,7 +4143,7 @@ ccf(flo_cocci,Rain_30,lag.max = 1500)
 data_signal_ins
 
 # Assemblement des dates floraison et dates des variables climatiques
-all_dates_ins_ACP <- seq(min(data_signal_ins$date, climat$dates), max(data_signal_ins$date, climat$dates), by = "day")
+all_dates_ins_ACP <- seq(min(data_signal_ins$date, climat$date), max(data_signal_ins$date, climat$date), by = "day")
 
 # Ajout de toutes les dates aux objets
 data_signal_ins %>%
@@ -3883,8 +4213,9 @@ pairs.panels(Flo_climat_ins_ACP,
 )
 
 # Model
-ACP_ins <- dudi.pca(Flo_climat_ins_acp[,c("prop","Rain_15J", "Rain_30J", "Hr_15J", "Hr_30J", "Rg_15J", "Rg_30J", 
-                                          "ETP_15J", "ETP_30J", "Temp_15J", "Temp_30J", "VWC_15J", "VWC_30J")],scale = T, center = T, scannf = F, nf = 2 )
+ACP_ins <- dudi.pca(Flo_climat_ins_ACP[,c("prop","Temp_15J", "Temp_30J","Rg_15J", 
+                                          "Rg_30J", "Rain_15J", "Rain_30J", "Hr_15J", 
+                                          "Hr_30J")],scale = T, center = T, scannf = F, nf = 2 )
 
 
 # Calcul des % de chaque axe
@@ -3941,7 +4272,7 @@ pheno2 %>%
   P_ins
 
 # Toutes les dates pour la GLM
-all_dates_ins_GLM <- seq(min(P_ins$date, climat$dates), max(P_ins$date, climat$dates), by = "day")
+all_dates_ins_GLM <- seq(min(P_ins$date, climat$date), max(P_ins$date, climat$date), by = "day")
 
 # Compléter les tibbles avec les dates manquantes
 P_ins %>%
@@ -3981,11 +4312,10 @@ scaled_vars <- scale(Flo_climat_ins_GLM[,c("Rain_15J", "Rain_30J", "Hr_15J", "Hr
 Flo_climat_ins_GLM <- cbind(Flo_climat_ins_GLM[,"Flo"], as.data.frame(scaled_vars))
 
 # Model
-glm_ins <- glm(Flo ~ Rain_15J+ Rain_30J+ Hr_15J+ Hr_30J+ Rg_15J+ Rg_30J+ 
-                 ETP_15J+ ETP_30J+ Temp_15J+ Temp_30J+ VWC_15J+ VWC_30J, data = Flo_climat_ins_GLM, family = "binomial")
+glm_ins <- glm(Flo ~  Rain_30J+ Hr_30J+Rg_15J+ Rg_30J+ 
+                 Temp_30J, data = Flo_climat_ins_GLM, family = "binomial")
 summary(glm_ins)
 anova(glm_ins)
-
 
 ## Correlation croisee ##
 
